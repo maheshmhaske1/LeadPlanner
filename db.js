@@ -23,6 +23,7 @@ const {
 //   user: Tuser,
 //   password: Tpassword,
 //   database: Tdatabase,
+//   multipleStatements: true,
 // });
 
 // ========== SERVER ========= //

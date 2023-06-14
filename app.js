@@ -8,6 +8,8 @@ var db = require("./db");
 
 var indexRouter = require("./routes/index");
 var blogRouter = require("./routes/blog.router");
+var userRouter = require("./routes/user.router");
+
 var app = express();
 
 // view engine setup
@@ -21,7 +23,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/blog", blogRouter);
+app.use("/api/admin/blog", blogRouter);
+app.use("/api/user", userRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
