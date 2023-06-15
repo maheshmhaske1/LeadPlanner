@@ -1,7 +1,7 @@
 const db = require("../db");
 const fs = require("fs");
 const { uploadBlogImg } = require("../middleware/upload");
-const { checkMandatoryFields } = require("../middleware/bodyCheck");
+const { checkMandatoryFields } = require("../middleware/validators");
 const { error } = require("console");
 
 // ============== BLOG APIS ============= //
@@ -9,7 +9,17 @@ exports.addBlog = async (req, res) => {
   const { title, url, description, route, image, tag, date, sections } =
     req.body;
 
-  const query = `INSERT INTO xx_blog SET tag=?,route=?, title=?,url=?,description=?,image=?,date=?`;
+  const query = `
+INSERT INTO xx_blog 
+SET 
+  tag = ?, 
+  route = ?, 
+  title = ?, 
+  url = ?, 
+  description = ?, 
+  image = ?, 
+  date = ?
+`;
   const values = [tag, route, title, url, description, image, date];
 
   await db.query(query, values, (error, response) => {
@@ -47,10 +57,13 @@ exports.addBlog = async (req, res) => {
 
 exports.getBlogs = async (req, res) => {
   const query = `
-  SELECT * FROM xx_blog
-  JOIN xx_blog_details 
-  ON xx_blog.id = xx_blog_details.blogid;
+SELECT 
+  * 
+FROM 
+  xx_blog 
+  JOIN xx_blog_details ON xx_blog.id = xx_blog_details.blogid
   `;
+
   await db.query(query, (error, response) => {
     if (error) {
       return res.json({
@@ -102,6 +115,7 @@ exports.removeBlog = async (req, res) => {
 
 exports.getBlog = async (req, res) => {
   const { blogId } = req.params;
+  await checkMandatoryFields({ blogId });
 
   const query = `
   SELECT * FROM xx_blog
@@ -123,10 +137,8 @@ exports.getBlog = async (req, res) => {
       });
     }
   });
-
-  await checkMandatoryFields({ blogId });
 };
-33;
+
 exports.getAllBlogTags = async (req, res) => {
   const query = `SELECT * FROM xx_blog_tag`;
 
@@ -171,7 +183,7 @@ exports.addBlogTag = async (req, res) => {
 };
 
 exports.addBlogImage = async (req, res) => {
-  uploadBlogImg(req, res, function (err) {
+  uploadBlogImg(req, res, function (error) {
     if (error) {
       return res.json({
         status: false,
@@ -192,7 +204,7 @@ exports.deleteBlogImage = async (req, res) => {
   const { blogImage } = req.params;
   const imagePath = `./public/blog/${blogImage}`;
 
-  fs.unlink(imagePath, (err) => {
+  fs.unlink(imagePath, (error) => {
     if (error) {
       return res.json({
         status: false,

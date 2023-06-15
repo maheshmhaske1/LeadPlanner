@@ -1,3 +1,5 @@
+var validator = require('validator');
+
 exports.checkMandatoryFields = async (res, values) => {
   const missingFields = [];
 
@@ -8,7 +10,7 @@ exports.checkMandatoryFields = async (res, values) => {
   }
 
   if (missingFields.length > 0) {
-    return res.status(400).json({
+    return res.json({
       status: false,
       message: `these mandatory fields are missing: ${missingFields.join(
         ", "
@@ -16,6 +18,14 @@ exports.checkMandatoryFields = async (res, values) => {
       missingFields: missingFields,
     });
   }
-
-
 };
+
+exports.validateEmail = async (res, email) => {
+  if (!validator.isEmail(email)) {
+    return res.json({
+      status: false,
+      message: `${email} this is not an valid email`
+    })
+  }
+  else { }
+}
