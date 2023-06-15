@@ -4,25 +4,24 @@ const { uploadBlogImg } = require("../middleware/upload");
 const { checkMandatoryFields } = require("../middleware/validators");
 const { error } = require("console");
 
-// ============== BLOG APIS ============= //
 exports.addBlog = async (req, res) => {
   const { title, url, description, route, image, tag, date, sections } =
     req.body;
 
   const query = `
-INSERT INTO xx_blog 
-SET 
-  tag = ?, 
-  route = ?, 
-  title = ?, 
-  url = ?, 
-  description = ?, 
-  image = ?, 
-  date = ?
-`;
+    INSERT INTO xx_blog 
+    SET 
+      tag = ?, 
+      route = ?, 
+      title = ?, 
+      url = ?, 
+      description = ?, 
+      image = ?, 
+      date = ?
+  `;
   const values = [tag, route, title, url, description, image, date];
 
-  await db.query(query, values, (error, response) => {
+  await db.query(query, values, async (error, response) => {
     if (error) {
       return res.json({
         status: false,
@@ -31,29 +30,44 @@ SET
       });
     }
 
-    sections.map(async (section, i) => {
-      section.blogid = response.insertId;
-
-      const query = `INSERT INTO xx_blog_details SET ?`;
-      const values = section;
-
-      await db.query(query, values, (error, response) => {
-        if (error) {
-          return res.json({
-            status: false,
-            message: "something went wrong",
-            error: error,
-          });
-        }
-      });
+    let blogid = response.insertId
+    let addSectionQuery = "";
+    sections.forEach((section) => {
+      addSectionQuery += `INSERT INTO xx_blog_details (blogid, heading, section, image, sort) VALUES (${response.insertId}, '${section.heading}', '${section.section}', '${section.image}', ${section.sort}); `;
+    });
+    await db.query(addSectionQuery, (error, response) => {
+      if (error) {
+        return res.json({
+          status: false,
+          message: "something went wrong",
+          error: error,
+        });
+      }
+      else {
+        return res.json({
+          status: true,
+          message: "Blog added successfully",
+          data: { id: blogid }
+        });
+      }
     });
 
-    return res.json({
-      status: true,
-      message: "blog Added successfully",
-    });
+    // try {
+    //   return res.json({
+    //     status: true,
+    //     message: "Blog added successfully",
+    //   });
+    // } catch (error) {
+    //   return res.json({
+    //     status: false,
+    //     message: "Something went wrong",
+    //     error: error,
+    //   });
+    // }
   });
 };
+
+
 
 exports.getBlogs = async (req, res) => {
   const query = `
