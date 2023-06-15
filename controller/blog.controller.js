@@ -67,8 +67,6 @@ exports.addBlog = async (req, res) => {
   });
 };
 
-
-
 exports.getBlogs = async (req, res) => {
   const query = `
 SELECT 
@@ -126,6 +124,38 @@ exports.removeBlog = async (req, res) => {
     }
   });
 };
+
+
+exports.editBlog = async (req, res) => {
+  const { blogId } = req.params;
+  let update_data = req.body;
+
+  const query = `UPDATE xx_blog SET ? WHERE id=${blogId}`;
+  const values = [update_data]
+
+  db.query(query, values, async (error, response) => {
+    if (error) {
+      return res.json({
+        status: false,
+        message: "something went wrong",
+        error,
+      });
+    }
+
+    if (response.affectedRows > 0) {
+      return res.json({
+        status: true,
+        message: "record updated successfully",
+      });
+    } else if (response.affectedRows == 0) {
+      return res.json({
+        status: false,
+        message: "invalid blogid id",
+      });
+    }
+  });
+};
+
 
 exports.getBlog = async (req, res) => {
   const { blogId } = req.params;

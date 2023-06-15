@@ -6,6 +6,7 @@ const blogController = require("../controller/blog.controller");
 router.post("/add", blogController.addBlog);
 router.get("/get", blogController.getBlogs);
 router.get("/get/:blogId", blogController.getBlog);
+router.put("/edit/:blogId", blogController.editBlog);
 router.delete("/delete/:blogId", blogController.removeBlog);
 router.post("/addImg", blogController.addBlogImage);
 router.delete("/deleteImg/:blogImage", blogController.deleteBlogImage);
