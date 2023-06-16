@@ -27,5 +27,4 @@ exports.validateEmail = async (res, email) => {
       message: `${email} this is not an valid email`
     })
   }
-  else { }
 }

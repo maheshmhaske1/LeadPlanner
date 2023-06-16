@@ -125,7 +125,6 @@ exports.removeBlog = async (req, res) => {
   });
 };
 
-
 exports.editBlog = async (req, res) => {
   const { blogId } = req.params;
   let update_data = req.body;
@@ -155,7 +154,6 @@ exports.editBlog = async (req, res) => {
     }
   });
 };
-
 
 exports.getBlog = async (req, res) => {
   const { blogId } = req.params;
