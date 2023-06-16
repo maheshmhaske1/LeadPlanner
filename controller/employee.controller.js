@@ -124,7 +124,7 @@ exports.updateEmployee = async (req, res) => {
                 message: "something went wrong"
             })
         }
-        else if(response.affectedRows == 0){
+        else if (response.affectedRows == 0) {
             return res.json({
                 status: false,
                 message: `employeeId ${employeeId} is invalid`
@@ -138,7 +138,6 @@ exports.updateEmployee = async (req, res) => {
         }
     })
 }
-
 
 exports.getEmployee = async (req, res) => {
     try {
@@ -166,6 +165,34 @@ exports.getEmployee = async (req, res) => {
 
     }
     catch (error) {
+        return res.json({
+            status: false,
+            message: "something went wrong",
+            error: error
+        })
+    }
+}
+
+exports.getAll = async (req, res) => {
+    try {
+        const query = `select * from employee`
+        db.query(query, (error, response) => {
+            if (error) {
+                return res.json({
+                    status: false,
+                    message: "something went wrong", error
+                })
+            }
+            else {
+                return res.json({
+                    status: true,
+                    message: "employee details",
+                    data: response
+                })
+            }
+        })
+
+    } catch (error) {
         return res.json({
             status: false,
             message: "something went wrong",
