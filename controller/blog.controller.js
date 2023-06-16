@@ -219,7 +219,7 @@ exports.addBlogTag = async (req, res) => {
       });
     } else if (response.affectedRows > 0) {
       return res.json({
-        status: false,
+        status: true,
         message: "tag added",
       });
     }
