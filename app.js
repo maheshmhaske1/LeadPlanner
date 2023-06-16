@@ -9,6 +9,7 @@ var db = require("./db");
 var indexRouter = require("./routes/index");
 var blogRouter = require("./routes/blog.router");
 var userRouter = require("./routes/user.router");
+var employeeRouter = require("./routes/employee.router");
 
 var app = express();
 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/api/admin/blog", blogRouter);
 app.use("/api/user", userRouter);
+app.use("/api/employee", employeeRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

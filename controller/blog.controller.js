@@ -238,7 +238,7 @@ exports.addBlogImage = async (req, res) => {
     const imageName = req.file.filename;
     return res.json({
       status: true,
-      message: "something went wrong",
+      message: "image added successfully",
       data: imageName,
     });
   });
