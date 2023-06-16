@@ -133,3 +133,36 @@ exports.updateEmployee = async (req, res) => {
 }
 
 
+exports.getEmployee = async (req, res) => {
+    try {
+        const { employeeId } = req.params
+        validator.checkMandatoryFields(employeeId)
+
+        const query = `SELECT * FROM employee where id=?`
+        const values = [employeeId]
+
+        db.query(query, values, (error, response) => {
+            if (error) {
+                return res.json({
+                    status: false,
+                    message: "something went wrong", error
+                })
+            }
+            else {
+                return res.json({
+                    status: true,
+                    message: "employee details",
+                    data: response
+                })
+            }
+        })
+
+    }
+    catch (error) {
+        return res.json({
+            status: false,
+            message: "something went wrong",
+            error: error
+        })
+    }
+}
