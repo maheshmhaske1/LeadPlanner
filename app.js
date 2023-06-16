@@ -25,6 +25,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use('/blog', express.static(path.join(__dirname, 'public/blog'))) // PROFILE IMAGES
+
 app.use("/", indexRouter);
 app.use("/api/admin/blog", blogRouter);
 app.use("/api/user", userRouter);
