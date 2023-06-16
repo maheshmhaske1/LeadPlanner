@@ -117,10 +117,17 @@ exports.updateEmployee = async (req, res) => {
     const values = [update_data, employeeId]
 
     await db.query(query, values, (error, response) => {
+        console.log(response)
         if (error) {
             return res.json({
                 status: false,
                 message: "something went wrong"
+            })
+        }
+        else if(response.affectedRows == 0){
+            return res.json({
+                status: false,
+                message: `employeeId ${employeeId} is invalid`
             })
         }
         else if (response.affectedRows > 0) {
