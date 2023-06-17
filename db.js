@@ -17,23 +17,23 @@ const {
 } = process.env;
 
 // ========== TESTING ========= //
-const db = mysql.createConnection({
-  host: Thost,
-  port: 3306,
-  user: Tuser,
-  password: Tpassword,
-  database: Tdatabase,
-  multipleStatements: true,
-});
+// const db = mysql.createConnection({
+//   host: Thost,
+//   port: 3306,
+//   user: Tuser,
+//   password: Tpassword,
+//   database: Tdatabase,
+//   multipleStatements: true,
+// });
 
 // ========== SERVER ========= //
-// const db = mysql.createConnection({
-//   host: Dhost,
-//   port: 3306,
-//   user: Duser,
-//   password: Dpassword,
-//   database: Ddatabase,
-// });
+const db = mysql.createConnection({
+  host: Dhost,
+  port: 3306,
+  user: Duser,
+  password: Dpassword,
+  database: Ddatabase,
+});
 
 db.connect((error) => {
   if (error) {
