@@ -1,168 +1,103 @@
-const { response } = require("express");
-const db = require("../db");
+// const db = require("../db");
+const SQL = require('../middleware/sqlQueryHandler')
 const validator = require("../middleware/validators");
 
 exports.createEmployee = async (req, res) => {
+    try {
+        const {
+            first_name, last_name, dob, gender, hire_date, emp_no, department,
+            salary, personal_email, mobile, address1, address2, city, state, country,
+            postcode, social1, social2, tax_id, aadhaar_no, position, attr1, attr2,
+        } = req.body;
 
-    const {
-        first_name,
-        last_name,
-        dob,
-        gender,
-        hire_date,
-        emp_no,
-        department,
-        salary,
-        personal_email,
-        mobile,
-        address1,
-        address2,
-        city,
-        state,
-        country,
-        postcode,
-        social1,
-        social2,
-        tax_id,
-        aadhaar_no,
-        position,
-        attr1,
-        attr2,
-    } = req.body;
+        await validator.checkMandatoryFields(res, {
+            first_name, last_name, dob, gender, hire_date, emp_no,
+            department, salary, personal_email, mobile
+        })
 
-    await validator.checkMandatoryFields(res, {
-        first_name,
-        last_name,
-        dob,
-        gender,
-        hire_date,
-        emp_no,
-        department,
-        salary,
-        personal_email,
-        mobile
-    })
+        validator.validateEmail(res, personal_email)
 
-    validator.validateEmail(res, personal_email)
-
-    const query = `
-    INSERT INTO employee
-        (first_name,
-         last_name,
-         dob,
-         gender,
-         hire_date,
-         emp_no,
-         department,
-         salary,
-         personal_email,
-         mobile,
-         address1,
-         address2,
-         city,
-         state,
-         country,
-         postcode,
-         social1,
-         social2,
-         tax_id,
-         aadhaar_no,
-         position,
-         attr1,
-         attr2)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
-    const values = [
-        first_name, last_name, dob, gender, hire_date, emp_no, department,
-        salary, personal_email, mobile, address1, address2, city, state,
-        country, postcode, social1, social2, tax_id, aadhaar_no, position,
-        attr1, attr2
-    ];
-
-    await db.query(query, values, (error, response) => {
-        console.log(response)
-        if (error) {
-            return res.json({
-                status: false,
-                message: 'something went wrong',
-                error: error
-            })
-        }
-
-        else if (response.affectedRows > 0) {
-            return res.json({
-                status: true,
-                message: 'employee created',
-                data: { id: response.insertId }
-            })
-        }
-    })
+        SQL.insert('employee', req.body, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: false,
+                    error: error
+                })
+            }
+            if (results.affectedRows > 0) {
+                return res.json({
+                    status: true,
+                    message: 'employee details updated successfully', results
+                })
+            }
+        });
+    }
+    catch (error) {
+        return res.json({
+            status: false,
+            message: "something went wrong",
+            error: error
+        })
+    }
 };
 
 exports.updateEmployee = async (req, res) => {
-    const { employeeId } = req.params
-    const update_data = req.body
+    try {
+        const { employeeId } = req.params
+        const update_data = req.body
 
-    await validator.checkMandatoryFields(res, {
-        employeeId
-    })
+        await validator.checkMandatoryFields(res, {
+            employeeId
+        })
 
-    if (update_data.id) {
+        if (update_data.id) {
+            return res.json({
+                status: false,
+                message: "id cannot be edit"
+            })
+        }
+
+        SQL.update('employee', update_data, `id=${employeeId}`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: false,
+                    error: error
+                })
+            }
+            if (results.affectedRows > 0) {
+                return res.json({
+                    status: true,
+                    message: 'employee details updated successfully'
+                })
+            }
+        })
+    }
+    catch (error) {
         return res.json({
             status: false,
-            message: "id cannot be edit"
+            message: "something went wrong",
+            error: error
         })
     }
 
-    const query = `update employee SET ? WHERE id=?`
-    const values = [update_data, employeeId]
-
-    await db.query(query, values, (error, response) => {
-        console.log(response)
-        if (error) {
-            return res.json({
-                status: false,
-                message: "something went wrong"
-            })
-        }
-        else if (response.affectedRows == 0) {
-            return res.json({
-                status: false,
-                message: `employeeId ${employeeId} is invalid`
-            })
-        }
-        else if (response.affectedRows > 0) {
-            return res.json({
-                status: true,
-                message: "record updated successfully"
-            })
-        }
-    })
 }
 
 exports.getEmployee = async (req, res) => {
     try {
-        const { employeeId } = req.params
-        validator.checkMandatoryFields(employeeId)
-
-        const query = `SELECT * FROM employee where id=?`
-        const values = [employeeId]
-
-        db.query(query, values, (error, response) => {
+        const employeeId = req.params.employeeId;
+        SQL.get('employee', '', `id=${employeeId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
-                    message: "something went wrong", error
+                    error: error
                 })
             }
-            else {
-                return res.json({
-                    status: true,
-                    message: "employee details",
-                    data: response
-                })
-            }
-        })
-
+            return res.json({
+                status: true,
+                message: "employee details",
+                data: results
+            })
+        });
     }
     catch (error) {
         return res.json({
@@ -175,24 +110,21 @@ exports.getEmployee = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-        const query = `select * from employee`
-        db.query(query, (error, response) => {
+        SQL.get('employee', '', '', (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
-                    message: "something went wrong", error
+                    error: error
                 })
             }
-            else {
-                return res.json({
-                    status: true,
-                    message: "employee details",
-                    data: response
-                })
-            }
-        })
-
-    } catch (error) {
+            return res.json({
+                status: true,
+                message: "employee details",
+                data: results
+            })
+        });
+    }
+    catch (error) {
         return res.json({
             status: false,
             message: "something went wrong",
