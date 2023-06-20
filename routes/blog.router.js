@@ -9,7 +9,7 @@ const blogController = require("../controller/blog.controller");
 
 // ============================== blog api ============================== //
 router.post("/add", blogController.addBlog);
-router.get("/get", session.checkSession, blogController.getBlogs);
+router.get("/get", blogController.getBlogs);
 router.get("/get/:blogId", blogController.getBlog);
 router.put("/edit/:blogId", blogController.editBlog);
 router.delete("/delete/:blogId", blogController.removeBlog);
