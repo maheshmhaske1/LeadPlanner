@@ -4,7 +4,7 @@ var router = express.Router();
 const auth = require('../middleware/auth')
 const session = require('../middleware/session')
 const auth_user = auth.authenticate_user
-const blogController = require("../controller/blog.controller");
+const blogController = require("../controller/blog");
 
 
 // ============================== blog api ============================== //

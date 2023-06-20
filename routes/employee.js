@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const employeeController = require('../controller/employee.controller')
+const employeeController = require('../controller/employee')
 
 router.post('/add', employeeController.createEmployee)
 router.put('/edit/:employeeId', employeeController.updateEmployee)

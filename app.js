@@ -11,9 +11,9 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 
 var indexRouter = require("./routes/index");
-var blogRouter = require("./routes/blog.router");
-var userRouter = require("./routes/user.router");
-var employeeRouter = require("./routes/employee.router");
+var blogRouter = require("./routes/blog");
+var userRouter = require("./routes/user");
+var employeeRouter = require("./routes/employee");
 
 const { host, user, password, database } = process.env;
 
