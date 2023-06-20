@@ -3,6 +3,14 @@ const jwt = require('jsonwebtoken');
 const validators = require('validator')
 const db = require("../db");
 const validator = require("../middleware/validators");
+const validate = require('validator')
+const Email = require('../middleware/mail')
+const auth = require('../middleware/auth')
+
+const { jwtSecret } = process.env
+jwtOptions = {
+    expiresIn: '1h', // Token expiration time
+};
 
 exports.createAccount = async (req, res) => {
     try {
@@ -77,6 +85,7 @@ exports.createAccount = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+
     const { username, password } = req.body;
     await validator.checkMandatoryFields(req, { username, password })
 
@@ -114,7 +123,6 @@ GROUP BY
     const values = [username, username];
 
     db.query(query, values, (error, results) => {
-        console.log("results ==>", results);
         if (error) {
             return res.json({
                 status: false,
@@ -129,13 +137,17 @@ GROUP BY
                 });
             } else {
                 const storedPassword = results[0].password;
-                bcrypt.compare(password, storedPassword, (err, passwordMatch) => {
+                bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
+                    const token = await auth.generate_token_user(results[0].id, results[0].email)
+                    console.log(token)
+                    results[0].token = token
                     if (passwordMatch) {
+                        req.session.user = results[0]
                         delete results[0].password
                         return res.json({
                             status: true,
                             message: 'Logged in',
-                            data: results
+                            data: results[0]
                         });
                     } else {
                         return res.json({
@@ -150,4 +162,193 @@ GROUP BY
     });
 };
 
+exports.logOut = async (req, res) => {
+    if (req.session) {
+        req.session.destroy((err) => {
+            if (err) {
+                console.log('Error destroying session:', err);
+                return res.json({
+                    status: false,
+                    message: "error while Logging you out"
+                })
+            }
+        });
+    }
+    return res.json({
+        status: true,
+        message: "Logged out successfully"
+    })
+}
 
+exports.sendOtp = async (req, res) => {
+    const { email } = req.body;
+
+    await validator.checkMandatoryFields(res, { email })
+
+    if (email)
+        if (!validate.isEmail(email)) {
+            return res.json({
+                success: false,
+                message: "Please enter a valid email"
+            });
+        }
+
+    db.query('select email from user where email=?', [email], (error, response) => {
+        if (error) {
+            return res.json({
+                success: false,
+                message: "something went wrong"
+            });
+        }
+        if (response.length == 0) {
+            return res.json({
+                status: false,
+                message: `this email ${email} is not registered`
+            })
+        }
+    })
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const isEmailSent = await Email.sendMail(email, 'Otp Verification', `Your OTP is: ${otp}`);
+    const sql = `INSERT INTO otps (email, otp, validUntill) VALUES (?, ?, ?)`;
+    const values = [email, otp, Date.now() + 600000];
+
+    db.query(`DELETE FROM otps WHERE email = ?`, [email], (error, response) => {
+        if (error) {
+            console.error('Error deleting OTP:', error);
+            return res.json({
+                success: false,
+                message: "Something went wrong while deleting the OTP",
+                error: error
+            });
+        }
+
+        db.query(sql, values, (err, result) => {
+            if (err) {
+                console.error('Error inserting OTP:', err);
+                return res.json({
+                    success: false,
+                    message: "Something went wrong while sending the OTP",
+                    error: err
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: `OTP sent to ${email}`
+            });
+        });
+    });
+};
+
+exports.verifyOTP = (req, res) => {
+    const { email, otp } = req.body;
+
+    validator.checkMandatoryFields(res, { email, otp })
+
+    if (email)
+        if (!validate.isEmail(email)) {
+            return res.json({
+                success: false,
+                message: "please enter valid emil"
+            })
+        }
+
+    const sql = 'SELECT otp, validUntill FROM otps WHERE email = ?';
+    const values = [email];
+
+    db.query(sql, values, (error, results) => {
+        if (error) {
+            console.error('Error verifying OTP:', error);
+            return res.json({
+                success: false,
+                message: "Error verifying OTP",
+            });
+        } else {
+            if (results.length > 0) {
+                const storedOTP = results[0].otp;
+                const validUntill = results[0].validUntill;
+
+                if (storedOTP === otp && validUntill > Date.now()) {
+                    return res.json({
+                        success: true,
+                        message: "OTP is valid",
+                    });
+                }
+                else if (storedOTP === otp && validUntill < Date.now()) {
+                    return res.json({
+                        success: false,
+                        message: "OTP Expired",
+                    });
+                }
+                else if (storedOTP != otp) {
+                    return res.json({
+                        success: false,
+                        message: "OTP not Matched",
+                    });
+                }
+            } else {
+                console.log('OTP not found');
+                return res.json({
+                    success: false,
+                    message: "OTP not found",
+                });
+            }
+        }
+    });
+};
+
+exports.forgotPassword = async (req, res) => {
+    const { email, otp, password } = req.body;
+
+    await validator.checkMandatoryFields(res, { email, otp, password })
+    if (email)
+        if (!validate.isEmail(email)) {
+            return res.json({
+                success: false,
+                message: "Please enter a valid email",
+            });
+        }
+
+
+    const sql = 'SELECT otp, validUntill FROM otps WHERE email = ?';
+    const values = [email];
+
+    db.query(sql, values, async (error, results) => {
+        if (error) {
+            console.error('Error verifying OTP:', error);
+            return res.json({
+                success: false,
+                message: "Error verifying OTP",
+            });
+        } else {
+            if (results.length > 0) {
+                const storedOTP = results[0].otp;
+                const validUntill = results[0].validUntill;
+                console.log("password ==>", password)
+
+                if (storedOTP === otp && validUntill > Date.now()) {
+                    const hashedPassword = await bcrypt.hash(password, 10);
+                    console.log(hashedPassword)
+                    db.query('update user SET password=? where email=?', [hashedPassword, email])
+                    return res.json({
+                        success: false,
+                        message: "Password updated",
+                    });
+                }
+                else if (storedOTP === otp && validUntill < Date.now()) {
+                    return res.json({
+                        success: false,
+                        message: "OTP Expired",
+                    });
+                }
+                else if (storedOTP != otp) {
+                    return res.json({
+                        success: false,
+                        message: "OTP not Matched",
+                    });
+                }
+            }
+        }
+    });
+}

@@ -1,10 +1,15 @@
 var express = require("express");
 var router = express.Router();
+
+const auth = require('../middleware/auth')
+const session = require('../middleware/session')
+const auth_user = auth.authenticate_user
 const blogController = require("../controller/blog.controller");
+
 
 // ============================== blog api ============================== //
 router.post("/add", blogController.addBlog);
-router.get("/get", blogController.getBlogs);
+router.get("/get", session.checkSession, blogController.getBlogs);
 router.get("/get/:blogId", blogController.getBlog);
 router.put("/edit/:blogId", blogController.editBlog);
 router.delete("/delete/:blogId", blogController.removeBlog);

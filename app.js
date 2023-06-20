@@ -6,14 +6,35 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mysql = require("mysql");
 var db = require("./db");
+const dotenv = require("dotenv").config();
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 
 var indexRouter = require("./routes/index");
 var blogRouter = require("./routes/blog.router");
 var userRouter = require("./routes/user.router");
 var employeeRouter = require("./routes/employee.router");
 
+const { host, user, password, database } = process.env;
+
 var app = express();
+
+const dbConfig = {
+  host: host,
+  user: user,
+  password: password,
+  database: database,
+};
+const sessionStore = new MySQLStore(dbConfig);
+
 app.use(cors())
+app.use(session({
+  secret: 'dmsaldkmaslkmalckmzxlckmflsdmfsdjgnsdlvlmzxcmzx',
+  resave: false,
+  saveUninitialized: true,
+  store: sessionStore,
+  cookie: { secure: false, maxAge: 86400000 } // Session expiration in milliseconds (i day)
+}));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

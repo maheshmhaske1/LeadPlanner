@@ -4,35 +4,21 @@ const mysql = require("mysql");
 const dotenv = require("dotenv").config();
 
 const {
-  Dhost,
-  Dport,
-  Duser,
-  Dpassword,
-  Ddatabase,
-  Thost,
-  Tport,
-  Tuser,
-  Tpassword,
-  Tdatabase,
+  host,
+  port,
+  user,
+  password,
+  database
 } = process.env;
 
-// ========== TESTING ========= //
-// const db = mysql.createConnection({
-//   host: Thost,
-//   port: 3306,
-//   user: Tuser,
-//   password: Tpassword,
-//   database: Tdatabase,
-//   multipleStatements: true,
-// });
 
 // ========== SERVER ========= //
 const db = mysql.createConnection({
-  host: Dhost,
+  host: host,
   port: 3306,
-  user: Duser,
-  password: Dpassword,
-  database: Ddatabase,
+  user:user,
+  password: password,
+  database: database,
 });
 
 db.connect((error) => {
