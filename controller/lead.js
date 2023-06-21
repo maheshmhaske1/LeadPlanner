@@ -5,19 +5,16 @@ const validator = require("../middleware/validators");
 exports.createLead = async (req, res) => {
     try {
         const {
-            first_name, last_name, dob, gender, hire_date, emp_no, department,
-            salary, personal_email, mobile, address1, address2, city, state, country,
-            postcode, social1, social2, tax_id, aadhaar_no, position, attr1, attr2,
+            company_name, registration_no, employees, gst_no, first_name,
+            last_name, type, address1, address2, city, state, country, pin, phone, phone1, email, website
         } = req.body;
 
-        await validator.checkMandatoryFields(res, {
-            first_name, last_name, dob, gender, hire_date, emp_no,
-            department, salary, personal_email, mobile
-        })
+        // await validator.checkMandatoryFields(res, {
+        //     first_name, last_name, company_name, registration_no, employees, gst_no,
+        //     type, salary, address1, city
+        // })
 
-        // validator.validateEmail(res, personal_email)
-
-        SQL.insert('employee', req.body, (error, results) => {
+        SQL.insert('lead', req.body, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -27,7 +24,7 @@ exports.createLead = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: true,
-                    message: 'employee details updated successfully', results
+                    message: 'lead added successfully', results
                 })
             }
         });
@@ -41,13 +38,13 @@ exports.createLead = async (req, res) => {
     }
 };
 
-exports.updateEmployee = async (req, res) => {
+exports.updateLead = async (req, res) => {
     try {
-        const { employeeId } = req.params
+        const { leadId } = req.params
         const update_data = req.body
 
         await validator.checkMandatoryFields(res, {
-            employeeId
+            leadId
         })
 
         if (update_data.id) {
@@ -57,7 +54,7 @@ exports.updateEmployee = async (req, res) => {
             })
         }
 
-        SQL.update('employee', update_data, `id=${employeeId}`, (error, results) => {
+        SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -67,7 +64,7 @@ exports.updateEmployee = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: true,
-                    message: 'employee details updated successfully'
+                    message: 'lead details updated successfully'
                 })
             }
         })
@@ -84,7 +81,7 @@ exports.updateEmployee = async (req, res) => {
 exports.get = async (req, res) => {
     try {
         const leadId = req.params.leadId;
-        SQL.get('employee', '', `id=${leadId}`, (error, results) => {
+        SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -118,7 +115,7 @@ exports.getAll = async (req, res) => {
             }
             return res.json({
                 status: true,
-                message: "lead details",
+                message: "employee details",
                 data: results
             })
         });

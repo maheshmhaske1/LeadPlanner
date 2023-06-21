@@ -27,7 +27,7 @@ exports.createEmployee = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: true,
-                    message: 'employee details updated successfully', results
+                    message: 'employee added successfully', results
                 })
             }
         });
@@ -79,7 +79,6 @@ exports.updateEmployee = async (req, res) => {
             error: error
         })
     }
-
 }
 
 exports.getEmployee = async (req, res) => {
