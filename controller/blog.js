@@ -5,8 +5,6 @@ const { checkMandatoryFields } = require("../middleware/validators");
 const SQL = require('../middleware/sqlQueryHandler')
 
 exports.addBlog = async (req, res) => {
-
-
   try {
     const { title, url, description, route, image, tag, date, sections } = req.body;
 
@@ -34,7 +32,7 @@ exports.addBlog = async (req, res) => {
         return res.json({
           status: true,
           message: 'blog added',
-          data: { blogId:blogId}
+          data: { blogId: blogId }
         })
       }
     });
@@ -271,7 +269,7 @@ exports.getSectionByBlog = async (req, res) => {
   try {
     const { blogId } = req.params;
     await checkMandatoryFields({ blogId });
-    SQL.get('xx_blog_details', '', `id=${blogId}`, (error, results) => {
+    SQL.get('xx_blog_details', '', `blogid=${blogId}`, (error, results) => {
       if (error) {
         return res.json({
           status: false,
