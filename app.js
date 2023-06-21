@@ -14,6 +14,7 @@ var indexRouter = require("./routes/index");
 var blogRouter = require("./routes/blog");
 var userRouter = require("./routes/user");
 var employeeRouter = require("./routes/employee");
+var leadRouter = require("./routes/lead");
 
 const { host, user, password, database } = process.env;
 
@@ -52,6 +53,7 @@ app.use("/", indexRouter);
 app.use("/api/admin/blog", blogRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employee", employeeRouter);
+app.use("/api/lead", leadRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

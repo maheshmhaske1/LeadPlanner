@@ -13,8 +13,8 @@ exports.insert = (tableName, values, callback) => {
 
 exports.get = (tableName, columns, condition, callback) => {
     let columnStr = columns ? columns.join(', ') : '*';
-    console.log(columnStr)
     let query = `SELECT ${columnStr} FROM ${tableName}`;
+    console.log(columnStr)
     if (condition) {
         query += ` WHERE ${condition}`;
     }

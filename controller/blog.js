@@ -35,6 +35,7 @@ exports.addBlog = async (req, res) => {
     sections.forEach((section) => {
       addSectionQuery += `INSERT INTO xx_blog_details (blogid, heading, section, image, sort) VALUES (${response.insertId}, '${section.heading}', '${section.section}', '${section.image}', ${section.sort}); `;
     });
+    console.log("addSectionQuery ==>",addSectionQuery)
     await db.query(addSectionQuery, (error, response) => {
       if (error) {
         return res.json({

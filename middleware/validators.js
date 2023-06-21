@@ -2,6 +2,7 @@ var validator = require('validator');
 
 exports.checkMandatoryFields = async (res, values) => {
   const missingFields = [];
+  console.log(values)
 
   for (const field in values) {
     if (!values[field]) {
