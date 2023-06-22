@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var userController = require("../controller/user");
-const session = require('../middleware/session')
+const session = require('../model/session')
 
 router.post("/create-account", userController.createAccount);
 router.post("/login", userController.login);

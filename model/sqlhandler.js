@@ -1,4 +1,4 @@
-const db = require('../db')
+const db = require('./db')
 
 exports.insert = (tableName, values, callback) => {
     const query = `INSERT INTO \`${tableName}\` SET ?`;
@@ -35,6 +35,21 @@ exports.update = (tableName, values, condition, callback) => {
     }
     console.log(query)
     db.query(query, values, (err, results) => {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, results);
+    });
+};
+
+exports.delete = (tableName, condition, callback) => {
+    let query = `DELETE FROM \`${tableName}\``;
+    if (condition) {
+        query += ` WHERE ${condition}`;
+    }
+    console.log(query);
+    db.query(query, (err, results) => {
         if (err) {
             callback(err);
             return;

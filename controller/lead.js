@@ -1,5 +1,5 @@
 // const db = require("../db");
-const SQL = require('../middleware/sqlQueryHandler')
+const SQL = require('../model/sqlhandler')
 const validator = require("validator");
 
 exports.createLead = async (req, res) => {

@@ -1,22 +1,27 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const validators = require('validator')
-const db = require("../db");
-const validator = require("../middleware/validators");
+const db = require("../model/db");
+const validator = require("../model/validators");
 const validate = require('validator')
-const Email = require('../middleware/mail')
-const auth = require('../middleware/auth')
+const Email = require('../model/mail')
+const auth = require('../model/auth')
+const SQL = require('../model/sqlhandler')
 
-const { jwtSecret } = process.env
 jwtOptions = {
     expiresIn: '1h', // Token expiration time
 };
 
 exports.createAccount = async (req, res) => {
     try {
-        const { first_name, last_name, email, password, phone, address1, address2, address3, city, state, country, postcode } = req.body
-        validator.checkMandatoryFields(res, { first_name, last_name, email, password, phone, address1, city, state, country, postcode })
+        let { first_name, last_name, email, password, phone, address1, address2, address3, city, state, country, postcode } = req.body
 
+        if (!first_name || !last_name || !email || !password || !phone) {
+            return res.json({
+                status: false,
+                message: "first_name, last_name, email, password, phone there fields are required"
+            })
+        }
         if (!validators.isEmail(email)) {
             return res.json({
                 status: false,
@@ -24,54 +29,20 @@ exports.createAccount = async (req, res) => {
             })
         }
 
-        const hashedPassword = bcrypt.hash(password, 10);
-
-        const query = `
-        INSERT INTO user
-                (first_name,
-                 last_name,
-                 email,
-                 password,
-                 phone,
-                 address1,
-                 address2,
-                 address3,
-                 city,
-                 state,
-                 country,
-                 postcode)
-        VALUES   (?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ?,
-                 ? ) 
-        `;
-        const values = [first_name, last_name, email, hashedPassword, phone, address1, address2, address3, city, state, country, postcode];
-
-        db.query(query, values, (error, response) => {
-            console.log(response)
+        req.body.password = await bcrypt.hash(password, 10);
+        console.log(password)
+        SQL.insert('user', req.body, (error, result) => {
             if (error) {
                 return res.json({
                     status: false,
-                    message: 'something went wrong',
                     error: error
                 })
             }
-
-            else if (response.affectedRows > 0) {
-                return res.json({
-                    status: true,
-                    message: 'account created',
-                    data: { id: response.insertId }
-                })
-            }
+            return res.json({
+                status: true,
+                message: 'user registered successfully',
+                data: result
+            })
         })
     }
     catch (error) {
@@ -297,6 +268,7 @@ exports.verifyOTP = (req, res) => {
         }
     });
 };
+
 
 exports.forgotPassword = async (req, res) => {
     const { email, otp, password } = req.body;

@@ -1,8 +1,8 @@
-const db = require("../db");
+const db = require("../model/db");
 const fs = require("fs");
-const { uploadBlogImg } = require("../middleware/upload");
-const { checkMandatoryFields } = require("../middleware/validators");
-const SQL = require('../middleware/sqlQueryHandler')
+const { uploadBlogImg } = require("../model/upload");
+const { checkMandatoryFields } = require("../model/validators");
+const SQL = require('../model/sqlhandler')
 
 exports.addBlog = async (req, res) => {
   try {

@@ -1,5 +1,5 @@
 // const db = require("../db");
-const SQL = require('../middleware/sqlQueryHandler')
+const SQL = require('../model/sqlhandler')
 const validator = require("validator");
 
 exports.createEmployee = async (req, res) => {
@@ -53,12 +53,12 @@ exports.updateEmployee = async (req, res) => {
         const { employeeId } = req.params
         const update_data = req.body
 
-       if(!employeeId){
-        return req.json({
-            status:false,
-            message:"please enter employeeId"
-        })
-       }
+        if (!employeeId) {
+            return req.json({
+                status: false,
+                message: "please enter employeeId"
+            })
+        }
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
