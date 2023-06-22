@@ -53,9 +53,9 @@ exports.updateEmployee = async (req, res) => {
         const { employeeId } = req.params
         const update_data = req.body
 
-        await validator.checkMandatoryFields(res, {
-            employeeId
-        })
+        // await validator.checkMandatoryFields(res, {
+        //     employeeId
+        // })
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
