@@ -8,6 +8,13 @@ exports.addBlog = async (req, res) => {
   try {
     const { title, url, description, route, image, tag, date, sections } = req.body;
 
+    if (!title || !url || !description || !route || !tag || !date) {
+      return res.json({
+        status: false,
+        message: " title, url, description, route, image, tag, date are required fields"
+      })
+    }
+
     SQL.insert('xx_blog', { title, url, description, route, image, tag, date }, (error, results) => {
       if (error) {
         return res.json({
@@ -74,26 +81,47 @@ exports.getBlogs = async (req, res) => {
 exports.editBlog = async (req, res) => {
   try {
     const { blogId } = req.params
-    const update_data = req.body
+    console.log(blogId)
 
-    if (update_data.id) {
-      return res.json({
-        status: false,
-        message: "id cannot be edit"
-      })
-    }
+    const { title, url, description, route, image, tag, date, sections } = req.body
 
-    SQL.update('xx_blog', update_data, `id=${blogId}`, (error, results) => {
+    console.log(sections)
+    let new_section = []
+    SQL.update("xx_blog", { title, url, description, route, image, tag, date }, `id=${blogId}`, (error, response) => {
       if (error) {
         return res.json({
           status: false,
-          error: error
+          message: 'something went wrong -1', error
         })
       }
-      if (results.affectedRows > 0) {
+      else {
+        if (sections)
+          sections.map(async (section) => {
+            if (section.id)
+              await SQL.update('xx_blog_details', section, `id=${section.id}`, (error, response) => {
+                if (error) {
+                  return res.json({
+                    status: false,
+                    message: 'something went wrong -2'.error
+                  })
+                }
+              })
+            if (!section.id) {
+              section["blogId"] = parseInt(blogId)
+              console.log("section no id", section)
+              await SQL.insert('xx_blog_details', section, (error, results) => {
+                if (error) {
+                  return res.json({
+                    status: false,
+                    error: error
+                  })
+                }
+              })
+            }
+          })
         return res.json({
           status: true,
-          message: 'blog details updated successfully'
+          message: "blog details updated successfully"
         })
       }
     })

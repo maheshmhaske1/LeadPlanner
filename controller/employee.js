@@ -1,6 +1,6 @@
 // const db = require("../db");
 const SQL = require('../middleware/sqlQueryHandler')
-const validator = require("../middleware/validators");
+const validator = require("validator");
 
 exports.createEmployee = async (req, res) => {
     try {
@@ -10,12 +10,19 @@ exports.createEmployee = async (req, res) => {
             postcode, social1, social2, tax_id, aadhaar_no, position, attr1, attr2,
         } = req.body;
 
-        await validator.checkMandatoryFields(res, {
-            first_name, last_name, dob, gender, hire_date, emp_no,
-            department, salary, personal_email, mobile
-        })
+        if (!first_name || !last_name || !dob || !gender || !hire_date || !emp_no || !department ||
+            !salary || !personal_email) {
+            return res.json({
+                status: false,
+                message: 'first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email these are required values'
+            })
+        }
 
-        validator.validateEmail(res, personal_email)
+        if (!validator.isEmail(personal_email))
+            return res.json({
+                status: false,
+                message: `${personal_email} is not valid email`
+            })
 
         SQL.insert('employee', req.body, (error, results) => {
             if (error) {
@@ -50,10 +57,10 @@ exports.updateEmployee = async (req, res) => {
             employeeId
         })
 
-        if (update_data.id) {
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
                 status: false,
-                message: "id cannot be edit"
+                message: "id ,creation_date ,update_date cannot be edit"
             })
         }
 

@@ -1,6 +1,6 @@
 // const db = require("../db");
 const SQL = require('../middleware/sqlQueryHandler')
-const validator = require("../middleware/validators");
+const validator = require("validator");
 
 exports.createLead = async (req, res) => {
     try {
@@ -9,10 +9,19 @@ exports.createLead = async (req, res) => {
             last_name, type, address1, address2, city, state, country, pin, phone, phone1, email, website
         } = req.body;
 
-        // await validator.checkMandatoryFields(res, {
-        //     first_name, last_name, company_name, registration_no, employees, gst_no,
-        //     type, salary, address1, city
-        // })
+
+        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email) {
+            return res.json({
+                status: false,
+                message: 'first_name, last_name, company_name, gender, registration_no, employees, email these are required values'
+            })
+        }
+
+        if (!validator.isEmail(email))
+            return res.json({
+                status: false,
+                message: `${email} is not valid email`
+            })
 
         SQL.insert('lead', req.body, (error, results) => {
             if (error) {
@@ -43,14 +52,11 @@ exports.updateLead = async (req, res) => {
         const { leadId } = req.params
         const update_data = req.body
 
-        await validator.checkMandatoryFields(res, {
-            leadId
-        })
 
-        if (update_data.id) {
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
                 status: false,
-                message: "id cannot be edit"
+                message: "id ,creation_date ,update_date cannot be edit"
             })
         }
 
