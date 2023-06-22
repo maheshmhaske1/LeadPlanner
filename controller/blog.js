@@ -8,10 +8,10 @@ exports.addBlog = async (req, res) => {
   try {
     const { title, url, description, route, image, tag, date, sections } = req.body;
 
-    if (!title || !url || !description || !route || !tag || !date) {
+    if (!title || !url || !description || !tag || !date) {
       return res.json({
         status: false,
-        message: " title, url, description, route, image, tag, date are required fields"
+        message: " title, url, description, image, tag, date are required fields"
       })
     }
 
