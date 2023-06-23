@@ -5,25 +5,19 @@ const validator = require("validator");
 exports.createLead = async (req, res) => {
     try {
         const {
-            company_name, registration_no, employees, gst_no, first_name,
-            last_name, type, address1, address2, city, state, country, pin, phone, phone1, email, website
+            lead_id, account_name, deal_value, currency, status, owner,
+            probability, closure_date, attr1, attr2, attr3
         } = req.body;
 
 
-        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email) {
+        if (!lead_id || !account_name || !deal_value || !currency || !closure_date) {
             return res.json({
                 status: false,
-                message: 'first_name, last_name, company_name, gender, registration_no, employees, email these are required values'
+                message: 'lead_id, account_name, deal_value, currency ,closure_date these are required values'
             })
         }
 
-        if (!validator.isEmail(email))
-            return res.json({
-                status: false,
-                message: `${email} is not valid email`
-            })
-
-        SQL.insert('lead', req.body, (error, results) => {
+        SQL.insert('deal', req.body, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -33,7 +27,8 @@ exports.createLead = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: true,
-                    message: 'lead added successfully', results
+                    message: 'deal added successfully',
+                    data: results
                 })
             }
         });
@@ -47,9 +42,10 @@ exports.createLead = async (req, res) => {
     }
 };
 
+
 exports.updateLead = async (req, res) => {
     try {
-        const { leadId } = req.params
+        const { dealId } = req.params
         const update_data = req.body
 
 
@@ -60,7 +56,7 @@ exports.updateLead = async (req, res) => {
             })
         }
 
-        SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
+        SQL.update('deal', update_data, `id=${dealId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -70,8 +66,7 @@ exports.updateLead = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: true,
-                    message: 'lead details updated successfully',
-                    data:results
+                    message: 'deal details updated successfully'
                 })
             }
         })
@@ -87,8 +82,8 @@ exports.updateLead = async (req, res) => {
 
 exports.get = async (req, res) => {
     try {
-        const leadId = req.params.leadId;
-        SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
+        const dealId = req.params.dealId;
+        SQL.get(`deal`, ``, `id=${dealId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -97,7 +92,7 @@ exports.get = async (req, res) => {
             }
             return res.json({
                 status: true,
-                message: "lead details",
+                message: "deal details",
                 data: results
             })
         });
@@ -113,7 +108,7 @@ exports.get = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-        SQL.get('lead', '', '', (error, results) => {
+        SQL.get('deal', '', '', (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
@@ -122,7 +117,7 @@ exports.getAll = async (req, res) => {
             }
             return res.json({
                 status: true,
-                message: "employee details",
+                message: "deal details",
                 data: results
             })
         });

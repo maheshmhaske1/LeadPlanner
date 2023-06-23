@@ -15,6 +15,7 @@ var blogRouter = require("./routes/blog");
 var userRouter = require("./routes/user");
 var employeeRouter = require("./routes/employee");
 var leadRouter = require("./routes/lead");
+var dealRouter = require("./routes/deal");
 
 const { host, user, password, database } = process.env;
 
@@ -34,7 +35,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
-  cookie: { secure: false, maxAge: 86400000 } // Session expiration in milliseconds (i day)
+  cookie: { secure: false, maxAge: 864000000 } 
 }));
 
 // view engine setup
@@ -54,6 +55,7 @@ app.use("/api/admin/blog", blogRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employee", employeeRouter);
 app.use("/api/lead", leadRouter);
+app.use("/api/deal", dealRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

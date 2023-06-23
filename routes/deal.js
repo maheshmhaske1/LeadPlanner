@@ -1,0 +1,10 @@
+var express = require('express');
+var router = express.Router();
+const dealController = require('../controller/deal')
+
+router.post('/add', dealController.createLead)
+router.put('/edit/:dealId', dealController.updateLead)
+router.get('/get/:dealId', dealController.get)
+router.get('/getAll', dealController.getAll)
+
+module.exports = router;
