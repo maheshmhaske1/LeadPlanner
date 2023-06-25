@@ -16,6 +16,8 @@ var userRouter = require("./routes/user");
 var employeeRouter = require("./routes/employee");
 var leadRouter = require("./routes/lead");
 var dealRouter = require("./routes/deal");
+var taskRouter = require("./routes/task");
+var noteRouter = require("./routes/note");
 
 const { host, user, password, database } = process.env;
 
@@ -24,6 +26,7 @@ var app = express();
 const dbConfig = {
   host: host,
   user: user,
+  port: 3306,
   password: password,
   database: database,
 };
@@ -35,7 +38,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
-  cookie: { secure: false, maxAge: 864000000 } 
+  cookie: { secure: false, expires : new Date(Date.now() + 864000000) }
 }));
 
 // view engine setup
@@ -56,6 +59,8 @@ app.use("/api/user", userRouter);
 app.use("/api/employee", employeeRouter);
 app.use("/api/lead", leadRouter);
 app.use("/api/deal", dealRouter);
+app.use("/api/note", noteRouter);
+app.use("/api/task", taskRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
