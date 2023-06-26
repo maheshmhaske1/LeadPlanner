@@ -6,7 +6,7 @@ const SQL = require('../model/sqlhandler')
 
 exports.addBlog = async (req, res) => {
   try {
-    const { title, url, description, route, image, tag, date, sections } = req.body;
+    const { title, url, description, route, image,site, tag, date, sections } = req.body;
 
     if (!title || !url || !description || !tag || !date) {
       return res.json({
@@ -15,7 +15,7 @@ exports.addBlog = async (req, res) => {
       })
     }
 
-    SQL.insert('xx_blog', { title, url, description, route, image, tag, date }, (error, results) => {
+    SQL.insert('xx_blog', { title, url,site, description, route, image, tag, date }, (error, results) => {
       if (error) {
         return res.json({
           status: false,
