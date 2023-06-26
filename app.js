@@ -18,6 +18,7 @@ var leadRouter = require("./routes/lead");
 var dealRouter = require("./routes/deal");
 var taskRouter = require("./routes/task");
 var noteRouter = require("./routes/note");
+var leadDocRouter = require("./routes/leaddocument");
 
 const { host, user, password, database } = process.env;
 
@@ -38,7 +39,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
-  cookie: { secure: false, expires : new Date(Date.now() + 864000000) }
+  cookie: { secure: false, expires: new Date(Date.now() + 864000000) }
 }));
 
 // view engine setup
@@ -61,6 +62,7 @@ app.use("/api/lead", leadRouter);
 app.use("/api/deal", dealRouter);
 app.use("/api/note", noteRouter);
 app.use("/api/task", taskRouter);
+app.use("/api/lead/doc", leadDocRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

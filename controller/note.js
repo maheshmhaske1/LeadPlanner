@@ -78,6 +78,7 @@ exports.updateNote = async (req, res) => {
 }
 
 exports.get = async (req, res) => {
+    
     try {
         const noteId = req.params.noteId;
         SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
