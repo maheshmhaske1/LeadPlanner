@@ -118,7 +118,8 @@ GROUP BY
                         return res.json({
                             status: true,
                             message: 'Logged in',
-                            data: results[0]
+                            data: results[0],
+                            session:req.session.user
                         });
                     } else {
                         return res.json({

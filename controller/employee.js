@@ -215,16 +215,17 @@ exports.login = async (req, res) => {
                 }
                 const isPasswordMatch = await bcrypt.compare(password, results[0].password)
                 if (isPasswordMatch) {
+                    req.session.user = results[0]
                     return res.json({
                         status: true,
                         message: "logged in",
-                        data: { employee: results[0].id }
+                        data: { employee: results[0].id },
+                        session: req.session
                     });
                 } else {
                     return res.json({
                         status: false,
-                        message: "incorrect password",
-                        data: results.id
+                        message: "incorrect password"
                     });
                 }
             }
