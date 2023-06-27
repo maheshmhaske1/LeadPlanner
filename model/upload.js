@@ -24,3 +24,14 @@ exports.uploadImg = (img) => {
     }),
   }).single(`${img}`);
 }
+
+exports.uploadEmployeeDoc = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, `./public/employeeDoc/`);
+    },
+    filename: function (req, file, cb) {
+      cb(null, `eDoc` + `${Date.now()}` + `_` + file.originalname);
+    },
+  }),
+}).single("employeeDoc");

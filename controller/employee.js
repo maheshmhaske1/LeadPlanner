@@ -1,143 +1,276 @@
 // const db = require("../db");
-const SQL = require('../model/sqlhandler')
+const SQL = require("../model/sqlhandler");
+const fs = require("fs");
+const bcrypt = require("bcrypt");
 const validator = require("validator");
+const { uploadEmployeeDoc } = require("../model/upload");
 
 exports.createEmployee = async (req, res) => {
     try {
-        const {
-            first_name, last_name, dob, gender, hire_date, emp_no, department,
-            salary, personal_email, mobile, address1, address2, city, state, country,
-            postcode, social1, social2, tax_id, aadhaar_no, position, attr1, attr2,
+        let {
+            first_name,
+            last_name,
+            dob,
+            gender,
+            hire_date,
+            emp_no,
+            department,
+            salary,
+            personal_email,
+            mobile,
+            address1,
+            address2,
+            city,
+            state,
+            country,
+            postcode,
+            social1,
+            social2,
+            tax_id,
+            aadhaar_no,
+            position,
+            password,
         } = req.body;
 
-        if (!first_name || !last_name || !dob || !gender || !hire_date || !emp_no || !department ||
-            !salary || !personal_email) {
+        if (
+            !first_name ||
+            !last_name ||
+            !dob ||
+            !gender ||
+            !hire_date ||
+            !emp_no ||
+            !department ||
+            !salary ||
+            !personal_email ||
+            !password ||
+            !aadhaar_no
+        ) {
             return res.json({
                 status: false,
-                message: 'first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email these are required values'
-            })
+                message:
+                    "first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email, password, aadhaar_no these are required values",
+            });
         }
 
         if (!validator.isEmail(personal_email))
             return res.json({
                 status: false,
-                message: `${personal_email} is not valid email`
-            })
+                message: `${personal_email} is not valid email`,
+            });
 
-        SQL.insert('employee', req.body, (error, results) => {
+        req.body.password = await bcrypt.hash(password, 10);
+        console.log(password);
+
+        SQL.insert("employee", req.body, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
-                    error: error
-                })
+                    error: error,
+                });
             }
             if (results.affectedRows > 0) {
                 return res.json({
                     status: true,
-                    message: 'employee added successfully', results
-                })
+                    message: "employee added successfully",
+                    results,
+                });
             }
         });
-    }
-    catch (error) {
+    } catch (error) {
         return res.json({
             status: false,
             message: "something went wrong",
-            error: error
-        })
+            error: error,
+        });
     }
 };
 
 exports.updateEmployee = async (req, res) => {
     try {
-        const { employeeId } = req.params
-        const update_data = req.body
+        const { employeeId } = req.params;
+        const update_data = req.body;
 
         if (!employeeId) {
             return req.json({
                 status: false,
-                message: "please enter employeeId"
-            })
+                message: "please enter employeeId",
+            });
         }
 
-        if (update_data.id || update_data.creation_date || update_data.update_date) {
+        if (
+            update_data.id ||
+            update_data.creation_date ||
+            update_data.update_date
+        ) {
             return res.json({
                 status: false,
-                message: "id ,creation_date ,update_date cannot be edit"
-            })
+                message: "id ,creation_date ,update_date cannot be edit",
+            });
         }
 
-        SQL.update('employee', update_data, `id=${employeeId}`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: false,
-                    error: error
-                })
+        SQL.update(
+            "employee",
+            update_data,
+            `id=${employeeId}`,
+            (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: false,
+                        error: error,
+                    });
+                }
+                if (results.affectedRows > 0) {
+                    return res.json({
+                        status: true,
+                        message: "employee details updated successfully",
+                    });
+                }
             }
-            if (results.affectedRows > 0) {
-                return res.json({
-                    status: true,
-                    message: 'employee details updated successfully'
-                })
-            }
-        })
-    }
-    catch (error) {
+        );
+    } catch (error) {
         return res.json({
             status: false,
             message: "something went wrong",
-            error: error
-        })
+            error: error,
+        });
     }
-}
+};
 
 exports.getEmployee = async (req, res) => {
     try {
         const employeeId = req.params.employeeId;
-        SQL.get('employee', '', `id=${employeeId}`, (error, results) => {
+        SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
-                    error: error
-                })
+                    error: error,
+                });
             }
             return res.json({
                 status: true,
                 message: "employee details",
-                data: results
-            })
+                data: results,
+            });
         });
-    }
-    catch (error) {
+    } catch (error) {
         return res.json({
             status: false,
             message: "something went wrong",
-            error: error
-        })
+            error: error,
+        });
     }
-}
+};
 
 exports.getAll = async (req, res) => {
     try {
-        SQL.get('employee', '', '', (error, results) => {
+        SQL.get("employee", "", "", (error, results) => {
             if (error) {
                 return res.json({
                     status: false,
-                    error: error
-                })
+                    error: error,
+                });
             }
             return res.json({
                 status: true,
                 message: "employee details",
-                data: results
-            })
+                data: results,
+            });
         });
-    }
-    catch (error) {
+    } catch (error) {
         return res.json({
             status: false,
             message: "something went wrong",
-            error: error
-        })
+            error: error,
+        });
     }
-}
+};
+
+exports.login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.json({
+                status: false,
+                message: "username and password are required fields",
+            });
+        }
+
+        SQL.get(
+            "employee",
+            "",
+            `personal_email="${username}" OR mobile="${username}"`,
+            async (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: false,
+                        error: error,
+                    });
+                }
+                if (results.length === 0) {
+                    return res.json({
+                        status: false,
+                        message: "employee not registered",
+                    });
+                }
+                const isPasswordMatch = await bcrypt.compare(password, results[0].password)
+                if (isPasswordMatch) {
+                    return res.json({
+                        status: true,
+                        message: "logged in",
+                        data: { employee: results[0].id }
+                    });
+                } else {
+                    return res.json({
+                        status: false,
+                        message: "incorrect password",
+                        data: results.id
+                    });
+                }
+            }
+        );
+    } catch (error) {
+        return res.json({
+            status: false,
+            message: "something went wrong",
+            error: error,
+        });
+    }
+};
+
+exports.uploadDoc = async (req, res) => {
+    uploadEmployeeDoc(req, res, function (error) {
+        if (error) {
+            return res.json({
+                status: false,
+                message: "something went wrong",
+                error: error,
+            });
+        }
+        const imageName = req.file.filename;
+        return res.json({
+            status: true,
+            message: "image added successfully",
+            data: imageName,
+        });
+    });
+};
+
+exports.removeDoc = async (req, res) => {
+    const { docName } = req.params;
+    const imagePath = `./public/employeeDoc/${docName}`;
+
+    fs.unlink(imagePath, (error) => {
+        if (error) {
+            return res.json({
+                status: false,
+                message: "something went wrong",
+                error: error,
+            });
+        }
+        return res.json({
+            status: true,
+            message: "image removed successfully",
+        });
+    });
+};

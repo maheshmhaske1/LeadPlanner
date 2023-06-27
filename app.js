@@ -53,6 +53,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use('/blog', express.static(path.join(__dirname, 'public/blog'))) // PROFILE IMAGES
+app.use('/employ/doc', express.static(path.join(__dirname, 'public/employeeDoc'))) // PROFILE IMAGES
 
 app.use("/", indexRouter);
 app.use("/api/admin/blog", blogRouter);
