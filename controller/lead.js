@@ -1,6 +1,12 @@
 // const db = require("../db");
 const SQL = require('../model/sqlhandler')
 const validator = require("validator");
+const fs = require('fs');
+const csv = require('csvtojson');
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 exports.createLead = async (req, res) => {
     try {
@@ -47,6 +53,25 @@ exports.createLead = async (req, res) => {
     }
 };
 
+exports.importLead = async (req, res) => {
+    if (!req.file) {
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
+    }
+
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on('data', (data) => {
+            results.push(data);
+        })
+        .on('end', () => {
+            fs.unlinkSync(req.file.path);
+            res.json({ data: results });
+        });
+}
+
 exports.updateLead = async (req, res) => {
     try {
         const { leadId } = req.params
@@ -71,7 +96,7 @@ exports.updateLead = async (req, res) => {
                 return res.json({
                     status: true,
                     message: 'lead details updated successfully',
-                    data:results
+                    data: results
                 })
             }
         })

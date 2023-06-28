@@ -275,3 +275,67 @@ exports.removeDoc = async (req, res) => {
         });
     });
 };
+
+exports.getPayslips = async (req, res) => {
+    try {
+        const { employeeId } = req.params
+        if (!employeeId) {
+            return res.json({
+                status: false,
+                message: "please provide employeeId"
+            })
+        }
+
+        SQL.get("payroll", "", `employee_id=${employeeId}`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: false,
+                    error: error,
+                });
+            }
+            return res.json({
+                status: true,
+                message: "employee payslips details",
+                data: results,
+            });
+        });
+    } catch (error) {
+        return res.json({
+            status: false,
+            message: "something went wrong",
+            error: error,
+        });
+    }
+}
+
+exports.getPayslip = async (req, res) => {
+    try {
+        const { id } = req.params
+        if (!id) {
+            return res.json({
+                status: false,
+                message: "please provide payslip id"
+            })
+        }
+
+        SQL.get("payroll", "", `id=${id}`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: false,
+                    error: error,
+                });
+            }
+            return res.json({
+                status: true,
+                message: "employee payslip details",
+                data: results,
+            });
+        });
+    } catch (error) {
+        return res.json({
+            status: false,
+            message: "something went wrong",
+            error: error,
+        });
+    }
+}

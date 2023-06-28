@@ -11,5 +11,8 @@ router.post('/add', employeeController.createEmployee)
 router.put('/edit/:employeeId', employeeController.updateEmployee)
 router.get('/get/:employeeId', employeeController.getEmployee)
 router.get('/getAll', employeeController.getAll)
+router.get('/getPayslips/:employeeId', employeeController.getPayslips)
+router.get('/getPayslip/:id', employeeController.getPayslip)
+
 
 module.exports = router;
