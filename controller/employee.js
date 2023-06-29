@@ -325,8 +325,8 @@ exports.getPayslip = async (req, res) => {
                     error: error,
                 });
             }
-            let salary = (results[0].salary / 12) * results[0].working_days
-            console.log(salary)
+            let salary = (results[0].salary / 12) / 30
+            results[0].salary = salary * results[0].working_days
             return res.json({
                 status: true,
                 message: "employee payslip details",
