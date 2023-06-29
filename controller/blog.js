@@ -83,11 +83,11 @@ exports.editBlog = async (req, res) => {
     const { blogId } = req.params
     console.log(blogId)
 
-    const { title, url, description, route, image, tag, date, sections } = req.body
+    const { title, url, description, site, route, image, tag, date, sections } = req.body
 
     console.log(sections)
     let new_section = []
-    SQL.update("xx_blog", { title, url, description, route, image, tag, date }, `id=${blogId}`, (error, response) => {
+    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date }, `id=${blogId}`, (error, response) => {
       if (error) {
         return res.json({
           status: false,
