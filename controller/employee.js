@@ -8,43 +8,13 @@ const { uploadEmployeeDoc } = require("../model/upload");
 exports.createEmployee = async (req, res) => {
     try {
         let {
-            first_name,
-            last_name,
-            dob,
-            gender,
-            hire_date,
-            emp_no,
-            department,
-            salary,
-            personal_email,
-            mobile,
-            address1,
-            address2,
-            city,
-            state,
-            country,
-            postcode,
-            social1,
-            social2,
-            tax_id,
-            aadhaar_no,
-            position,
-            password,
+            first_name, last_name, dob, gender, hire_date, emp_no, department,
+            salary, personal_email, mobile, address1, address2, city, state,
+            country, postcode, social1, social2, tax_id, aadhaar_no, position, password,
         } = req.body;
 
-        if (
-            !first_name ||
-            !last_name ||
-            !dob ||
-            !gender ||
-            !hire_date ||
-            !emp_no ||
-            !department ||
-            !salary ||
-            !personal_email ||
-            !password ||
-            !aadhaar_no
-        ) {
+        if (!first_name || !last_name || !dob || !gender || !hire_date ||
+            !emp_no || !department || !salary || !personal_email || !password || !aadhaar_no) {
             return res.json({
                 status: false,
                 message:
@@ -57,6 +27,14 @@ exports.createEmployee = async (req, res) => {
                 status: false,
                 message: `${personal_email} is not valid email`,
             });
+
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+            return res.json({
+                status: false,
+                message: "id ,creation_date ,update_date cannot be add",
+            });
+
+
 
         req.body.password = await bcrypt.hash(password, 10);
         console.log(password);
@@ -97,11 +75,7 @@ exports.updateEmployee = async (req, res) => {
             });
         }
 
-        if (
-            update_data.id ||
-            update_data.creation_date ||
-            update_data.update_date
-        ) {
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
                 status: false,
                 message: "id ,creation_date ,update_date cannot be edit",

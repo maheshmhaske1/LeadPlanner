@@ -14,6 +14,12 @@ exports.createNote = async (req, res) => {
             })
         }
 
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+        return res.json({
+            status: false,
+            message: "id ,creation_date ,update_date cannot be add",
+        });
+        
         SQL.insert('notes', req.body, (error, results) => {
             if (error) {
                 return res.json({

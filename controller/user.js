@@ -29,6 +29,12 @@ exports.createAccount = async (req, res) => {
             })
         }
 
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+            return res.json({
+                status: false,
+                message: "id ,creation_date ,update_date cannot be add",
+            });
+
         req.body.password = await bcrypt.hash(password, 10);
         console.log(password)
         SQL.insert('user', req.body, (error, result) => {
@@ -119,7 +125,7 @@ GROUP BY
                             status: true,
                             message: 'Logged in',
                             data: results[0],
-                            session:req.session.user
+                            session: req.session.user
                         });
                     } else {
                         return res.json({

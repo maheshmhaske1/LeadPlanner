@@ -2,7 +2,8 @@ const db = require("../model/db");
 const fs = require("fs");
 const { uploadBlogImg } = require("../model/upload");
 const { checkMandatoryFields } = require("../model/validators");
-const SQL = require('../model/sqlhandler')
+const SQL = require('../model/sqlhandler');
+const { json } = require("express");
 
 exports.addBlog = async (req, res) => {
   try {
@@ -14,6 +15,12 @@ exports.addBlog = async (req, res) => {
         message: " title, url, description, image, tag, date are required fields"
       })
     }
+
+    if (req.body.id || req.body.creation_date || req.body.update_date)
+      return res.json({
+        status: false,
+        message: "id ,creation_date ,update_date cannot be add",
+      });
 
     SQL.insert('xx_blog', { title, url, site, description, route, image, tag, date }, (error, results) => {
       if (error) {
@@ -81,11 +88,22 @@ exports.getBlogs = async (req, res) => {
 exports.editBlog = async (req, res) => {
   try {
     const { blogId } = req.params
-    console.log(blogId)
-
     const { title, url, description, site, route, image, tag, date, sections } = req.body
 
-    console.log(sections)
+    if (!blogId) {
+      return res, json({
+        status: false,
+        message: "please provide blogId"
+      })
+    }
+
+    if (req.body.id || req.body.creation_date || req.body.update_date) {
+      return res.json({
+        status: false,
+        message: "id ,creation_date ,update_date cannot be edit",
+      });
+    }
+
     let new_section = []
     SQL.update("xx_blog", { title, url, description, route, site, image, tag, date }, `id=${blogId}`, (error, response) => {
       if (error) {

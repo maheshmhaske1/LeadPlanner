@@ -29,6 +29,12 @@ exports.createLead = async (req, res) => {
                 message: `${email} is not valid email`
             })
 
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+            return res.json({
+                status: false,
+                message: "id ,creation_date ,update_date cannot be add",
+            });
+
         SQL.insert('lead', req.body, (error, results) => {
             if (error) {
                 return res.json({
