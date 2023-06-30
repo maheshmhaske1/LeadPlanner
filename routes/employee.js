@@ -13,6 +13,7 @@ router.get('/get/:employeeId', employeeController.getEmployee)
 router.get('/getAll', employeeController.getAll)
 router.get('/getPayslips/:employeeId', employeeController.getPayslips)
 router.get('/getPayslip/:id', employeeController.getPayslip)
+router.get('/payslipPdf/:payslipId', employeeController.generatePaysipPdf)
 
 
 module.exports = router;

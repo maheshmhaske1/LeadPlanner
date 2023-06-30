@@ -16,6 +16,7 @@
     "express": "~4.16.1",
     "express-mysql-session": "^3.0.0",
     "express-session": "^1.17.3",
+    "html-pdf": "^3.0.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "jsonwebtoken": "^9.0.0",
