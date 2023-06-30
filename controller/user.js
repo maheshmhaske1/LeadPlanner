@@ -118,10 +118,11 @@ exports.login = async (req, res) => {
             results[0].token = token;
             req.session.user = results[0];
             delete results[0].password;
+            req.session.sessionID=req.sessionID
             return res.json({
               status: true,
               message: 'Logged in',
-            //   data: { userId: results[0].id },
+              data: { userId: req.sessionID  },
               session: req.session // Use req.session.cookie.data to access the session ID
             });
           } else {
