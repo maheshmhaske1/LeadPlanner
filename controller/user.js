@@ -122,7 +122,7 @@ exports.login = async (req, res) => {
             return res.json({
               status: true,
               message: 'Logged in',
-              data: { userId: req.sessionID  },
+            //   data: { userId: req.sessionID  },
               session: req.session // Use req.session.cookie.data to access the session ID
             });
           } else {
