@@ -316,6 +316,188 @@ exports.getPayslip = async (req, res) => {
     }
 }
 
+// exports.generatePaysipPdf = async (req, res) => {
+//     const { payslipId } = req.params
+
+//     await SQL.get('payroll', '', `id=${payslipId}`, async (error, results) => {
+//         if (error) {
+//             return res.json({
+//                 status: false,
+//                 error: error
+//             })
+//         }
+//         const payroll = results[0]
+//         await SQL.get('employee', '', `id=${payroll.employee_id}`, (error, result) => {
+//             if (error) {
+//                 return res.json({
+//                     status: false
+//                 })
+//             }
+//             const employee = result[0]
+//             const name = employee.first_name + ' ' + employee.last_name
+//             const department = employee.department
+//             const emp_no = employee.emp_no
+//             const country = employee.country
+//             const working_days = payroll.working_days
+//             const hire_date = employee.hire_date.toISOString().slice(0, 10)
+//             const salary_date = payroll.month + '/' + payroll.year
+//             const salary = Number(payroll.salary).toLocaleString()
+
+
+//             const pdf = require("html-pdf");
+//             const htmlContent = `
+//             <!DOCTYPE html>
+//             <html lang="en">
+//               <head>
+//                 <meta charset="UTF-8" />
+//                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+//                 <title>Document</title>
+
+//               </head>
+//               <body>
+//                 <table border="1" width="650" align="center" style="border-collapse: collapse;text-align: center;"  cellpadding="2" cellspacing="10">
+//                   <tr>
+//                     <th colspan="1">
+//                         <img src="https://www.ezuka.com/assets/logo-ezuka.png" alt=""
+//                         style="width: 160px;">
+//                     </th>
+//                     <th colspan="4">
+//                         Ezuka Services Ltd <br>
+//                         Bourne Business Park, 4 Dashwood Lang Rd, Addlestone
+//                         KT15 2HJ, United Kingdom
+//                     </th>        
+//                   </tr>
+
+//                   <tr>
+//                     <th>Employee Name</th>
+//                     <td>${name} </td>
+//                     <th style="border: none;"></th>
+//                     <th>Date Of Joining</th>
+//                     <td>${hire_date}</td>
+//                   </tr>
+//                   </tr>
+
+//                   <tr>
+//                     <th>Employee Code</th>
+//                     <td>${emp_no}</td>
+//                     <th style="border: none;"></th>
+//                     <th>Place of Posting</th>
+//                     <td>${country}</td>
+//                   </tr>
+//                   </tr>
+//                   <tr>
+//                     <th>Department</th>
+//                     <td>${department}</td>
+//                     <th style="border: none;"></th>
+//                     <th>Working Days</th>
+//                     <td>${working_days}</td>
+//                   </tr>
+//                   </tr>
+//                   <tr>
+//                     <th>Month</th>
+//                     <td>${salary_date}</td>
+//                     <th style="border: none;"></th>
+//                     <th>Bank / Account
+//                         Number
+//                         </th>
+//                     <td>SBI
+//                         041010100080951</td>
+//                   </tr>
+//                   </tr>
+//                   <tr>
+//                     <th>Position</th>
+//                     <td>${department}</td>
+//                     <th style="border: none;"></th>
+//                     <th>Sort Code</th>
+//                     <td>202464</td>
+//                   </tr>
+
+//                   <tr>
+//                     <td colspan="5" style="height: 20px;"></td>
+//                   </tr>
+
+//                   <tr>
+//                     <th colspan="3">Earnings (Rs)</th>
+//                     <th colspan="3">Deductions (Rs)</th>
+//                   </tr>
+
+//                   <tr>
+//                     <th>Particulars</th>
+//                     <th>Actual Amount</th>
+//                     <th>Payable Amt</th>
+//                     <th>Particulars</th>
+//                     <th>Amount</th>
+//                   </tr>
+
+//                   <tr>
+//                     <th><b>Basic Salary</b> </th>
+//                     <td>${salary}</td>
+//                     <td>${salary}</td>
+//                     <th>Tax</th>
+//                     <td>0</td>
+//                   </tr>
+
+//                   <tr>
+//                     <td colspan="3"></td>
+//                     <th>NI Contribution</th>
+//                     <td>0</td>
+//                   </tr>
+
+//                   <tr>
+//                     <th>Incentives</th>
+//                     <td></td>
+//                     <td></td>
+//                     <td colspan="2" ></td>
+//                   </tr>
+//                   <tr>
+//                     <th>Arrears</th>
+//                     <td></td>
+//                     <td></td>
+//                     <td colspan="2"></td>
+//                   </tr>
+
+//                   <tr>
+//                     <th>Total</th>
+//                     <td>${salary}</td>
+//                     <td>${salary}</td>
+//                     <th>Total Deductions</th>
+//                     <td>0</td>
+//                   </tr>
+
+//                   <tr>
+//                     <td colspan="3"></td>
+//                     <th>Net Salary </th>
+//                     <td>${salary}</td>
+//                   </tr>
+
+//                   <tr>
+//                     <td colspan="5"><b>For Ezuka Services Ltd</b>  <br>
+//                        <i>This is computer generated statement hence signature is not required.</i> </td>
+//                   </tr>
+//                 </table>
+//               </body>
+//             </html>
+
+//           `;
+
+//             const options = { format: "Letter" };
+//             const payslipName = `paySlip_${name}_${salary_date}.pdf`
+//             pdf.create(htmlContent, options).toStream((err, stream) => {
+//                 if (err) {
+//                     return res.json({
+//                         status: false,
+//                         message: "An error occurred while generating the PDF",
+//                         error: error
+//                     })
+//                 }
+//                 res.setHeader("Content-Type", "application/pdf");
+//                 res.setHeader("Content-Disposition", `attachment; filename="${payslipName}"`);
+//                 stream.pipe(res);
+//             });
+//         })
+//     })
+// }
+
 exports.generatePaysipPdf = async (req, res) => {
     const { payslipId } = req.params
 
@@ -327,7 +509,7 @@ exports.generatePaysipPdf = async (req, res) => {
             })
         }
         const payroll = results[0]
-        await SQL.get('employee', '', `id=${payroll.employee_id}`, (error, result) => {
+        await SQL.get('employee', '', `id=${payroll.employee_id}`, async (error, result) => {
             if (error) {
                 return res.json({
                     status: false
@@ -344,7 +526,6 @@ exports.generatePaysipPdf = async (req, res) => {
             const salary = Number(payroll.salary).toLocaleString()
 
 
-            const pdf = require("html-pdf");
             const htmlContent = `
             <!DOCTYPE html>
             <html lang="en">
@@ -480,20 +661,16 @@ exports.generatePaysipPdf = async (req, res) => {
             
           `;
 
-            const options = { format: "Letter" };
-            const payslipName = `paySlip_${name}_${salary_date}.pdf`
-            pdf.create(htmlContent, options).toStream((err, stream) => {
-                if (err) {
-                    return res.json({
-                        status: false,
-                        message: "An error occurred while generating the PDF",
-                        error: error
-                    })
-                }
-                res.setHeader("Content-Type", "application/pdf");
-                res.setHeader("Content-Disposition", `attachment; filename="${payslipName}"`);
-                stream.pipe(res);
-            });
+            const puppeteer = require('puppeteer');
+
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.setContent(htmlContent);
+            const pdfBuffer = await page.pdf();
+            await browser.close();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="download.pdf"');
+            res.send(pdfBuffer);
         })
     })
 }
