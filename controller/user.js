@@ -62,83 +62,81 @@ exports.createAccount = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  const { username, password } = req.body;
+  await validator.checkMandatoryFields(req, { username, password });
 
-    const { username, password } = req.body;
-    await validator.checkMandatoryFields(req, { username, password })
-
-    // const query = `SELECT * FROM user WHERE email = ? OR phone=?`;
-    const query = `
+  const query = `
     SELECT
-    u.id,
-    u.first_name,
-    u.last_name,
-    u.email,
-    u.password,
-    u.phone,
-    u.address1,
-    u.address2,
-    u.address3,
-    u.city,
-    u.state,
-    u.country,
-    u.postcode,
-    u.creation_date,
-    u.update_date,
-    GROUP_CONCAT(p.name) AS permissions
-FROM
-    user AS u
-    LEFT JOIN roles_users AS ru ON u.id = ru.user_id
-    LEFT JOIN roles AS r ON ru.role_id = r.id
-    LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
-    LEFT JOIN permissions AS p ON pr.permission_id = p.id
-WHERE
-    u.email = ? OR u.phone = ?
-GROUP BY
-    u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1, u.address2, u.address3, u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
+      u.id,
+      u.first_name,
+      u.last_name,
+      u.email,
+      u.password,
+      u.phone,
+      u.address1,
+      u.address2,
+      u.address3,
+      u.city,
+      u.state,
+      u.country,
+      u.postcode,
+      u.creation_date,
+      u.update_date,
+      GROUP_CONCAT(p.name) AS permissions
+    FROM
+      user AS u
+      LEFT JOIN roles_users AS ru ON u.id = ru.user_id
+      LEFT JOIN roles AS r ON ru.role_id = r.id
+      LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
+      LEFT JOIN permissions AS p ON pr.permission_id = p.id
+    WHERE
+      u.email = ? OR u.phone = ?
+    GROUP BY
+      u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1, u.address2, u.address3, u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
+  `;
+  const values = [username, username];
 
-    `;
-    const values = [username, username];
-
-    db.query(query, values, (error, results) => {
-        if (error) {
+  db.query(query, values, (error, results) => {
+    if (error) {
+      return res.json({
+        status: false,
+        message: 'Something went wrong --1',
+        error: error
+      });
+    } else {
+      if (results.length === 0) {
+        return res.json({
+          status: false,
+          message: 'Account does not exist'
+        });
+      } else {
+        const storedPassword = results[0].password;
+        bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
+          if (passwordMatch) {
+            const token = await auth.generate_token_user(results[0].id, results[0].email);
+            console.log(token);
+            results[0].token = token;
+            req.session.user = results[0];
+            delete results[0].password;
             return res.json({
-                status: false,
-                message: 'Something went wrong --1',
-                error: error
+              status: true,
+              message: 'Logged in',
+            //   data: { userId: results[0].id },
+              session: req.session // Use req.session.cookie.data to access the session ID
             });
-        } else {
-            if (results.length === 0) {
-                return res.json({
-                    status: false,
-                    message: 'Account does not exist'
-                });
-            } else {
-                const storedPassword = results[0].password;
-                bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
-                    const token = await auth.generate_token_user(results[0].id, results[0].email)
-                    console.log(token)
-                    results[0].token = token
-                    if (passwordMatch) {
-                        req.session.user = results[0]
-                        delete results[0].password
-                        return res.json({
-                            status: true,
-                            message: 'Logged in',
-                            data: { userId: results[0].id },
-                            session: req.session.cookie
-                        });
-                    } else {
-                        return res.json({
-                            status: false,
-                            message: 'Incorrect password',
-                            error: error
-                        });
-                    }
-                });
-            }
-        }
-    });
+          } else {
+            return res.json({
+              status: false,
+              message: 'Incorrect password',
+              error: error
+            });
+          }
+        });
+      }
+    }
+  });
 };
+
 
 exports.logOut = async (req, res) => {
     if (req.session) {
