@@ -484,8 +484,11 @@ exports.generatePaysipPdf = async (req, res) => {
             const payslipName = `paySlip_${name}_${salary_date}.pdf`
             pdf.create(htmlContent, options).toStream((err, stream) => {
                 if (err) {
-                    res.status(500).send("An error occurred while generating the PDF");
-                    return;
+                    return res.json({
+                        status: false,
+                        message: "An error occurred while generating the PDF",
+                        error: error
+                    })
                 }
                 res.setHeader("Content-Type", "application/pdf");
                 res.setHeader("Content-Disposition", `attachment; filename="${payslipName}"`);
