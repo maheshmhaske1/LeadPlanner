@@ -124,8 +124,8 @@ GROUP BY
                         return res.json({
                             status: true,
                             message: 'Logged in',
-                            data: results[0],
-                            session: req.session.user
+                            data: { userId: results[0].id },
+                            session: req.session.cookie
                         });
                     } else {
                         return res.json({
