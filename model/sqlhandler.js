@@ -18,6 +18,7 @@ exports.get = (tableName, columns, condition, callback) => {
     if (condition) {
         query += ` WHERE ${condition}`;
     }
+    query += ` ORDER BY id DESC`;
     console.log(query)
     db.query(query, (err, results) => {
         if (err) {

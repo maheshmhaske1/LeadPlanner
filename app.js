@@ -19,6 +19,7 @@ var dealRouter = require("./routes/deal");
 var taskRouter = require("./routes/task");
 var noteRouter = require("./routes/note");
 var leadDocRouter = require("./routes/leaddocument");
+var siteRouter = require("./routes/site");
 
 const { host, user, password, database } = process.env;
 
@@ -64,6 +65,7 @@ app.use("/api/deal", dealRouter);
 app.use("/api/note", noteRouter);
 app.use("/api/task", taskRouter);
 app.use("/api/lead/doc", leadDocRouter);
+app.use("/api/site", siteRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
