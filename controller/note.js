@@ -15,11 +15,11 @@ exports.createNote = async (req, res) => {
         }
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
-        return res.json({
-            status: false,
-            message: "id ,creation_date ,update_date cannot be add",
-        });
-        
+            return res.json({
+                status: false,
+                message: "id ,creation_date ,update_date cannot be add",
+            });
+
         SQL.insert('notes', req.body, (error, results) => {
             if (error) {
                 return res.json({
@@ -84,7 +84,7 @@ exports.updateNote = async (req, res) => {
 }
 
 exports.get = async (req, res) => {
-    
+
     try {
         const noteId = req.params.noteId;
         SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
