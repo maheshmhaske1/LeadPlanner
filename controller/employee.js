@@ -317,31 +317,3 @@ exports.getPayslip = async (req, res) => {
         });
     }
 }
-
-exports.generatePaysipPdf1 = async (req, res) => {
-
-}
-
-exports.generatePaysipPdf = async (req, res) => {
-    try {
-        const puppeteer = require('puppeteer');
-        const htmlContent = '<html><body><h1>PDF Content</h1></body></html>';
-
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-
-        await page.setContent(htmlContent);
-        const pdfBuffer = await page.pdf();
-
-        await browser.close();
-
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename="download.pdf"',
-        });
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send('An error occurred');
-    }
-}
