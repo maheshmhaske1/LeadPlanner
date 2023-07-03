@@ -79,7 +79,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
                     let batch = {
                         file_name: req.file.originalname,
                         user_id: req.body.userId,
-                        total_count: i,
+                        total_count: i+1,
                         success_count: successCount,
                         fail_count: failCount
                     }
