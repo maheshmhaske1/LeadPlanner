@@ -19,6 +19,14 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
         return;
     }
 
+
+    if (!req.body.userId) {
+        return res.json({
+            status: false,
+            message: "please provide userId"
+        })
+    }
+
     const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
     if (fileExtension !== "csv") {
         return res.json({
@@ -43,12 +51,15 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
                     message: `${req.file.originalname} is Empty`
                 })
             }
+            let failCount = 0
+            let successCount = 0
+
             results.map(async (result, i) => {
                 if (!result.first_name || !result.last_name || !result.company_name || !result.registration_no ||
                     !result.employees || !result.email) {
                     return res.json({
                         status: false,
-                        message: `first_name, last_name, company_name, gender, registration_no, employees, email these are required values please check rowNo ${i + 1}`
+                        message: `first_name, last_name, company_name, gender, registration_no, employees, email these are required values please check row number ${i + 1}.`
                     })
                 }
             })
@@ -56,13 +67,25 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
                 resultLength = i + 1
                 await SQL.insert('lead', result, (error, result) => {
                     if (error) {
+                        failCount += 1
                         return res.json({
                             status: false,
                             error: error
                         })
                     }
                 })
+                successCount += 1
                 if (resultLength == i + 1) {
+                    let batch = {
+                        file_name: req.file.originalname,
+                        user_id: req.body.userId,
+                        total_count: i,
+                        success_count: successCount,
+                        fail_count: failCount
+                    }
+                    await SQL.insert('batch', batch, (error, result) => {
+
+                    })
                     return res.json({
                         status: true,
                         message: "leads data imported"
