@@ -88,7 +88,7 @@ exports.updateProduct = async (req, res) => {
 
 exports.get = async (req, res) => {
     try {
-        const { productId } = req.body;
+        const { productId } = req.params;
         SQL.get(`product`, ``, `id=${productId}`, (error, results) => {
             if (error) {
                 return res.json({
