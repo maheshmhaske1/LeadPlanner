@@ -4,6 +4,13 @@ const validator = require("validator");
 exports.createSite = async (req, res) => {
     try {
 
+        const { site, route, view_page, title, description, sitemap } = req.params
+        if (!site || route || !view_page || !title || !description || !sitemap)
+            return res.json({
+                status: false,
+                message: "site, route, view_page, title, description, sitemap are required fields",
+            });
+
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
                 status: false,
