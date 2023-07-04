@@ -18,20 +18,20 @@ exports.createAccount = async (req, res) => {
 
         if (!first_name || !last_name || !email || !password || !phone) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "first_name, last_name, email, password, phone there fields are required"
             })
         }
         if (!validators.isEmail(email)) {
             return res.json({
-                status: false,
+                status: 0,
                 message: `${email} this is not an valid email`
             })
         }
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
@@ -40,12 +40,12 @@ exports.createAccount = async (req, res) => {
         SQL.insert('user', req.body, (error, result) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: 'user registered successfully',
                 data: result
             })
@@ -53,7 +53,7 @@ exports.createAccount = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -62,10 +62,10 @@ exports.createAccount = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { username, password } = req.body;
-  await validator.checkMandatoryFields(req, { username, password });
+    const { username, password } = req.body;
+    await validator.checkMandatoryFields(req, { username, password });
 
-  const query = `
+    const query = `
     SELECT
       u.id,
       u.first_name,
@@ -94,48 +94,48 @@ exports.login = async (req, res) => {
     GROUP BY
       u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1, u.address2, u.address3, u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
   `;
-  const values = [username, username];
+    const values = [username, username];
 
-  db.query(query, values, (error, results) => {
-    if (error) {
-      return res.json({
-        status: false,
-        message: 'Something went wrong --1',
-        error: error
-      });
-    } else {
-      if (results.length === 0) {
-        return res.json({
-          status: false,
-          message: 'Account does not exist'
-        });
-      } else {
-        const storedPassword = results[0].password;
-        bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
-          if (passwordMatch) {
-            const token = await auth.generate_token_user(results[0].id, results[0].email);
-            console.log(token);
-            results[0].token = token;
-            req.session.user = results[0];
-            delete results[0].password;
-            req.session.sessionID=req.sessionID
+    db.query(query, values, (error, results) => {
+        if (error) {
             return res.json({
-              status: true,
-              message: 'Logged in',
-            //   data: { userId: req.sessionID  },
-              session: req.session // Use req.session.cookie.data to access the session ID
+                status: 0,
+                message: 'Something went wrong --1',
+                error: error
             });
-          } else {
-            return res.json({
-              status: false,
-              message: 'Incorrect password',
-              error: error
-            });
-          }
-        });
-      }
-    }
-  });
+        } else {
+            if (results.length === 0) {
+                return res.json({
+                    status: 0,
+                    message: 'Account does not exist'
+                });
+            } else {
+                const storedPassword = results[0].password;
+                bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
+                    if (passwordMatch) {
+                        const token = await auth.generate_token_user(results[0].id, results[0].email);
+                        console.log(token);
+                        results[0].token = token;
+                        req.session.user = results[0];
+                        delete results[0].password;
+                        req.session.sessionID = req.sessionID
+                        return res.json({
+                            status: 1,
+                            message: 'Logged in',
+                            //   data: { userId: req.sessionID  },
+                            session: req.session // Use req.session.cookie.data to access the session ID
+                        });
+                    } else {
+                        return res.json({
+                            status: 0,
+                            message: 'Incorrect password',
+                            error: error
+                        });
+                    }
+                });
+            }
+        }
+    });
 };
 
 
@@ -145,14 +145,14 @@ exports.logOut = async (req, res) => {
             if (err) {
                 console.log('Error destroying session:', err);
                 return res.json({
-                    status: false,
+                    status: 0,
                     message: "error while Logging you out"
                 })
             }
         });
     }
     return res.json({
-        status: true,
+        status: 1,
         message: "Logged out successfully"
     })
 }
@@ -165,7 +165,7 @@ exports.sendOtp = async (req, res) => {
     if (email)
         if (!validate.isEmail(email)) {
             return res.json({
-                success: false,
+                status: 0,
                 message: "Please enter a valid email"
             });
         }
@@ -173,13 +173,13 @@ exports.sendOtp = async (req, res) => {
     db.query('select email from user where email=?', [email], (error, response) => {
         if (error) {
             return res.json({
-                success: false,
+                status: 0,
                 message: "something went wrong"
             });
         }
         if (response.length == 0) {
             return res.json({
-                status: false,
+                status: 0,
                 message: `this email ${email} is not registered`
             })
         }
@@ -194,7 +194,7 @@ exports.sendOtp = async (req, res) => {
         if (error) {
             console.error('Error deleting OTP:', error);
             return res.json({
-                success: false,
+                status: 0,
                 message: "Something went wrong while deleting the OTP",
                 error: error
             });
@@ -204,14 +204,14 @@ exports.sendOtp = async (req, res) => {
             if (err) {
                 console.error('Error inserting OTP:', err);
                 return res.json({
-                    success: false,
+                    status: 0,
                     message: "Something went wrong while sending the OTP",
                     error: err
                 });
             }
 
             return res.json({
-                success: true,
+                status: 1,
                 message: `OTP sent to ${email}`
             });
         });
@@ -226,7 +226,7 @@ exports.verifyOTP = (req, res) => {
     if (email)
         if (!validate.isEmail(email)) {
             return res.json({
-                success: false,
+                status: 0,
                 message: "please enter valid emil"
             })
         }
@@ -238,7 +238,7 @@ exports.verifyOTP = (req, res) => {
         if (error) {
             console.error('Error verifying OTP:', error);
             return res.json({
-                success: false,
+                status: 0,
                 message: "Error verifying OTP",
             });
         } else {
@@ -248,26 +248,26 @@ exports.verifyOTP = (req, res) => {
 
                 if (storedOTP === otp && validUntill > Date.now()) {
                     return res.json({
-                        success: true,
+                        status: 1,
                         message: "OTP is valid",
                     });
                 }
                 else if (storedOTP === otp && validUntill < Date.now()) {
                     return res.json({
-                        success: false,
+                        status: 0,
                         message: "OTP Expired",
                     });
                 }
                 else if (storedOTP != otp) {
                     return res.json({
-                        success: false,
+                        status: 0,
                         message: "OTP not Matched",
                     });
                 }
             } else {
                 console.log('OTP not found');
                 return res.json({
-                    success: false,
+                    status: 0,
                     message: "OTP not found",
                 });
             }
@@ -283,7 +283,7 @@ exports.forgotPassword = async (req, res) => {
     if (email)
         if (!validate.isEmail(email)) {
             return res.json({
-                success: false,
+                status: 0,
                 message: "Please enter a valid email",
             });
         }
@@ -296,7 +296,7 @@ exports.forgotPassword = async (req, res) => {
         if (error) {
             console.error('Error verifying OTP:', error);
             return res.json({
-                success: false,
+                status: 0,
                 message: "Error verifying OTP",
             });
         } else {
@@ -310,19 +310,19 @@ exports.forgotPassword = async (req, res) => {
                     console.log(hashedPassword)
                     db.query('update user SET password=? where email=?', [hashedPassword, email])
                     return res.json({
-                        success: false,
+                        status: 1,
                         message: "Password updated",
                     });
                 }
                 else if (storedOTP === otp && validUntill < Date.now()) {
                     return res.json({
-                        success: false,
+                        status: 0,
                         message: "OTP Expired",
                     });
                 }
                 else if (storedOTP != otp) {
                     return res.json({
-                        success: false,
+                        status: 0,
                         message: "OTP not Matched",
                     });
                 }
