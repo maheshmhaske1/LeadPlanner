@@ -153,7 +153,7 @@ exports.getAll = async (req, res) => {
             }
             return res.json({
                 status: 1,
-                message: "employee details",
+                message: "Lead details",
                 data: results
             })
         });
