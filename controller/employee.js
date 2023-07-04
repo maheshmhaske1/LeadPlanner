@@ -16,7 +16,7 @@ exports.createEmployee = async (req, res) => {
         if (!first_name || !last_name || !dob || !gender || !hire_date ||
             !emp_no || !department || !salary || !personal_email || !password || !aadhaar_no) {
             return res.json({
-                status: false,
+                status: 0,
                 message:
                     "first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email, password, aadhaar_no these are required values",
             });
@@ -24,13 +24,13 @@ exports.createEmployee = async (req, res) => {
 
         if (!validator.isEmail(personal_email))
             return res.json({
-                status: false,
+                status: 0,
                 message: `${personal_email} is not valid email`,
             });
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
@@ -42,13 +42,13 @@ exports.createEmployee = async (req, res) => {
         SQL.insert("employee", req.body, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error,
                 });
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: "employee added successfully",
                     results,
                 });
@@ -56,7 +56,7 @@ exports.createEmployee = async (req, res) => {
         });
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
@@ -70,14 +70,14 @@ exports.updateEmployee = async (req, res) => {
 
         if (!employeeId) {
             return req.json({
-                status: false,
+                status: 0,
                 message: "please enter employeeId",
             });
         }
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be edit",
             });
         }
@@ -89,13 +89,13 @@ exports.updateEmployee = async (req, res) => {
             (error, results) => {
                 if (error) {
                     return res.json({
-                        status: false,
+                        status: 0,
                         error: error,
                     });
                 }
                 if (results.affectedRows > 0) {
                     return res.json({
-                        status: true,
+                        status: 1,
                         message: "employee details updated successfully",
                     });
                 }
@@ -103,7 +103,7 @@ exports.updateEmployee = async (req, res) => {
         );
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
@@ -116,19 +116,19 @@ exports.getEmployee = async (req, res) => {
         SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error,
                 });
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "employee details",
                 data: results,
             });
         });
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
@@ -140,19 +140,19 @@ exports.getAll = async (req, res) => {
         SQL.get("employee", "", "", (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error,
                 });
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "employee details",
                 data: results,
             });
         });
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
@@ -165,7 +165,7 @@ exports.login = async (req, res) => {
 
         if (!username || !password) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "username and password are required fields",
             });
         }
@@ -177,13 +177,13 @@ exports.login = async (req, res) => {
             async (error, results) => {
                 if (error) {
                     return res.json({
-                        status: false,
+                        status: 0,
                         error: error,
                     });
                 }
                 if (results.length === 0) {
                     return res.json({
-                        status: false,
+                        status: 0,
                         message: "employee not registered",
                     });
                 }
@@ -191,14 +191,14 @@ exports.login = async (req, res) => {
                 if (isPasswordMatch) {
                     req.session.user = results[0]
                     return res.json({
-                        status: true,
+                        status: 1,
                         message: "logged in",
                         data: { employee: results[0].id },
                         session: req.session
                     });
                 } else {
                     return res.json({
-                        status: false,
+                        status: 0,
                         message: "incorrect password"
                     });
                 }
@@ -206,7 +206,7 @@ exports.login = async (req, res) => {
         );
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
@@ -217,14 +217,14 @@ exports.uploadDoc = async (req, res) => {
     uploadEmployeeDoc(req, res, function (error) {
         if (error) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "something went wrong",
                 error: error,
             });
         }
         const imageName = req.file.filename;
         return res.json({
-            status: true,
+            status: 1,
             message: "image added successfully",
             data: imageName,
         });
@@ -238,13 +238,13 @@ exports.removeDoc = async (req, res) => {
     fs.unlink(imagePath, (error) => {
         if (error) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "something went wrong",
                 error: error,
             });
         }
         return res.json({
-            status: true,
+            status: 1,
             message: "image removed successfully",
         });
     });
@@ -255,7 +255,7 @@ exports.getPayslips = async (req, res) => {
         const { employeeId } = req.params
         if (!employeeId) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "please provide employeeId"
             })
         }
@@ -263,19 +263,19 @@ exports.getPayslips = async (req, res) => {
         SQL.get("payroll", "", `employee_id=${employeeId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error,
                 });
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "employee payslips details",
                 data: results,
             });
         });
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
@@ -289,7 +289,7 @@ exports.getPayslip = async (req, res) => {
         await SQL.get('payroll', '', `id=${payslipId}`, async (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
@@ -297,10 +297,11 @@ exports.getPayslip = async (req, res) => {
             await SQL.get('employee', '', `id=${payroll.employee_id}`, (error, result) => {
                 if (error) {
                     return res.json({
-                        status: false
+                        status: 0
                     })
                 }
                 return res.json({
+                    status:1,
                     message: "salary slip data",
                     data: {
                         payroll: payroll,
@@ -311,7 +312,7 @@ exports.getPayslip = async (req, res) => {
         })
     } catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error,
         });

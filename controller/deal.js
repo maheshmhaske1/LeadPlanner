@@ -12,27 +12,27 @@ exports.createLead = async (req, res) => {
 
         if (!lead_id || !account_name || !deal_value || !currency || !closure_date) {
             return res.json({
-                status: false,
+                status: 0,
                 message: 'lead_id, account_name, deal_value, currency ,closure_date these are required values'
             })
         }
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
         SQL.insert('deal', req.body, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: 'deal added successfully',
                     data: results
                 })
@@ -41,7 +41,7 @@ exports.createLead = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -57,7 +57,7 @@ exports.updateLead = async (req, res) => {
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be edit"
             })
         }
@@ -65,13 +65,13 @@ exports.updateLead = async (req, res) => {
         SQL.update('deal', update_data, `id=${dealId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: 'deal details updated successfully'
                 })
             }
@@ -79,7 +79,7 @@ exports.updateLead = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -92,12 +92,12 @@ exports.get = async (req, res) => {
         SQL.get(`deal`, ``, `id=${dealId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "deal details",
                 data: results
             })
@@ -105,7 +105,7 @@ exports.get = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -117,12 +117,12 @@ exports.getAll = async (req, res) => {
         SQL.get('deal', '', '', (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "deal details",
                 data: results
             })
@@ -130,7 +130,7 @@ exports.getAll = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })

@@ -4,29 +4,29 @@ const validator = require("validator");
 exports.createSite = async (req, res) => {
     try {
 
-        const { site, route, view_page, title, description, sitemap } = req.params
-        if (!site || route || !view_page || !title || !description || !sitemap)
+        const { site, route, view_page, title, description, sitemap } = req.body
+        if (!site || !route || !view_page || !title || !description || !sitemap)
             return res.json({
-                status: false,
+                status: 0,
                 message: "site, route, view_page, title, description, sitemap are required fields",
             });
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
         SQL.insert('xx_pages', req.body, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: 'site added successfully',
                     data: results
                 })
@@ -35,13 +35,12 @@ exports.createSite = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
     }
 };
-
 
 exports.updateSite = async (req, res) => {
     try {
@@ -51,7 +50,7 @@ exports.updateSite = async (req, res) => {
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
-                status: false,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be edit"
             })
         }
@@ -59,13 +58,13 @@ exports.updateSite = async (req, res) => {
         SQL.update('xx_pages', update_data, `id=${siteId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: 'site details updated successfully'
                 })
             }
@@ -73,7 +72,7 @@ exports.updateSite = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -86,12 +85,12 @@ exports.get = async (req, res) => {
         SQL.get(`xx_pages`, ``, `id=${siteId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "site details",
                 data: results
             })
@@ -99,7 +98,7 @@ exports.get = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -111,12 +110,12 @@ exports.getAll = async (req, res) => {
         SQL.get('xx_pages', '', '', (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "site details",
                 data: results
             })
@@ -124,7 +123,7 @@ exports.getAll = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 0,
             message: "something went wrong",
             error: error
         })

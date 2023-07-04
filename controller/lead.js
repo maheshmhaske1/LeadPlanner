@@ -18,33 +18,33 @@ exports.createLead = async (req, res) => {
 
         if (!first_name || !last_name || !company_name || !registration_no || !employees || !email) {
             return res.json({
-                status: false,
+                status: 1,
                 message: 'first_name, last_name, company_name, gender, registration_no, employees, email these are required values'
             })
         }
 
         if (!validator.isEmail(email))
             return res.json({
-                status: false,
+                status: 1,
                 message: `${email} is not valid email`
             })
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
-                status: false,
+                status: 1,
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
         SQL.insert('lead', req.body, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 1,
                     error: error
                 })
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: 'lead added successfully', results
                 })
             }
@@ -52,7 +52,7 @@ exports.createLead = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 1,
             message: "something went wrong",
             error: error
         })
@@ -86,7 +86,7 @@ exports.updateLead = async (req, res) => {
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
-                status: false,
+                status: 1,
                 message: "id ,creation_date ,update_date cannot be edit"
             })
         }
@@ -94,13 +94,13 @@ exports.updateLead = async (req, res) => {
         SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 1,
                     error: error
                 })
             }
             if (results.affectedRows > 0) {
                 return res.json({
-                    status: true,
+                    status: 1,
                     message: 'lead details updated successfully',
                     data: results
                 })
@@ -109,7 +109,7 @@ exports.updateLead = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 1,
             message: "something went wrong",
             error: error
         })
@@ -122,12 +122,12 @@ exports.get = async (req, res) => {
         SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 1,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "lead details",
                 data: results
             })
@@ -135,7 +135,7 @@ exports.get = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 1,
             message: "something went wrong",
             error: error
         })
@@ -147,12 +147,12 @@ exports.getAll = async (req, res) => {
         SQL.get('lead', '', '', (error, results) => {
             if (error) {
                 return res.json({
-                    status: false,
+                    status: 1,
                     error: error
                 })
             }
             return res.json({
-                status: true,
+                status: 1,
                 message: "employee details",
                 data: results
             })
@@ -160,7 +160,7 @@ exports.getAll = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: false,
+            status: 1,
             message: "something went wrong",
             error: error
         })

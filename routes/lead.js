@@ -12,8 +12,8 @@ const upload = multer({ dest: '/public/leadcsv/' });
 router.post('/add', leadController.createLead)
 router.put('/edit/:leadId', leadController.updateLead)
 router.get('/get/:leadId', leadController.get)
-router.get('/getAll', leadController.getAll)
-router.post('/importCsv', upload.single('file'), (req, res) => {
+router.get('/getall', leadController.getAll)
+router.post('/importcsv', upload.single('file'), (req, res) => {
     if (!req.file) {
         res.status(400).json({ error: 'No file uploaded' });
         return;
@@ -22,7 +22,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
 
     if (!req.body.userId) {
         return res.json({
-            status: false,
+            status: 0,
             message: "please provide userId"
         })
     }
@@ -30,7 +30,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
     const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
     if (fileExtension !== "csv") {
         return res.json({
-            status: false,
+            status: 0,
             message: `please provide .csv file .${fileExtension} format not allowed`
         })
     }
@@ -47,7 +47,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
             fs.unlinkSync(req.file.path);
             if (results.length == 0) {
                 return res.json({
-                    status: false,
+                    status: 0,
                     message: `${req.file.originalname} is Empty`
                 })
             }
@@ -58,7 +58,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
                 if (!result.first_name || !result.last_name || !result.company_name || !result.registration_no ||
                     !result.employees || !result.email) {
                     return res.json({
-                        status: false,
+                        status: 0,
                         message: `first_name, last_name, company_name, gender, registration_no, employees, email these are required values please check row number ${i + 1}.`
                     })
                 }
@@ -69,7 +69,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
                     if (error) {
                         failCount += 1
                         return res.json({
-                            status: false,
+                            status: 0,
                             error: error
                         })
                     }
@@ -87,7 +87,7 @@ router.post('/importCsv', upload.single('file'), (req, res) => {
 
                     })
                     return res.json({
-                        status: true,
+                        status: 1,
                         message: "leads data imported"
                     })
                 }

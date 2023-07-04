@@ -14,11 +14,11 @@ router.get("/get/:blogId", blogController.getBlog);
 router.put("/edit/:blogId", blogController.editBlog);
 router.post("/addImg", blogController.addBlogImage);
 router.delete("/deleteImg/:blogImage", blogController.deleteBlogImage);
-router.get("/tag/getAll", blogController.getAllBlogTags);
+router.get("/tag/getall", blogController.getAllBlogTags);
 router.post("/tag/add", blogController.addBlogTag);
 
 // ============================== section api ============================== //
 router.put("/section/update/:sectionId", blogController.editSection);
-router.get("/section/getByBlog/:blogId", blogController.getSectionByBlog);
+router.get("/section/getbyblog/:blogId", blogController.getSectionByBlog);
 
 module.exports = router;

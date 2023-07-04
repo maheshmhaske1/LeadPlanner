@@ -11,21 +11,21 @@ exports.addBlog = async (req, res) => {
 
     if (!title || !url || !description || !tag || !date) {
       return res.json({
-        status: false,
+        status: 0,
         message: " title, url, description, image, tag, date are required fields"
       })
     }
 
     if (req.body.id || req.body.creation_date || req.body.update_date)
       return res.json({
-        status: false,
+        status: 0,
         message: "id ,creation_date ,update_date cannot be add",
       });
 
     SQL.insert('xx_blog', { title, url, site, description, route, image, tag, date }, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
@@ -37,14 +37,14 @@ exports.addBlog = async (req, res) => {
           await SQL.insert('xx_blog_details', section, (error, results) => {
             if (error) {
               return res.json({
-                status: false,
+                status: 0,
                 error: error
               })
             }
           })
         })
         return res.json({
-          status: true,
+          status: 1,
           message: 'blog added',
           data: { blogId: blogId }
         })
@@ -53,7 +53,7 @@ exports.addBlog = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -65,12 +65,12 @@ exports.getBlogs = async (req, res) => {
     SQL.get(`xx_blog`, ``, ``, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
       return res.json({
-        status: true,
+        status: 1,
         message: "blog details",
         data: results
       })
@@ -78,7 +78,7 @@ exports.getBlogs = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -92,14 +92,14 @@ exports.editBlog = async (req, res) => {
 
     if (!blogId) {
       return res, json({
-        status: false,
+        status: 0,
         message: "please provide blogId"
       })
     }
 
     if (req.body.id || req.body.creation_date || req.body.update_date) {
       return res.json({
-        status: false,
+        status: 0,
         message: "id ,creation_date ,update_date cannot be edit",
       });
     }
@@ -108,7 +108,7 @@ exports.editBlog = async (req, res) => {
     SQL.update("xx_blog", { title, url, description, route, site, image, tag, date }, `id=${blogId}`, (error, response) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           message: 'something went wrong -1', error
         })
       }
@@ -119,7 +119,7 @@ exports.editBlog = async (req, res) => {
               await SQL.update('xx_blog_details', section, `id=${section.id}`, (error, response) => {
                 if (error) {
                   return res.json({
-                    status: false,
+                    status: 0,
                     message: 'something went wrong -2'.error
                   })
                 }
@@ -130,7 +130,7 @@ exports.editBlog = async (req, res) => {
               await SQL.insert('xx_blog_details', section, (error, results) => {
                 if (error) {
                   return res.json({
-                    status: false,
+                    status: 0,
                     error: error
                   })
                 }
@@ -138,7 +138,7 @@ exports.editBlog = async (req, res) => {
             }
           })
         return res.json({
-          status: true,
+          status: 1,
           message: "blog details updated successfully"
         })
       }
@@ -146,7 +146,7 @@ exports.editBlog = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -159,12 +159,12 @@ exports.getBlog = async (req, res) => {
     SQL.get('xx_blog', '', `id=${blogId}`, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
       return res.json({
-        status: true,
+        status: 1,
         message: "blog details",
         data: results
       })
@@ -172,7 +172,7 @@ exports.getBlog = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -184,12 +184,12 @@ exports.getAllBlogTags = async (req, res) => {
     SQL.get('xx_blog_tag', '', ``, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
       return res.json({
-        status: true,
+        status: 1,
         message: "blog tags details",
         data: results
       })
@@ -197,7 +197,7 @@ exports.getAllBlogTags = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -213,13 +213,13 @@ exports.addBlogTag = async (req, res) => {
     SQL.insert('xx_blog_tag', req.body, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
       if (results.affectedRows > 0) {
         return res.json({
-          status: true,
+          status: 1,
           message: 'tags added successfully'
         })
       }
@@ -227,7 +227,7 @@ exports.addBlogTag = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -240,14 +240,14 @@ exports.addBlogImage = async (req, res) => {
   uploadBlogImg(req, res, function (error) {
     if (error) {
       return res.json({
-        status: false,
+        status: 0,
         message: "something went wrong",
         error: error,
       });
     }
     const imageName = req.file.filename;
     return res.json({
-      status: true,
+      status: 1,
       message: "image added successfully",
       data: imageName,
     });
@@ -261,13 +261,13 @@ exports.deleteBlogImage = async (req, res) => {
   fs.unlink(imagePath, (error) => {
     if (error) {
       return res.json({
-        status: false,
+        status: 0,
         message: "something went wrong",
         error: error,
       });
     }
     return res.json({
-      status: true,
+      status: 1,
       message: "image removed successfully",
     });
   });
@@ -282,7 +282,7 @@ exports.editSection = async (req, res) => {
 
     if (update_data.id) {
       return res.json({
-        status: false,
+        status: 0,
         message: "id cannot be edit"
       })
     }
@@ -290,13 +290,13 @@ exports.editSection = async (req, res) => {
     SQL.update('xx_blog_details', update_data, `id=${sectionId}`, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
       if (results.affectedRows > 0) {
         return res.json({
-          status: true,
+          status: 1,
           message: 'section details updated successfully'
         })
       }
@@ -304,7 +304,7 @@ exports.editSection = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
@@ -318,12 +318,12 @@ exports.getSectionByBlog = async (req, res) => {
     SQL.get('xx_blog_details', '', `blogid=${blogId}`, (error, results) => {
       if (error) {
         return res.json({
-          status: false,
+          status: 0,
           error: error
         })
       }
       return res.json({
-        status: true,
+        status: 1,
         message: "blog sections details",
         data: results
       })
@@ -331,7 +331,7 @@ exports.getSectionByBlog = async (req, res) => {
   }
   catch (error) {
     return res.json({
-      status: false,
+      status: 0,
       message: "something went wrong",
       error: error
     })
