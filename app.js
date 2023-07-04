@@ -20,6 +20,8 @@ var taskRouter = require("./routes/task");
 var noteRouter = require("./routes/note");
 var leadDocRouter = require("./routes/leaddocument");
 var siteRouter = require("./routes/site");
+var pipelineRouter = require("./routes/pipeline");
+var productRouter = require("./routes/product");
 
 const { host, user, password, database } = process.env;
 
@@ -66,6 +68,8 @@ app.use("/api/note", noteRouter);
 app.use("/api/task", taskRouter);
 app.use("/api/lead/doc", leadDocRouter);
 app.use("/api/site", siteRouter);
+app.use("/api/product", productRouter);
+app.use("/api/pipeline", pipelineRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

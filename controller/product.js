@@ -1,13 +1,13 @@
 const SQL = require('../model/sqlhandler')
 
-exports.createSite = async (req, res) => {
+exports.createProduct = async (req, res) => {
     try {
 
-        const { site, route, view_page, title, description, sitemap } = req.body
-        if (!site || !route || !view_page || !title || !description || !sitemap)
+        const { name, description } = req.body
+        if (!name || !description)
             return res.json({
                 status: 0,
-                message: "site, route, view_page, title, description, sitemap are required fields",
+                message: "name and description are required fields",
             });
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
@@ -16,7 +16,7 @@ exports.createSite = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.insert('xx_pages', req.body, (error, results) => {
+        SQL.insert('product', req.body, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -26,7 +26,7 @@ exports.createSite = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: 1,
-                    message: 'site added successfully',
+                    message: 'product added successfully',
                     data: results
                 })
             }
@@ -41,11 +41,10 @@ exports.createSite = async (req, res) => {
     }
 };
 
-exports.updateSite = async (req, res) => {
+exports.updateProduct = async (req, res) => {
     try {
-        const { siteId } = req.params
+        const { productId } = req.params
         const update_data = req.body
-
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -54,7 +53,16 @@ exports.updateSite = async (req, res) => {
             })
         }
 
-        SQL.update('xx_pages', update_data, `id=${siteId}`, (error, results) => {
+        SQL.get('product', '', `id=${productId}`, (error, result) => {
+            if (error || result.length == 0) {
+                return res.json({
+                    status: 0,
+                    message: 'please enter valid product id'
+                })
+            }
+        })
+
+        SQL.update('product', update_data, `id=${productId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -64,7 +72,7 @@ exports.updateSite = async (req, res) => {
             if (results.affectedRows > 0) {
                 return res.json({
                     status: 1,
-                    message: 'site details updated successfully'
+                    message: 'product details updated successfully'
                 })
             }
         })
@@ -80,8 +88,8 @@ exports.updateSite = async (req, res) => {
 
 exports.get = async (req, res) => {
     try {
-        const siteId = req.params.siteId;
-        SQL.get(`xx_pages`, ``, `id=${siteId}`, (error, results) => {
+        const { productId } = req.body;
+        SQL.get(`product`, ``, `id=${productId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -90,7 +98,7 @@ exports.get = async (req, res) => {
             }
             return res.json({
                 status: 1,
-                message: "site details",
+                message: "product details",
                 data: results
             })
         });
@@ -106,7 +114,7 @@ exports.get = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-        SQL.get('xx_pages', '', '', (error, results) => {
+        SQL.get('product', '', '', (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -115,7 +123,7 @@ exports.getAll = async (req, res) => {
             }
             return res.json({
                 status: 1,
-                message: "site details",
+                message: "product details",
                 data: results
             })
         });
