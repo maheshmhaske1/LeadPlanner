@@ -57,7 +57,7 @@ app.use('/blog', express.static(path.join(__dirname, 'public/blog'))) // PROFILE
 app.use('/employee/doc', express.static(path.join(__dirname, 'public/employeeDoc'))) // PROFILE IMAGES
 
 app.use("/", indexRouter);
-app.use("/api/admin/blog", blogRouter);
+app.use("/api/blog", blogRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employee", employeeRouter);
 app.use("/api/lead", leadRouter);
