@@ -171,12 +171,12 @@ exports.getAll = async (req, res) => {
                                 Open,
                                 Unread,
                                 InProgress,
-                            },
-                        });
-                    });
-                });
-            });
-        });
+                            }
+                        })
+                    })
+                })
+            })
+        })
     } catch (error) {
         return res.json({
             status: 1,

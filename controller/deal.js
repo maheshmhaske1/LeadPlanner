@@ -2,18 +2,18 @@
 const SQL = require('../model/sqlhandler')
 const validator = require("validator");
 
-exports.createLead = async (req, res) => {
+exports.createDeal = async (req, res) => {
     try {
         const {
-            lead_id, account_name, deal_value, currency, status, owner,
+            lead_id, account_name, value, currency, status, owner,
             probability, closure_date, attr1, attr2, attr3
         } = req.body;
 
 
-        if (!lead_id || !account_name || !deal_value || !currency || !closure_date) {
+        if (!lead_id || !account_name || !value || !currency || !closure_date) {
             return res.json({
                 status: 0,
-                message: 'lead_id, account_name, deal_value, currency ,closure_date these are required values'
+                message: 'lead_id, account_name, value, currency ,closure_date these are required values'
             })
         }
 
@@ -23,21 +23,29 @@ exports.createLead = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.insert('deal', req.body, (error, results) => {
-            if (error) {
+        SQL.get('lead', '', `id=${lead_id}`, (error, result) => {
+            if (result.length == 0) {
                 return res.json({
                     status: 0,
-                    error: error
+                    message: "please enter valid lead_id"
                 })
             }
-            if (results.affectedRows > 0) {
-                return res.json({
-                    status: 1,
-                    message: 'deal added successfully',
-                    data: results
-                })
-            }
-        });
+            SQL.insert('deal', req.body, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+                if (results.affectedRows > 0) {
+                    return res.json({
+                        status: 1,
+                        message: 'deal added successfully',
+                        data: results
+                    })
+                }
+            });
+        })
     }
     catch (error) {
         return res.json({
@@ -49,7 +57,7 @@ exports.createLead = async (req, res) => {
 };
 
 
-exports.updateLead = async (req, res) => {
+exports.updateDeal = async (req, res) => {
     try {
         const { dealId } = req.params
         const update_data = req.body
@@ -114,19 +122,39 @@ exports.get = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-        SQL.get('deal', '', '', (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    error: error
+        let Open = [];
+        let New = [];
+        let Unread = [];
+        let InProgress = [];
+
+        SQL.get(`deal`, ``, `status="Open"`, async (error, results) => {
+            Open = results;
+            await SQL.get('deal', '', 'status="New"', async (error, result) => {
+                New = result;
+                await SQL.get('deal', '', 'status="Unread"', async (error, result) => {
+                    Unread = result;
+                    await SQL.get('deal', '', 'status="In Progress"', (error, result) => {
+                        InProgress = result;
+                        if (error)
+                            return res.json({
+                                status: 1,
+                                error: error
+                            });
+
+                        return res.json({
+                            status: 1,
+                            message: "Deal details",
+                            data: {
+                                New,
+                                Open,
+                                Unread,
+                                InProgress,
+                            }
+                        })
+                    })
                 })
-            }
-            return res.json({
-                status: 1,
-                message: "deal details",
-                data: results
             })
-        });
+        })
     }
     catch (error) {
         return res.json({
