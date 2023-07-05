@@ -119,7 +119,7 @@ exports.updateLead = async (req, res) => {
 exports.get = async (req, res) => {
     try {
         const leadId = req.params.leadId;
-        SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
+        SQL.get(`lead`, ``, `status="Open"`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 1,
@@ -144,25 +144,44 @@ exports.get = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-        SQL.get('lead', '', '', (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 1,
-                    error: error
-                })
-            }
-            return res.json({
-                status: 1,
-                message: "Lead details",
-                data: results
-            })
+        let Open = [];
+        let New = [];
+        let Unread = [];
+        let InProgress = [];
+
+        SQL.get(`lead`, ``, `status="Open"`, async (error, results) => {
+            Open = results;
+            await SQL.get('lead', '', 'status="New"', async (error, result) => {
+                New = result;
+                await SQL.get('lead', '', 'status="Unread"', async (error, result) => {
+                    Unread = result;
+                    await SQL.get('lead', '', 'status="In Progress"', (error, result) => {
+                        InProgress = result;
+                        if (error)
+                            return res.json({
+                                status: 1,
+                                error: error
+                            });
+
+                        return res.json({
+                            status: 1,
+                            message: "Lead details",
+                            data: {
+                                New,
+                                Open,
+                                Unread,
+                                InProgress,
+                            },
+                        });
+                    });
+                });
+            });
         });
-    }
-    catch (error) {
+    } catch (error) {
         return res.json({
             status: 1,
             message: "something went wrong",
-            error: error
-        })
+            error: error,
+        });
     }
-}
+};
