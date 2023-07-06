@@ -1,6 +1,5 @@
 // const db = require("../db");
 const SQL = require('../model/sqlhandler')
-const validator = require("validator");
 
 exports.createDoc = async (req, res) => {
     try {
@@ -120,7 +119,6 @@ exports.get = async (req, res) => {
 
 exports.getAllBySource = async (req, res) => {
     const { source_id } = req.params
-
     if (!source_id) {
         return res.json({
             status: 0,

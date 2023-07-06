@@ -10,16 +10,13 @@ const upload = multer({ storage: storage });
 
 exports.createLead = async (req, res) => {
     try {
-        const {
-            company_name, registration_no, employees, gst_no, first_name,
-            last_name, type, address1, address2, city, state, country, pin, phone, phone1, email, website
-        } = req.body;
+        const { company_name, registration_no, employees, value, first_name, last_name, email, status } = req.body;
 
 
-        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email) {
+        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value) {
             return res.json({
                 status: 1,
-                message: 'first_name, last_name, company_name, gender, registration_no, employees, email these are required values'
+                message: 'first_name, last_name, company_name, gender, registration_no, ,value ,employees, ,status ,email these are required values'
             })
         }
 
@@ -86,7 +83,7 @@ exports.updateLead = async (req, res) => {
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
-                status: 1,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be edit"
             })
         }
@@ -94,7 +91,7 @@ exports.updateLead = async (req, res) => {
         SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: 1,
+                    status: 0,
                     error: error
                 })
             }
@@ -109,7 +106,7 @@ exports.updateLead = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: 1,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -122,7 +119,7 @@ exports.get = async (req, res) => {
         SQL.get(`lead`, ``, `status="Open"`, (error, results) => {
             if (error) {
                 return res.json({
-                    status: 1,
+                    status: 0,
                     error: error
                 })
             }
@@ -135,7 +132,7 @@ exports.get = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: 1,
+            status: 0,
             message: "something went wrong",
             error: error
         })
@@ -159,7 +156,7 @@ exports.getAll = async (req, res) => {
                         InProgress = result;
                         if (error)
                             return res.json({
-                                status: 1,
+                                status: 0,
                                 error: error
                             });
 
@@ -179,9 +176,64 @@ exports.getAll = async (req, res) => {
         })
     } catch (error) {
         return res.json({
-            status: 1,
+            status: 0,
             message: "something went wrong",
             error: error,
         });
     }
 };
+
+exports.convertLeadToDeal = async (req, res) => {
+    const { leadId } = req.params
+
+    SQL.get('lead', '', `id=${leadId}`, (error, result) => {
+        if (error)
+            return res.json({
+                status: 0,
+                error: error
+            })
+
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'please enter valid lead id'
+            })
+        }
+        if (result[0].status == 'Deal') {
+            return res.json({
+                status: 0,
+                message: 'this lead already converted into deal'
+            })
+        }
+        const lead = result[0]
+        const deal = {
+            lead_id: lead.id,
+            status: 'New',
+            value: lead.value,
+            priority: lead.priority,
+            owner: lead.company_name,
+            account_name: lead.first_name + ` ` + lead.last_name,
+        }
+
+        SQL.insert('deal', deal, (error, result) => {
+            if (error)
+                return res.json({
+                    status: 0,
+                    error: error
+                })
+            const update_lead = { status: "Deal" }
+            SQL.update('lead', update_lead, `id=${leadId}`, (error, result) => {
+                if (error)
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                return res.json({
+                    status: 1,
+                    message: 'lead successfully converted to deal'
+                })
+
+            })
+        })
+    })
+}

@@ -1,4 +1,3 @@
-// const db = require("../db");
 const SQL = require('../model/sqlhandler')
 const validator = require("validator");
 
@@ -55,7 +54,6 @@ exports.createDeal = async (req, res) => {
         })
     }
 };
-
 
 exports.updateDeal = async (req, res) => {
     try {
@@ -122,10 +120,7 @@ exports.get = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-        let Open = [];
-        let New = [];
-        let Unread = [];
-        let InProgress = [];
+        let Open = []; let New = []; let Unread = []; let InProgress = [];
 
         SQL.get(`deal`, ``, `status="Open"`, async (error, results) => {
             Open = results;

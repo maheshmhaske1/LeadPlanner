@@ -13,6 +13,7 @@ router.post('/add', leadController.createLead)
 router.put('/edit/:leadId', leadController.updateLead)
 router.get('/get/:leadId', leadController.get)
 router.get('/getall', leadController.getAll)
+router.post('/convertintodeal/:leadId', leadController.convertLeadToDeal)
 router.post('/importcsv', upload.single('file'), (req, res) => {
     if (!req.file) {
         res.status(400).json({ error: 'No file uploaded' });
@@ -79,7 +80,7 @@ router.post('/importcsv', upload.single('file'), (req, res) => {
                     let batch = {
                         file_name: req.file.originalname,
                         user_id: req.body.userId,
-                        total_count: i+1,
+                        total_count: i + 1,
                         success_count: successCount,
                         fail_count: failCount
                     }
