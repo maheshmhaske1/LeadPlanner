@@ -1,8 +1,9 @@
 // const db = require("../db");
 const SQL = require('../model/sqlhandler')
+const db = require('../model/db')
+const csv = require('csv-parser');
 const validator = require("validator");
 const fs = require('fs');
-const csv = require('csvtojson');
 const multer = require('multer');
 
 const storage = multer.memoryStorage();
@@ -57,22 +58,74 @@ exports.createLead = async (req, res) => {
 };
 
 exports.importLead = async (req, res) => {
-    if (!req.file) {
-        res.status(400).json({ error: 'No file uploaded' });
-        return;
+    {
+        if (!req.file) {
+            res.status(400).json({ error: 'No file uploaded' });
+            return;
+        }
+
+        if (!req.body.userId) {
+            return res.json({
+                status: 0,
+                message: "please provide userId"
+            })
+        }
+
+        const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
+        if (fileExtension !== "csv") {
+            return res.json({
+                status: 0,
+                message: `please provide .csv file .${fileExtension} format not allowed`
+            })
+        }
+
+        const result = [];
+        let resultLength = 0;
+
+        fs.createReadStream(req.file.path)
+            .pipe(csv())
+            .on('data', (data) => {
+                result.push(data);
+            })
+            .on('end', () => {
+                fs.unlinkSync(req.file.path);
+                if (result.length == 0) {
+                    return res.json({
+                        status: 0,
+                        message: `${req.file.originalname} is Empty`
+                    })
+                }
+                let failCount = 0
+                let successCount = 0
+
+                let query = ``
+                for (let i = 0; i < result.length; i++) {
+                    if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
+                        !result[i].employees || !result[i].email || !result[i].value || !result[i].status) {
+                        return res.json({
+                            status: 0,
+                            message: `value, status, first_name, last_name, company_name, gender, registration_no, employees, email these are required values please check row number ${i + 1}.`
+                        });
+                    }
+
+                    query += `
+                      INSERT INTO \`lead\` (\`source\`, \`status\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`, \`priority\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
+                      VALUES ('${!result[i].source ? null : result[i].source}', '${result[i].status}', '${result[i].company_name}', '${result[i].registration_no}', '${!result[i].employees ? null : result[i].employees}','${result[i].first_name}', '${result[i].last_name}', '${result[i].priority}', '${!result[i].type ? null : result[i].type}', ${result[i].value},'${!result[i].address1 ? null : result[i].address1}', '${!result[i].address2 ? null : result[i].address2}', '${!result[i].city ? null : result[i].city}', '${!result[i].state ? null : result[i].state}','${!result[i].country ? null : result[i].country}', '${!result[i].pin ? null : result[i].pin}', '${!result[i].phone ? null : result[i].phone}','${result[i].email}', '${!result[i].website ? null : result[i].website}');`
+                }
+                db.query(query, (err, res) => {
+                    if (err) {
+                        return res.json({
+                            status: 0,
+                            message: err
+                        })
+                    }
+                })
+                return res.json({
+                    status: 1,
+                    message: "data imported successfully"
+                })
+            });
     }
-
-    const results = [];
-
-    fs.createReadStream(req.file.path)
-        .pipe(csv())
-        .on('data', (data) => {
-            results.push(data);
-        })
-        .on('end', () => {
-            fs.unlinkSync(req.file.path);
-            res.json({ data: results });
-        });
 }
 
 exports.updateLead = async (req, res) => {
@@ -116,7 +169,7 @@ exports.updateLead = async (req, res) => {
 exports.get = async (req, res) => {
     try {
         const leadId = req.params.leadId;
-        SQL.get(`lead`, ``, `status="Open"`, (error, results) => {
+        SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
