@@ -12,16 +12,17 @@ exports.createDoc = async (req, res) => {
             })
         }
 
-        if (req.body.id || req.body.creation_date || req.body.update_date)
+        if (req.body.id || req.body.creation_date || req.body.update_date || req.body.comment || req.body.status)
             return res.json({
                 status: 0,
-                message: "id ,creation_date ,update_date cannot be add",
+                message: "id ,creation_date ,update_date ,comment ,status cannot be add",
             });
 
         const imageName = req.file.filename;
         req.body.url = imageName
+        req.body.status = 'Pending'
+        req.body.deleted = 0
         if (!imageName) return res.json({ status: 0, message: "please provide image" })
-
 
         SQL.insert('activity', req.body, (error, results) => {
             if (error) {
