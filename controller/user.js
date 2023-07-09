@@ -122,7 +122,7 @@ exports.login = async (req, res) => {
                         return res.json({
                             status: 1,
                             message: 'Logged in',
-                            landingurl:"http://core.leadplaner.com:3000/",
+                            landingurl: "http://core.leadplaner.com:3000/",
                             //   data: { userId: req.sessionID  },
                             session: req.session // Use req.session.cookie.data to access the session ID
                         });
