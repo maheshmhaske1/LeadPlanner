@@ -102,8 +102,9 @@ exports.login = async (req, res) => {
       u.email = ? OR u.phone = ?
     GROUP BY
       u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
-  `;
+    `;
     const values = [username, username];
+
 
     db.query(query, values, (error, results) => {
         if (error) {
@@ -122,19 +123,24 @@ exports.login = async (req, res) => {
                 const storedPassword = results[0].password;
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
-                        const token = await auth.generate_token_user(results[0].id, results[0].email);
-                        console.log(token);
-                        results[0].token = token;
-                        req.session.user = results[0];
-                        delete results[0].password;
-                        req.session.sessionID = req.sessionID
-                        return res.json({
-                            status: 1,
-                            message: 'Logged in',
-                            landingurl: "http://core.leadplaner.com:3000/",
-                            //   data: { userId: req.sessionID  },
-                            session: req.session // Use req.session.cookie.data to access the session ID
-                        });
+                        SQL.get('roles_users', '', `user_id=${results[0].id}`, async (error, results) => {
+
+                            const role = results[0].role_id
+                            console.log(role)
+                            const token = await auth.generate_token_user(results[0].id, results[0].email);
+                            console.log(token);
+                            results[0].token = token;
+                            req.session.user = results[0];
+                            delete results[0].password;
+                            req.session.sessionID = req.sessionID
+                            return res.json({
+                                status: 1,
+                                message: 'Logged in',
+                                landingurl: role == 1 ? `http://core.leadplaner.com:3000/` : role == 3 ? 'http://core.leadplaner.com:3000/admin/' : '',
+                                session: req.session
+                            });
+                        })
+
                     } else {
                         return res.json({
                             status: 0,
