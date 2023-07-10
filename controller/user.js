@@ -14,12 +14,12 @@ jwtOptions = {
 
 exports.createAccount = async (req, res) => {
     try {
-        let { first_name, last_name, email, password, phone, address1, address2, address3, city, state, country, postcode } = req.body
+        let { first_name, last_name, email, password, phone, role } = req.body
 
         if (!first_name || !last_name || !email || !password || !phone) {
             return res.json({
                 status: 0,
-                message: "first_name, last_name, email, password, phone there fields are required"
+                message: "first_name, last_name, email, password, phone this fields are required"
             })
         }
         if (!validators.isEmail(email)) {
@@ -35,8 +35,10 @@ exports.createAccount = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
+        const user_role = role
+        delete req.body.role
+        console.log(req.body)
         req.body.password = await bcrypt.hash(password, 10);
-        console.log(password)
         SQL.insert('user', req.body, (error, result) => {
             if (error) {
                 return res.json({
@@ -44,10 +46,19 @@ exports.createAccount = async (req, res) => {
                     error: error
                 })
             }
-            return res.json({
-                status: 1,
-                message: 'user registered successfully',
-                data: result
+            const userId = result.insertId;
+            SQL.insert('roles_users', { user_id: userId, role_id: role }, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+                return res.json({
+                    status: 1,
+                    message: 'user registered successfully',
+                    data: result
+                })
             })
         })
     }
@@ -74,8 +85,6 @@ exports.login = async (req, res) => {
       u.password,
       u.phone,
       u.address1,
-      u.address2,
-      u.address3,
       u.city,
       u.state,
       u.country,
@@ -92,7 +101,7 @@ exports.login = async (req, res) => {
     WHERE
       u.email = ? OR u.phone = ?
     GROUP BY
-      u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1, u.address2, u.address3, u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
+      u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
   `;
     const values = [username, username];
 
