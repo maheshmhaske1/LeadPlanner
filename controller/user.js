@@ -105,8 +105,8 @@ exports.login = async (req, res) => {
     `;
     const values = [username, username];
 
-
     db.query(query, values, (error, results) => {
+        const userDetails = results
         if (error) {
             return res.json({
                 status: 0,
@@ -124,13 +124,10 @@ exports.login = async (req, res) => {
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
                         SQL.get('roles_users', '', `user_id=${results[0].id}`, async (error, results) => {
-
                             const role = results[0].role_id
-                            console.log(role)
                             const token = await auth.generate_token_user(results[0].id, results[0].email);
-                            console.log(token);
                             results[0].token = token;
-                            req.session.user = results[0];
+                            req.session.user = userDetails;
                             delete results[0].password;
                             req.session.sessionID = req.sessionID
                             return res.json({
