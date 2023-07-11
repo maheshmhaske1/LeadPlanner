@@ -10,7 +10,8 @@ router.get('/', function (req, res, next) {
 });
 
 // res.render('index', { title: 'Express' });
-router.get('/test', checkSession, function (req, res, next) {
+router.get('/api/test', checkSession, function (req, res, next) {
+  console.log(req.session)
   res.json({
     status: true,
     message: "OK"
