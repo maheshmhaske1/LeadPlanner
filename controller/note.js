@@ -139,7 +139,7 @@ exports.get = async (req, res) => {
 }
 
 exports.getAllBySource = async (req, res) => {
-    const { source_id } = req.params
+    const { source, source_id } = req.params
 
     if (!source_id) {
         return res.json({
@@ -161,7 +161,7 @@ exports.getAllBySource = async (req, res) => {
                     message: "please provide valid noteId",
                 });
             }
-            SQL.get('notes', '', `source_id=${source_id}`, (error, results) => {
+            SQL.get('notes', '', `source_type='${source}' AND source_id=${source_id}`, (error, results) => {
                 if (error) {
                     return res.json({
                         status: 0,
