@@ -104,7 +104,7 @@ exports.importLead = async (req, res) => {
                         !result[i].employees || !result[i].email || !result[i].value || !result[i].status) {
                         return res.json({
                             status: 0,
-                            message: `value, status, first_name, last_name, company_name, gender, registration_no, employees, email these are required values please check row number ${i + 1}.`
+                            message: `value, status, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
                         });
                     }
 
