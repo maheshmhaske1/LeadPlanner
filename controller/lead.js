@@ -17,7 +17,7 @@ exports.createLead = async (req, res) => {
         if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value) {
             return res.json({
                 status: 1,
-                message: 'first_name, last_name, company_name, gender, registration_no, ,value ,employees, ,status ,email these are required values'
+                message: 'first_name, last_name, company_name, registration_no, value ,employees, ,status ,email these are required values'
             })
         }
 

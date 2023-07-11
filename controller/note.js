@@ -4,13 +4,13 @@ const validator = require("validator");
 
 exports.createNote = async (req, res) => {
     try {
-        const { source_id, type, description, created_by, status, sort, importance, urgency, viewable, attr2, attr1 } = req.body;
+        const { source_id, type, description, created_by, status, sort, importance, urgency, viewable, attr2, source_type } = req.body;
 
-
-        if (!source_id || !type || !description || !created_by || !status || !sort) {
+        console.log(!viewable)
+        if (!source_id || !type || !description || !created_by || !status || !sort || !source_type) {
             return res.json({
                 status: 0,
-                message: 'source_id, type, description, created_by, status, sort these are required values'
+                message: 'source_id, type, description, created_by, status, sort, source_type these are required values'
             })
         }
 
@@ -20,21 +20,35 @@ exports.createNote = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.insert('notes', req.body, (error, results) => {
+        SQL.get('lead', ``, `id=${source_id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error
-                })
+                    message: error,
+                });
             }
-            if (results.affectedRows > 0) {
+            if (results.length == 0) {
                 return res.json({
-                    status: 1,
-                    message: 'note added successfully',
-                    data: results
-                })
+                    status: 0,
+                    message: "please provide valid source_id",
+                });
             }
-        });
+            SQL.insert('notes', req.body, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+                if (results.affectedRows > 0) {
+                    return res.json({
+                        status: 1,
+                        message: 'note added successfully',
+                        data: results
+                    })
+                }
+            });
+        })
     }
     catch (error) {
         return res.json({
@@ -49,7 +63,7 @@ exports.updateNote = async (req, res) => {
     try {
         const { noteId } = req.params
         const update_data = req.body
-
+        console.log(req.body)
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -58,20 +72,35 @@ exports.updateNote = async (req, res) => {
             })
         }
 
-        SQL.update('notes', update_data, `id=${noteId}`, (error, results) => {
+        SQL.get('notes', ``, `id=${noteId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error
-                })
+                    message: error,
+                });
             }
-            if (results.affectedRows > 0) {
+            if (results.length == 0) {
                 return res.json({
-                    status: 1,
-                    message: 'note details updated successfully',
-                    data: results
-                })
+                    status: 0,
+                    message: "please provide valid noteId",
+                });
             }
+
+            SQL.update('notes', update_data, `id=${noteId}`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+                if (results.affectedRows > 0) {
+                    return res.json({
+                        status: 1,
+                        message: 'note details updated successfully',
+                        data: results
+                    })
+                }
+            })
         })
     }
     catch (error) {
@@ -84,7 +113,6 @@ exports.updateNote = async (req, res) => {
 }
 
 exports.get = async (req, res) => {
-
     try {
         const noteId = req.params.noteId;
         SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
@@ -120,19 +148,33 @@ exports.getAllBySource = async (req, res) => {
         })
     }
     try {
-        SQL.get('notes', '', `source_id=${source_id}`, (error, results) => {
+        SQL.get('lead', ``, `id=${source_id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error
-                })
+                    message: error,
+                });
             }
-            return res.json({
-                status: 1,
-                message: "notes of source",
-                data: results
-            })
-        });
+            if (results.length == 0) {
+                return res.json({
+                    status: 0,
+                    message: "please provide valid noteId",
+                });
+            }
+            SQL.get('notes', '', `source_id=${source_id}`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+                return res.json({
+                    status: 1,
+                    message: "notes of source",
+                    data: results
+                })
+            });
+        })
     }
     catch (error) {
         return res.json({
