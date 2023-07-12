@@ -167,6 +167,8 @@ exports.updateLead = async (req, res) => {
 }
 
 exports.get = async (req, res) => {
+    console.log("req.session.userId ==>", req.session)
+    
     try {
         const leadId = req.params.leadId;
         SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {

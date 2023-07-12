@@ -135,7 +135,7 @@ exports.login = async (req, res) => {
                                 message: 'Logged in',
                                 landingurl: role == 1 ? `http://core.leadplaner.com:3000/` : role == 3 ? 'http://core.leadplaner.com:3000/admin/' : '',
                                 session: req.session,
-                                user:userDetails
+                                user: userDetails
                             });
                         })
 
