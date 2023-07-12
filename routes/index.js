@@ -11,11 +11,17 @@ router.get('/', function (req, res, next) {
 
 // res.render('index', { title: 'Express' });
 router.get('/api/test', function (req, res, next) {
-  console.log(req.session)
-  // res.json({
-  //   status: true,
-  //   message: "OK"
-  // })
+  if (!req.session.userId) {
+    return res.json({
+      message: 'please login'
+    })
+  }
+  else
+    return res.json({
+      status: 200,
+      session: req.session.userId
+    })
+
 });
 
 module.exports = router;

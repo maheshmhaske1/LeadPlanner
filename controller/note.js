@@ -7,10 +7,10 @@ exports.createNote = async (req, res) => {
         const { source_id, type, description, created_by, status, sort, importance, urgency, viewable, attr2, source_type } = req.body;
 
         console.log(!viewable)
-        if (!source_id || !type || !description || !created_by || !status || !sort || !source_type) {
+        if (!source_id || !description || !created_by || !source_type || !importance) {
             return res.json({
                 status: 0,
-                message: 'source_id, type, description, created_by, status, sort, source_type these are required values'
+                message: 'source_id, description, created_by, source_type, importance these are required values'
             })
         }
 

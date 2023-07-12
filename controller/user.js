@@ -127,9 +127,9 @@ exports.login = async (req, res) => {
                             const role = results[0].role_id
                             const token = await auth.generate_token_user(results[0].id, results[0].email);
                             results[0].token = token;
-                            req.session.user = userDetails;
+                            req.session.userId = userDetails[0].id;
                             delete results[0].password;
-                            req.session.sessionID = req.sessionID
+                            // req.session.sessionID = req.sessionID
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
@@ -151,22 +151,14 @@ exports.login = async (req, res) => {
     });
 };
 
-
 exports.logOut = async (req, res) => {
-    if (req.session) {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log('Error destroying session:', err);
-                return res.json({
-                    status: 0,
-                    message: "error while Logging you out"
-                })
-            }
-        });
-    }
-    return res.json({
-        status: 1,
-        message: "Logged out successfully"
+    req.session.destroy(function (err) {
+        if (!err) {
+            return res.json({
+                status: 1,
+                message: "Logged out successfully"
+            })
+        }
     })
 }
 
@@ -287,7 +279,6 @@ exports.verifyOTP = (req, res) => {
         }
     });
 };
-
 
 exports.forgotPassword = async (req, res) => {
     const { email, otp, password } = req.body;

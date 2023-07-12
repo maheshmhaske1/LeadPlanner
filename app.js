@@ -27,23 +27,41 @@ const { host, user, password, database } = process.env;
 
 var app = express();
 
-const dbConfig = {
-  host: host,
-  user: user,
-  port: 3306,
-  password: password,
-  database: database,
+var corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
 };
-const sessionStore = new MySQLStore(dbConfig);
+app.use(cors(corsOptions));
 
-app.use(cors())
+var options = {
+    host: host,
+    user: user,
+    port: 3306,
+    password: password,
+    database: database,
+}
+
+var sessionConnection = mysql.createConnection(options);
+var sessionStore = new MySQLStore({
+    expiration: 10800000,
+    createDatabaseTable: true,
+    schema: {
+        tableName: 'sessiontbl',
+        columnNames: {
+            session_id: 'sesssion_id',
+            expires: 'expires',
+            data: 'data'
+        }
+    }
+}, sessionConnection)
+
 app.use(session({
-  secret: 'dmsaldkmaslkmalckmzxlckmflsdmfsdjgnsdlvlmzxcmzx',
-  resave: false,
-  saveUninitialized: true,
-  store: sessionStore,
-  cookie: { secure: false, expires: new Date(Date.now() + 864000000) }
-}));
+    key: 'keyin',
+    secret: 'my secret',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: true
+}))
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -51,7 +69,7 @@ app.set("view engine", "jade");
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
