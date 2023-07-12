@@ -335,3 +335,140 @@ exports.forgotPassword = async (req, res) => {
         }
     });
 }
+
+exports.addTeamMember = async (req, res) => {
+    const { source_id, first_name, last_name, contact } = req.body
+
+    if (!source_id || !first_name || !last_name || !contact) {
+        return res.json({
+            status: 0,
+            message: 'source_id,first_name,last_name,contact are required fields'
+        })
+    }
+
+    await SQL.get('user', ``, `id=${source_id}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: 'something went wrong',
+                error: error
+            })
+        }
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'please provide valid source id'
+            })
+        }
+
+        SQL.insert('team', req.body, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: 'something went wrong',
+                    error: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: 'team member added',
+                data: result
+            })
+        })
+    })
+}
+
+exports.getTeamMembers = async (req, res) => {
+    const { source_id } = req.body
+
+    if (!source_id) {
+        return res.json({
+            status: 0,
+            message: 'source_id is required fields'
+        })
+    }
+
+    await SQL.get('user', ``, `id=${source_id}`, async (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: 'something went wrong',
+                error: error
+            })
+        }
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'please provide valid source id'
+            })
+        }
+        await SQL.get('team', ``, `source_id=${source_id}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: 'something went wrong',
+                    error: error
+                })
+            }
+            return res.json({
+                status: 0,
+                message: 'team member details',
+                data: result
+            })
+        })
+
+    })
+}
+
+
+exports.updateTeamMembers = async (req, res) => {
+    const { member_id } = req.params
+    const update_data = req.body
+
+    if (!member_id) {
+        return res.json({
+            status: 0,
+            message: 'member_id is required fields'
+        })
+    }
+
+    if (update_data.id || update_data.creation_date || update_data.update_date) {
+        return res.json({
+            status: 0,
+            message: "id ,creation_date ,update_date cannot be edit"
+        })
+    }
+
+    await SQL.get('team', ``, `id=${member_id}`, async (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: 'something went wrong',
+                error: error
+            })
+        }
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'please provide valid member_id'
+            })
+        }
+        await SQL.update('team', update_data, `id=${member_id}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: 'something went wrong',
+                    error: error
+                })
+            }
+            if (result.affectedRows > 0) {
+                return res.json({
+                    status: 1,
+                    message: 'member details updated successfully',
+                    data: result
+                })
+            }
+        })
+
+    })
+}
