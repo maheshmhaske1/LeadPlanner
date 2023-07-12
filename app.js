@@ -31,7 +31,7 @@ var corsOptions = {
   // origin: 'http://localhost:3000',
   origin: [
     'http://localhost:3000',
-    'http://core.leadplaner.com:3000/',
+    'http://core.leadplaner.com:3000',
   ],
   credentials: true,
 };
