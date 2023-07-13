@@ -10,34 +10,41 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 exports.createLead = async (req, res) => {
+    console.log(req.decoded)
     try {
         const { company_name, registration_no, employees, value, first_name, last_name, email, status } = req.body;
-
-
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
         if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value) {
             return res.json({
-                status: 1,
+                status: 0,
                 message: 'first_name, last_name, company_name, registration_no, value ,employees, ,status ,email these are required values'
             })
         }
 
         if (!validator.isEmail(email))
             return res.json({
-                status: 1,
+                status: 0,
                 message: `${email} is not valid email`
             })
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
-                status: 1,
+                status: 0,
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
+        req.body.owner = loggedInUser.id
         SQL.insert('lead', req.body, (error, results) => {
             if (error) {
                 return res.json({
-                    status: 1,
-                    error: error
+                    status: 0,
+                    message: error
                 })
             }
             if (results.affectedRows > 0) {
@@ -52,7 +59,7 @@ exports.createLead = async (req, res) => {
         return res.json({
             status: 1,
             message: "something went wrong",
-            error: error
+            message: error
         })
     }
 };
@@ -63,13 +70,15 @@ exports.importLead = async (req, res) => {
         return;
     }
 
-    if (!req.body.userId) {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
             status: 0,
-            message: "please provide userId"
+            message: "Not Authorized",
         })
     }
 
+    const owner = loggedInUser.id
     const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
     if (fileExtension !== "csv") {
         return res.json({
@@ -79,7 +88,6 @@ exports.importLead = async (req, res) => {
     }
 
     const result = [];
-    let resultLength = 0;
 
     fs.createReadStream(req.file.path)
         .pipe(csv())
@@ -108,8 +116,8 @@ exports.importLead = async (req, res) => {
                 }
 
                 query += `
-                      INSERT INTO \`lead\` (\`source\`,\`lead_name\`, \`position\`,\`status\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`, \`priority\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
-                      VALUES ('${!result[i].source ? null : result[i].source}', '${!result[i].lead_name ? '' : result[i].lead_name}','${!result[i].position ? '' : result[i].position}','${result[i].status}', '${result[i].company_name}', '${result[i].registration_no}', '${!result[i].employees ? '' : result[i].employees}','${result[i].first_name}', '${result[i].last_name}', '${result[i].priority}', '${!result[i].type ? '' : result[i].type}', ${result[i].value},'${!result[i].address1 ? '' : result[i].address1}', '${!result[i].address2 ? '' : result[i].address2}', '${!result[i].city ? '' : result[i].city}', '${!result[i].state ? '' : result[i].state}','${!result[i].country ? '' : result[i].country}', '${!result[i].pin ? '' : result[i].pin}', '${!result[i].phone ? '' : result[i].phone}','${result[i].email}', '${!result[i].website ? '' : result[i].website}');`
+                      INSERT INTO \`lead\` (\`owner\`,\`source\`,\`lead_name\`, \`position\`,\`status\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`, \`priority\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
+                      VALUES (${owner},'${!result[i].source ? null : result[i].source}', '${!result[i].lead_name ? '' : result[i].lead_name}','${!result[i].position ? '' : result[i].position}','${result[i].status}', '${result[i].company_name}', '${result[i].registration_no}', '${!result[i].employees ? '' : result[i].employees}','${result[i].first_name}', '${result[i].last_name}', '${result[i].priority}', '${!result[i].type ? '' : result[i].type}', ${result[i].value},'${!result[i].address1 ? '' : result[i].address1}', '${!result[i].address2 ? '' : result[i].address2}', '${!result[i].city ? '' : result[i].city}', '${!result[i].state ? '' : result[i].state}','${!result[i].country ? '' : result[i].country}', '${!result[i].pin ? '' : result[i].pin}', '${!result[i].phone ? '' : result[i].phone}','${result[i].email}', '${!result[i].website ? '' : result[i].website}');`
             }
             db.query(query, (err, result) => {
                 if (err) {
@@ -133,6 +141,13 @@ exports.updateLead = async (req, res) => {
         const { leadId } = req.params
         const update_data = req.body
 
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role !== 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -141,11 +156,21 @@ exports.updateLead = async (req, res) => {
             })
         }
 
+        SQL.get('lead', '', `id=${leadId} AND owner=${loggedInUser.id}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            console.log(result)
+        })
+
         SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error
+                    message: error
                 })
             }
             if (results.affectedRows > 0) {
@@ -161,58 +186,91 @@ exports.updateLead = async (req, res) => {
         return res.json({
             status: 0,
             message: "something went wrong",
-            error: error
+            message: error
         })
     }
 }
 
 exports.get = async (req, res) => {
-    console.log("req.session.userId ==>", req.session)
-
     try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role !== 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const owner = loggedInUser.id
         const leadId = req.params.leadId;
-        SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
+
+        SQL.get('lead', ``, `id=${leadId} AND owner=${owner}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error
+                    message: error
                 })
             }
-            return res.json({
-                status: 1,
-                message: "lead details",
-                data: results
-            })
-        });
+            if (result.length == 0 || result[0].owner !== owner) {
+                return res.json({
+                    status: 0,
+                    message: 'Not permitted or Invalid Lead'
+                })
+            }
+            SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                return res.json({
+                    status: 1,
+                    message: "lead details",
+                    data: results
+                })
+            });
+        })
+
     }
     catch (error) {
         return res.json({
             status: 0,
             message: "something went wrong",
-            error: error
+            message: error
         })
     }
 }
 
 exports.getAll = async (req, res) => {
     try {
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role !== 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        let leadOwner = loggedInUser.id
         let Open = [];
         let New = [];
         let Unread = [];
         let InProgress = [];
 
-        SQL.get(`lead`, ``, `status="Open"`, async (error, results) => {
+        SQL.get(`lead`, ``, `status="Open" AND owner=${leadOwner}`, async (error, results) => {
             Open = results;
-            await SQL.get('lead', '', 'status="New"', async (error, result) => {
+            await SQL.get('lead', '', `status="New" AND owner=${leadOwner}`, async (error, result) => {
                 New = result;
-                await SQL.get('lead', '', 'status="Unread"', async (error, result) => {
+                await SQL.get('lead', '', `status="Unread" AND owner=${leadOwner}`, async (error, result) => {
                     Unread = result;
-                    await SQL.get('lead', '', 'status="In Progress"', (error, result) => {
+                    await SQL.get('lead', '', `status="In Progress" AND owner=${leadOwner}`, (error, result) => {
                         InProgress = result;
                         if (error)
                             return res.json({
                                 status: 0,
-                                error: error
+                                message: error
                             });
 
                         return res.json({
@@ -233,7 +291,7 @@ exports.getAll = async (req, res) => {
         return res.json({
             status: 0,
             message: "something went wrong",
-            error: error,
+            message: error,
         });
     }
 };
@@ -245,7 +303,7 @@ exports.convertLeadToDeal = async (req, res) => {
         if (error)
             return res.json({
                 status: 0,
-                error: error
+                message: error
             })
 
         if (result.length == 0) {
@@ -274,14 +332,14 @@ exports.convertLeadToDeal = async (req, res) => {
             if (error)
                 return res.json({
                     status: 0,
-                    error: error
+                    message: error
                 })
             const update_lead = { status: "Deal" }
             SQL.update('lead', update_lead, `id=${leadId}`, (error, result) => {
                 if (error)
                     return res.json({
                         status: 0,
-                        error: error
+                        message: error
                     })
                 return res.json({
                     status: 1,
