@@ -121,12 +121,14 @@ exports.login = async (req, res) => {
                 });
             } else {
                 const storedPassword = results[0].password;
+                console.log("userDetails[0].id => 124",userDetails[0].id)
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
                         SQL.get('roles_users', '', `user_id=${results[0].id}`, async (error, results) => {
                             const role = results[0].role_id
                             const token = await auth.generate_token_user(results[0].id, results[0].email);
                             results[0].token = token;
+                            console.log("userDetails[0].id => 130",userDetails[0].id)
                             req.session.userId = userDetails[0].id;
                             delete results[0].password;
                             // req.session.sessionID = req.sessionID
