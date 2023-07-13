@@ -119,12 +119,18 @@ exports.login = async (req, res) => {
                 });
             } else {
                 const storedPassword = results[0].password;
+                console.log("userDetails[0].id => 124",userDetails[0].id)
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
                         SQL.get('roles_users', '', `user_id=${results[0].id}`, async (error, results) => {
                             const role = results[0].role_id
                             const token = await jwt.sign({ id: userDetails[0].id }, JWT_TOKEN, { expiresIn: '10d' });
                             results[0].token = token;
+<<<<<<< HEAD
+=======
+                            console.log("userDetails[0].id => 130",userDetails[0].id)
+                            req.session.userId = userDetails[0].id;
+>>>>>>> 1b322f9fdfcfb8c251b28856d15441e693e10b6a
                             delete results[0].password;
                             return res.json({
                                 status: 1,
