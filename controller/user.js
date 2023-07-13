@@ -5,12 +5,10 @@ const db = require("../model/db");
 const validator = require("../model/validators");
 const validate = require('validator')
 const Email = require('../model/mail')
-const auth = require('../model/auth')
 const SQL = require('../model/sqlhandler')
+const dotenv = require("dotenv").config();
 
-jwtOptions = {
-    expiresIn: '1h', // Token expiration time
-};
+const { JWT_TOKEN } = process.env;
 
 exports.createAccount = async (req, res) => {
     try {
@@ -125,17 +123,15 @@ exports.login = async (req, res) => {
                     if (passwordMatch) {
                         SQL.get('roles_users', '', `user_id=${results[0].id}`, async (error, results) => {
                             const role = results[0].role_id
-                            const token = await auth.generate_token_user(results[0].id, results[0].email);
+                            const token = await jwt.sign({ id: userDetails[0].id }, JWT_TOKEN, { expiresIn: '10d' });
                             results[0].token = token;
-                            req.session.userId = userDetails[0].id;
                             delete results[0].password;
-                            // req.session.sessionID = req.sessionID
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
                                 landingurl: role == 1 ? `http://core.leadplaner.com:3000/` : role == 3 ? 'http://core.leadplaner.com:3000/admin/' : '',
-                                session: req.session,
-                                user: userDetails
+                                user: userDetails,
+                                token: token
                             });
                         })
 
@@ -419,7 +415,6 @@ exports.getTeamMembers = async (req, res) => {
 
     })
 }
-
 
 exports.updateTeamMembers = async (req, res) => {
     const { member_id } = req.params

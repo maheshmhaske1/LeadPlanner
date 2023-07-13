@@ -4,11 +4,6 @@ var cors = require("cors");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-var mysql = require("mysql");
-var db = require("./model/db");
-const dotenv = require("dotenv").config();
-const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
 
 var indexRouter = require("./routes/index");
 var blogRouter = require("./routes/blog");
@@ -36,36 +31,6 @@ var corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-
-var options = {
-    host: host,
-    user: user,
-    port: 3306,
-    password: password,
-    database: database,
-}
-
-var sessionConnection = mysql.createConnection(options);
-var sessionStore = new MySQLStore({
-    expiration: 10800000,
-    createDatabaseTable: true,
-    schema: {
-        tableName: 'sessiontbl',
-        columnNames: {
-            session_id: 'sesssion_id',
-            expires: 'expires',
-            data: 'data'
-        }
-    }
-}, sessionConnection)
-
-app.use(session({
-    key: 'keyin',
-    secret: 'my secret',
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: true
-}))
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
