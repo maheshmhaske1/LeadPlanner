@@ -293,16 +293,22 @@ exports.getPayslip = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-        console.log(loggedInUser)
 
         const { payslipId } = req.params
         await SQL.get('payroll', '', `id=${payslipId}`, async (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error
+                    message: error
                 })
             }
+
+            if(results.length == 0){
+                return res.json({
+                    status: 0,
+                    message: 'please provide valid payslipid'
+                })
+            } 
 
             const payroll = results[0]
             await SQL.get('user', '', `id=${loggedInUser.id}`, (error, result) => {
@@ -312,19 +318,32 @@ exports.getPayslip = async (req, res) => {
                         message: error
                     })
                 }
-                if (result.length == 0) {
+                if (result.length == 0 || !result[0].employee) {
                     return res.json({
                         status: 0,
                         message: 'not valid user'
                     })
                 }
-                return res.json({
-                    status: 1,
-                    message: "salary slip data",
-                    data: {
-                        payroll: payroll,
-                        employee: result[0]
+
+                let employee_id
+                if (result[0].employee) {
+                    employee_id = Number(result[0].employee)
+                }
+                SQL.get('employee', ``, `id=${employee_id}`, (error, result) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
                     }
+                    return res.json({
+                        status: 1,
+                        message: "salary slip data",
+                        data: {
+                            payroll: payroll,
+                            employee: result[0]
+                        }
+                    })
                 })
             })
         })
