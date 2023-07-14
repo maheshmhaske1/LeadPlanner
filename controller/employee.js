@@ -305,7 +305,7 @@ exports.getPayslip = async (req, res) => {
             }
 
             const payroll = results[0]
-            await SQL.get('employee', '', `id=${loggedInUser.id}`, (error, result) => {
+            await SQL.get('user', '', `id=${loggedInUser.id}`, (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
