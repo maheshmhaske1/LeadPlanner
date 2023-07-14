@@ -5,7 +5,6 @@ const validator = require("validator");
 exports.createNote = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        console.log("loggedInUser ==>", loggedInUser)
         if (!loggedInUser || loggedInUser.role != 1) {
             return res.json({
                 status: 0,

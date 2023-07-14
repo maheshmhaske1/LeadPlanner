@@ -252,15 +252,16 @@ exports.removeDoc = async (req, res) => {
 
 exports.getPayslips = async (req, res) => {
     try {
-        const { employeeId } = req.params
-        if (!employeeId) {
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 3) {
             return res.json({
                 status: 0,
-                message: "please provide employeeId"
+                message: "Not Authorized",
             })
         }
-
-        SQL.get("payroll", "", `employee_id=${employeeId}`, (error, results) => {
+        console.log(loggedInUser)
+        SQL.get("payroll", "", `employee_id=${loggedInUser.id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -284,8 +285,17 @@ exports.getPayslips = async (req, res) => {
 
 exports.getPayslip = async (req, res) => {
     try {
-        const { payslipId } = req.params
 
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 3) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+        console.log(loggedInUser)
+
+        const { payslipId } = req.params
         await SQL.get('payroll', '', `id=${payslipId}`, async (error, results) => {
             if (error) {
                 return res.json({
@@ -293,15 +303,23 @@ exports.getPayslip = async (req, res) => {
                     error: error
                 })
             }
+
             const payroll = results[0]
-            await SQL.get('employee', '', `id=${payroll.employee_id}`, (error, result) => {
+            await SQL.get('employee', '', `id=${loggedInUser.id}`, (error, result) => {
                 if (error) {
                     return res.json({
-                        status: 0
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (result.length == 0) {
+                    return res.json({
+                        status: 0,
+                        message: 'not valid user'
                     })
                 }
                 return res.json({
-                    status:1,
+                    status: 1,
                     message: "salary slip data",
                     data: {
                         payroll: payroll,
