@@ -4,8 +4,8 @@ const validator = require("validator");
 
 exports.createNote = async (req, res) => {
     try {
-
         const loggedInUser = req.decoded
+        console.log("loggedInUser ==>", loggedInUser)
         if (!loggedInUser || loggedInUser.role != 1) {
             return res.json({
                 status: 0,
@@ -29,7 +29,7 @@ exports.createNote = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.get('lead', ``, `id=${loggedInUser.id}`, (error, results) => {
+        SQL.get('lead', ``, `owner=${loggedInUser.id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -147,11 +147,10 @@ exports.get = async (req, res) => {
                     error: error
                 })
             }
-            SQL.get('lead',``,`id=${results[0].source_id}`)
 
             return res.json({
                 status: 1,
-                message: "lead details",
+                message: "Note details",
                 data: results
             })
         });
@@ -184,7 +183,8 @@ exports.getAllBySource = async (req, res) => {
             })
         }
 
-        SQL.get('lead', ``, `id=${source_id}`, (error, results) => {
+        let tblName = source === 'lead' ? 'lead' : 'deal'
+        SQL.get(tblName, ``, `id=${source_id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -194,7 +194,7 @@ exports.getAllBySource = async (req, res) => {
             if (results.length == 0) {
                 return res.json({
                     status: 0,
-                    message: "please provide valid noteId",
+                    message: "please provide valid source_id",
                 });
             }
             SQL.get('notes', '', `source_type='${source}' AND source_id=${source_id}`, (error, results) => {
