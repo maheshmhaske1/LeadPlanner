@@ -4,10 +4,19 @@ const validator = require("validator");
 
 exports.createNote = async (req, res) => {
     try {
-        const { source_id, type, description, created_by, status, sort, importance, urgency, viewable, attr2, source_type } = req.body;
 
-        console.log(!viewable)
-        if (!source_id || !description || !created_by || !source_type || !importance) {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { type, description, created_by, status, sort, importance, urgency, viewable, attr2, source_type } = req.body;
+        req.body.source_id = loggedInUser.id
+
+        if (!description || !created_by || !source_type || !importance) {
             return res.json({
                 status: 0,
                 message: 'source_id, description, created_by, source_type, importance these are required values'
@@ -20,7 +29,7 @@ exports.createNote = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.get('lead', ``, `id=${source_id}`, (error, results) => {
+        SQL.get('lead', ``, `id=${loggedInUser.id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -61,6 +70,14 @@ exports.createNote = async (req, res) => {
 
 exports.updateNote = async (req, res) => {
     try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
         const { noteId } = req.params
         const update_data = req.body
         console.log(req.body)
@@ -114,6 +131,14 @@ exports.updateNote = async (req, res) => {
 
 exports.get = async (req, res) => {
     try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
         const noteId = req.params.noteId;
         SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
             if (error) {
@@ -122,6 +147,8 @@ exports.get = async (req, res) => {
                     error: error
                 })
             }
+            SQL.get('lead',``,`id=${results[0].source_id}`)
+
             return res.json({
                 status: 1,
                 message: "lead details",
@@ -139,15 +166,24 @@ exports.get = async (req, res) => {
 }
 
 exports.getAllBySource = async (req, res) => {
-    const { source, source_id } = req.params
-
-    if (!source_id) {
-        return res.json({
-            status: 0,
-            message: "please provide source_id"
-        })
-    }
     try {
+        const { source, source_id } = req.params
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        if (!source_id) {
+            return res.json({
+                status: 0,
+                message: "please provide source_id"
+            })
+        }
+
         SQL.get('lead', ``, `id=${source_id}`, (error, results) => {
             if (error) {
                 return res.json({
