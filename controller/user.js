@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `http://core.leadplaner.com:3000/` : role == 3 ? 'http://core.leadplaner.com:3000/admin/' : '',
+                                landingurl: role == 1 ? `http://core.leadplaner.com:3000/lp` : role == 3 ? 'http://core.leadplaner.com:3000/admin' : '',
                                 user: userDetails,
                                 token: token
                             });
