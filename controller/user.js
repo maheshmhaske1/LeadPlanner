@@ -33,7 +33,7 @@ exports.createAccount = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.insert('xx_log', { attr1: "attr1", attr2: "attr2", attr3: "attr3", attr4: "attr4", attr5: "attr5" })
+        // SQL.insert('xx_log', { attr1: "attr1", attr2: "attr2", attr3: "attr3", attr4: "attr4", attr5: "attr5" })
 
         const user_role = role
         delete req.body.role
