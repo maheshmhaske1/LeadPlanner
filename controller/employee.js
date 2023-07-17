@@ -303,12 +303,12 @@ exports.getPayslip = async (req, res) => {
                 })
             }
 
-            if(results.length == 0){
+            if (results.length == 0) {
                 return res.json({
                     status: 0,
                     message: 'please provide valid payslipid'
                 })
-            } 
+            }
 
             const payroll = results[0]
             await SQL.get('user', '', `id=${loggedInUser.id}`, (error, result) => {

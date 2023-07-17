@@ -33,6 +33,8 @@ exports.createAccount = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
+        SQL.insert('xx_log', { attr1: "attr1", attr2: "attr2", attr3: "attr3", attr4: "attr4", attr5: "attr5" })
+
         const user_role = role
         delete req.body.role
         console.log(req.body)
@@ -45,13 +47,19 @@ exports.createAccount = async (req, res) => {
                 })
             }
             const userId = result.insertId;
-            SQL.insert('roles_users', { user_id: userId, role_id: role }, (error, result) => {
+            SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
                         error: error
                     })
                 }
+                await Email.sendMail(email, 'Account Created Successfully.', `
+                Welcome ${first_name}  ${last_name}, Please find your login details,
+                username : ${email} / ${phone}
+                Password : ${password}
+                `);
+
                 return res.json({
                     status: 1,
                     message: 'user registered successfully',
@@ -180,12 +188,12 @@ exports.sendOtp = async (req, res) => {
                 message: "something went wrong"
             });
         }
-        if (response.length == 0) {
-            return res.json({
-                status: 0,
-                message: `this email ${email} is not registered`
-            })
-        }
+        // if (response.length == 0) {
+        //     return res.json({
+        //         status: 0,
+        //         message: `this email ${email} is not registered`
+        //     })
+        // }
     })
 
     const otp = Math.floor(100000 + Math.random() * 900000);
@@ -334,16 +342,24 @@ exports.forgotPassword = async (req, res) => {
 }
 
 exports.addTeamMember = async (req, res) => {
-    const { source_id, first_name, last_name, contact } = req.body
+    const { first_name, last_name, contact } = req.body
 
-    if (!source_id || !first_name || !last_name || !contact) {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
             status: 0,
-            message: 'source_id,first_name,last_name,contact are required fields'
+            message: "Not Authorized",
+        })
+    }
+    console.log(loggedInUser)
+    if (!first_name || !last_name || !contact) {
+        return res.json({
+            status: 0,
+            message: 'first_name,last_name,contact are required fields'
         })
     }
 
-    await SQL.get('user', ``, `id=${source_id}`, (error, result) => {
+    await SQL.get('user', ``, `id=${loggedInUser.id}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -376,16 +392,16 @@ exports.addTeamMember = async (req, res) => {
 }
 
 exports.getTeamMembers = async (req, res) => {
-    const { source_id } = req.body
 
-    if (!source_id) {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
             status: 0,
-            message: 'source_id is required fields'
+            message: "Not Authorized",
         })
     }
 
-    await SQL.get('user', ``, `id=${source_id}`, async (error, result) => {
+    await SQL.get('user', ``, `id=${loggedInUser.id}`, async (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -399,7 +415,7 @@ exports.getTeamMembers = async (req, res) => {
                 message: 'please provide valid source id'
             })
         }
-        await SQL.get('team', ``, `source_id=${source_id}`, (error, result) => {
+        await SQL.get('team', ``, `source_id=${loggedInUser.id}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -420,6 +436,14 @@ exports.getTeamMembers = async (req, res) => {
 exports.updateTeamMembers = async (req, res) => {
     const { member_id } = req.params
     const update_data = req.body
+
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
 
     if (!member_id) {
         return res.json({
@@ -449,6 +473,13 @@ exports.updateTeamMembers = async (req, res) => {
                 message: 'please provide valid member_id'
             })
         }
+        if (result[0].source_id != loggedInUser.id) {
+            return res.json({
+                status: 0,
+                message: 'Not Authorized'
+            })
+        }
+
         await SQL.update('team', update_data, `id=${member_id}`, (error, result) => {
             if (error) {
                 return res.json({

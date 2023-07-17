@@ -12,13 +12,13 @@ exports.createNote = async (req, res) => {
             })
         }
 
-        const { type, description, created_by, status, sort, importance, urgency, viewable, attr2, source_type } = req.body;
-        req.body.source_id = loggedInUser.id
+        const { source_id, type, description, status, sort, importance, urgency, viewable, attr2 } = req.body;
+        req.body.created_by = loggedInUser.id
 
-        if (!description || !created_by || !source_type || !importance) {
+        if (!description || !type || !importance || !source_id) {
             return res.json({
                 status: 0,
-                message: 'source_id, description, created_by, source_type, importance these are required values'
+                message: 'source_id, description, type, importance these are required values'
             })
         }
 
@@ -28,7 +28,8 @@ exports.createNote = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        SQL.get('lead', ``, `owner=${loggedInUser.id}`, (error, results) => {
+        let tblName = type === 'lead' ? 'lead' : 'deal'
+        SQL.get(`${tblName}`, ``, `owner=${loggedInUser.id} AND id=${source_id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -38,7 +39,7 @@ exports.createNote = async (req, res) => {
             if (results.length == 0) {
                 return res.json({
                     status: 0,
-                    message: "please provide valid source_id",
+                    message: "invalid owner",
                 });
             }
             SQL.insert('notes', req.body, (error, results) => {
@@ -61,8 +62,7 @@ exports.createNote = async (req, res) => {
     catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
-            error: error
+            message: "something went wrong", error,
         })
     }
 };
@@ -122,8 +122,7 @@ exports.updateNote = async (req, res) => {
     catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
-            error: error
+            message: "something went wrong", error,
         })
     }
 }
@@ -157,8 +156,7 @@ exports.get = async (req, res) => {
     catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
-            error: error
+            message: "something went wrong", error,
         })
     }
 }
@@ -166,7 +164,7 @@ exports.get = async (req, res) => {
 exports.getAllBySource = async (req, res) => {
     try {
         const { source, source_id } = req.params
-
+        console.log("req.params == ",req.params)
         const loggedInUser = req.decoded
         if (!loggedInUser || loggedInUser.role != 1) {
             return res.json({
@@ -196,7 +194,7 @@ exports.getAllBySource = async (req, res) => {
                     message: "please provide valid source_id",
                 });
             }
-            SQL.get('notes', '', `source_type='${source}' AND source_id=${source_id}`, (error, results) => {
+            SQL.get('notes', '', `type='${source}' AND source_id=${source_id}`, (error, results) => {
                 if (error) {
                     return res.json({
                         status: 0,
@@ -214,8 +212,7 @@ exports.getAllBySource = async (req, res) => {
     catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
-            error: error
+            message: "something went wrong", error,
         })
     }
 }

@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const taskController = require('../controller/task')
+const { verifyToken } = require('../model/auth')
 
-router.post('/add', taskController.createTask)
-router.put('/edit/:taskId', taskController.updateTask)
-router.get('/get/:taskId', taskController.get)
-router.get('/getbysource/:source_id', taskController.getAllBySource)
+router.post('/add', verifyToken, taskController.createTask)
+router.put('/edit/:taskId', verifyToken, taskController.updateTask)
+router.get('/get/:taskId', verifyToken, taskController.get)
+router.get('/getbysource/:source/:source_id', verifyToken, taskController.getAllBySource)
 
 module.exports = router;
