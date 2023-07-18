@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.welcome-email-font {
+    color: #33475B;
+    font-family: "Lexend Deca", sans-serif;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: -0.02563rem;
+}
+
+
+.welcome-email-container {
+    width: 64rem;
+    height: auto;
+    background: #F8FEFF;
+    margin: 0 auto;
+}
+
+.welcome-email-main {
+    width: 37.5rem;
+    height: auto;
+    flex-shrink: 0;
+    background: #FFF;
+    box-shadow: 0px 45px 250px 0px rgba(17, 33, 39, 0.10), 0px -4px 150px 0px rgba(35, 56, 65, 0.05);
+    margin: 0 auto;
+}
+
+.welcome-email-logo {
+    padding-left: 1.88rem;
+    padding-top: 1.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.welcome-email-logo img {
+    margin-right: 0.5rem;
+}
+
+.welcome-email-lead {
+    color: #F8951E;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.welcome-email-planner {
+    color: #1F2228;
+    font-size: 1.125rem;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.dashboard-container {
+    width: 35rem;
+    height: 20.3125rem;
+    margin: 0 auto;
+    margin-top: 1.44rem;
+    overflow: hidden;
+
+}
+
+.dashboard-back {
+    position: relative;
+
+}
+
+.dashboard-orange {
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+}
+
+.dashboard-leads {
+    width: 27.67444rem;
+    position: absolute;
+    top: 5rem;
+    left: 3.94rem;
+    z-index: 1;
+
+}
+
+
+
+
+
+
+.welcome-email-content {
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+}
+
+.welcome-email-heading {
+    margin-top: 1.5rem;
+    color: #1E2224;
+    font-size: 2.125rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+
+}
+
+.welcome-email-para p:first-child {
+    margin-bottom: 1.25rem;
+
+}
+
+
+.welcome-email-btn {
+    margin-top: 1.25rem;
+    padding: 0.75rem 0.94rem;
+    color: #FFF;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.3125rem;
+    background: #077838;
+    border: 1px solid transparent;
+    cursor: pointer;
+    margin-bottom: 3.12rem;
+
+}
+
+.welcome-email-btn:hover {
+    border: 1px solid #077838;
+    color: #077838;
+    background-color: #fff;
+    transition: all 0.5s ease-in-out;
+}
+
+.welcome-email-started {
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+}
+
+.get-started {
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+    color: #1E2224;
+
+}
+
+.welcome-create {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    gap: 1.75rem;
+    padding-bottom: 2.5rem;
+    margin-bottom: 1.88rem;
+}
+
+.pipeline-heading {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #1E2224;
+
+}
+
+.pipeline-note {
+    color: #33475B;
+}
+
+.welcome-media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.88rem;
+}
+
+.welcom-media-wrapper {
+    border-radius: 50%;
+    padding: 0.5rem 0.7rem;
+    background: #F8951E;
+    color: #fff;
+
+    cursor: pointer;
+}
+
+.welcome-footer-media3,
+.welcome-footer-media2 {
+    margin-left: 0.5rem;
+}
+
+.welcome-footer-media3,
+.welcome-footer-media4 {
+    margin-right: 0.5rem;
+}
+
+.footer-lead-planner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.88rem;
+}
+
+.welcome-footer-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #33475B;
+    font-size: 0.75rem;
+
+}
+
+.welcome-footer-details p:last-child{
+    margin-top: 1.88rem;
+    margin-bottom: 2.5rem;
+    cursor: pointer;
+}
+
+
+    </style>
+</head>
+<body>
+   <section class="welcome-email-container welcome-email-font">
+
+    <main class="welcome-email-main">
+
+        <div class="welcome-email-logo">
+            <img src="http://core.leadplaner.com:3001/images/lead-planer-logo.svg" alt=""> 
+            <p><span class="welcome-email-lead">Lead</span><span class="welcome-email-planner">Planer</span></span>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="dashboard-back">
+                <img src="http://core.leadplaner.com:3001/images/bg email.jpg" alt="" class="dashboard-orange">
+                <img src="http://core.leadplaner.com:3001/images/Leads.jpg" alt="" class="dashboard-leads">
+            </div>
+            
+        </div>
+
+        <div class="welcome-email-content">
+            <p class="welcome-email-heading">Welcome to leadPlaner</p>
+            <div class="welcome-email-para">
+
+                <p>Hi anant,</p>
+                <p>
+                    Seems like you joined LeadPlaner to grow your business. We've helped many businesses to reach new heights with our CRM. Now it’s your turn to grow your business to exponential heights. <br/><br/>Please feel free to get in touch with us if you need any assistance or a demo of LeadPlaner CRM. We'll be happy to help you!
+
+                </p>
+
+            </div>
+            <button class="welcome-email-btn">Reset Password</button>
+
+        </div>
+
+        <div class="welcome-email-started welcome-email-font">
+            <p class="get-started">You can get Started With</p>
+
+            <div class="welcome-create">
+                <div>
+                    <img src="http://core.leadplaner.com:3001/images/welcome-pipeline.svg"  alt="">
+                    <p class="pipeline-heading">Create your own pipline</p>
+                    <p class="pipeline-note">To fit your industry and business goals</p>
+                </div>
+                <div>
+                    <img src="http://core.leadplaner.com:3001/images/welcome-deal.svg"  alt="">
+                    <p class="pipeline-heading">Adding new deal or lead </p>
+                    <p class="pipeline-note">Start tracking your opportunities</p>
+                </div>
+                <div>
+                    <img src="http://core.leadplaner.com:3001/images/welcome-contact.svg"  alt="">
+                    <p class="pipeline-heading">Create new contacts</p>
+                    <p class="pipeline-note">Add and manage contacts</p>
+                </div>
+                <div>
+                    <img src="http://core.leadplaner.com:3001/images/welcome-team.svg"  alt="">
+                    <p class="pipeline-heading">Create your team</p>
+                    <p class="pipeline-note">Start your own team to handle deals</p>
+                </div>
+            </div>
+        </div>
+    
+
+    </main>
+
+    <footer>
+
+        <div class="welcome-media">
+            <div class="welcom-media-wrapper welcome-footer-media1">
+                <i class="fa fa-facebook"></i>
+            </div>
+            <div class="welcom-media-wrapper welcome-footer-media2" >
+                <i class="fa fa-linkedin"></i>
+            </div>
+            <div class="welcom-media-wrapper welcome-footer-media3">
+                <i class="fa fa-twitter"></i>
+            </div>
+            <div class="welcom-media-wrapper welcome-footer-media4">
+                <i class="fa fa-instagram"></i>
+            </div>
+            <div class="welcom-media-wrapper welcome-footer-media5">
+                <i class="fa fa-youtube-play"></i>
+            </div>
+        </div>
+        <div class="footer-lead-planner ">
+            <p><span class="welcome-email-lead">Lead</span><span class="welcome-email-planner">Planer</span></span>
+        </div>
+        <div class="welcome-footer-details">
+            <p>© 2023 LeadPlaner Inc. All rights reserved</p>
+            <p>78, St John Street, London UK. EC1V 4PW</p>
+             <p>support@leadplaner.com</p>
+            </div>
+       
+    </footer>
+
+   </section> 
+</body>
+</html>

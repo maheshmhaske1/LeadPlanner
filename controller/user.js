@@ -7,6 +7,8 @@ const validate = require('validator')
 const Email = require('../model/mail')
 const SQL = require('../model/sqlhandler')
 const dotenv = require("dotenv").config();
+const fs = require('fs');
+const path = require('path');
 
 const { JWT_TOKEN } = process.env;
 
@@ -33,8 +35,6 @@ exports.createAccount = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        // SQL.insert('xx_log', { attr1: "attr1", attr2: "attr2", attr3: "attr3", attr4: "attr4", attr5: "attr5" })
-
         const user_role = role
         delete req.body.role
         console.log(req.body)
@@ -54,11 +54,10 @@ exports.createAccount = async (req, res) => {
                         error: error
                     })
                 }
-                await Email.sendMail(email, 'Account Created Successfully.', `
-                Welcome ${first_name}  ${last_name}, Please find your login details,
-                username : ${email} / ${phone}
-                Password : ${password}
-                `);
+
+                const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
+                const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+                await Email.sendMail(email, 'Account Created Successfully.', ``, html);
 
                 return res.json({
                     status: 1,
@@ -138,7 +137,7 @@ exports.login = async (req, res) => {
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `/lp` : role == 3 ? '/admin' : '',
+                                landingurl: role == 1 ? `|lp` : role == 3 ? '|admin' : '',
                                 user: userDetails,
                                 token: token
                             });
