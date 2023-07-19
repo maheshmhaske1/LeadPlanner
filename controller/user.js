@@ -137,7 +137,7 @@ exports.login = async (req, res) => {
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `/lp` : role == 3 ? '/admin' : '',
+                                landingurl: role == 1 ? `/lp` : role == 2 ? '/admin' : role ==3?'/admin':'',
                                 user: userDetails,
                                 token: token
                             });
