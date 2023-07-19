@@ -5,6 +5,7 @@ require('dotenv').config()
 const { EMAIL_PASSWORD, EMAIL } = process.env
 
 exports.sendMail = async (to, subject, text, html) => {
+    console.log(html)
     const isMailSent = false
     var transporter = nodemailer.createTransport({
         service: 'gmail',

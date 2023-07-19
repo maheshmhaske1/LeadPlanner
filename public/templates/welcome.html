@@ -8,8 +8,9 @@
       href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100;200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="style.css">
+   
 
     <style>
         * {
@@ -30,14 +31,14 @@
 
 
 .welcome-email-container {
-    width: 64rem;
+    max-width: 64rem;
     height: auto;
     background: #F8FEFF;
     margin: 0 auto;
 }
 
 .welcome-email-main {
-    width: 37.5rem;
+    max-width: 37.5rem;
     height: auto;
     flex-shrink: 0;
     background: #FFF;
@@ -70,7 +71,7 @@
 }
 
 .dashboard-container {
-    width: 35rem;
+    max-width: 35rem;
     height: 20.3125rem;
     margin: 0 auto;
     margin-top: 1.44rem;
@@ -106,6 +107,7 @@
 
 
 
+
 .welcome-email-content {
     margin-left: 1.25rem;
     margin-right: 1.25rem;
@@ -124,6 +126,7 @@
     margin-bottom: 1.25rem;
 
 }
+
 
 
 .welcome-email-btn {
@@ -231,6 +234,37 @@
 }
 
 
+@media only screen  and (max-width: 550px){
+    .dashboard-leads {
+        width: 77%;
+        position: absolute;
+        top:2rem;
+        left:50%;
+        transform: translate(-50%, 0%);
+        z-index: 1;
+        height: auto;
+    
+    }
+    .dashboard-container{
+        height: 15rem;
+    }
+
+}
+
+@media only screen  and (max-width: 450px){
+ .dashboard-container{
+    height: 10rem;
+ }
+
+ 
+.welcome-create {
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+
+}
+
+}
+
     </style>
 </head>
 <body>
@@ -245,7 +279,7 @@
 
         <div class="dashboard-container">
             <div class="dashboard-back">
-                <img src="http://core.leadplaner.com:3001/images/bg email.jpg" alt="" class="dashboard-orange">
+                <img src="http://core.leadplaner.com:3001/images/bg-email.jpg" alt="" class="dashboard-orange">
                 <img src="http://core.leadplaner.com:3001/images/Leads.jpg" alt="" class="dashboard-leads">
             </div>
             
@@ -262,7 +296,7 @@
                 </p>
 
             </div>
-            <button class="welcome-email-btn">Reset Password</button>
+            <button class="welcome-email-btn">Get started now!</button>
 
         </div>
 
@@ -323,8 +357,12 @@
             <p>78, St John Street, London UK. EC1V 4PW</p>
              <p>support@leadplaner.com</p>
             </div>
+           
+        
        
     </footer>
+
+
 
    </section> 
 </body>

@@ -164,7 +164,7 @@ exports.get = async (req, res) => {
 exports.getAllBySource = async (req, res) => {
     try {
         const { source, source_id } = req.params
-        console.log("req.params == ",req.params)
+        console.log("req.params == ", req.params)
         const loggedInUser = req.decoded
         if (!loggedInUser || loggedInUser.role != 1) {
             return res.json({
