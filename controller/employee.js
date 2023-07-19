@@ -7,6 +7,16 @@ const { uploadEmployeeDoc } = require("../model/upload");
 
 exports.createEmployee = async (req, res) => {
     try {
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 3) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+
         let {
             first_name, last_name, dob, gender, hire_date, emp_no, department,
             salary, personal_email, mobile, address1, address2, city, state,
@@ -65,6 +75,15 @@ exports.createEmployee = async (req, res) => {
 
 exports.updateEmployee = async (req, res) => {
     try {
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 3) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
         const { employeeId } = req.params;
         const update_data = req.body;
 
@@ -112,6 +131,14 @@ exports.updateEmployee = async (req, res) => {
 
 exports.getEmployee = async (req, res) => {
     try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 3) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
         const employeeId = req.params.employeeId;
         SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
             if (error) {
@@ -137,6 +164,16 @@ exports.getEmployee = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
+
+        const loggedInUser = req.decoded
+        console.log(loggedInUser)
+        if (!loggedInUser || loggedInUser.role != 3) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
         SQL.get("employee", "", "", (error, results) => {
             if (error) {
                 return res.json({
@@ -254,7 +291,7 @@ exports.getPayslips = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 3) {
+        if (!loggedInUser || loggedInUser.role != 2) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -287,7 +324,7 @@ exports.getPayslip = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 3) {
+        if (!loggedInUser || loggedInUser.role != 2) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
