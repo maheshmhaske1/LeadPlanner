@@ -16,8 +16,8 @@ exports.createAccount = async (req, res) => {
     try {
         const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
         const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
-        await Email.sendMail('maheshmhaske2993@gmail.com', 'Account Created Successfully.', ``, html);
-
+        await Email.sendMail('aishwarya.verma28@gmail.com', 'Account Created Successfully.', ``, html);
+return;
         // let { first_name, last_name, email, password, phone, role } = req.body
 
         // if (!first_name || !last_name || !email || !password || !phone) {

@@ -109,7 +109,7 @@ exports.editBlog = async (req, res) => {
       if (error) {
         return res.json({
           status: 0,
-          message: 'something went wrong -1', error
+          message: 'something went wrong ', error
         })
       }
       else {
