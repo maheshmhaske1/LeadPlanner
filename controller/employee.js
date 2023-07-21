@@ -144,7 +144,7 @@ exports.updateEmployee = async (req, res) => {
 exports.getEmployee = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        console.log('==>',typeof loggedInUser.role); // Check the data type
+        console.log('==>', loggedInUser); // Check the data type
 
         if (!loggedInUser || (loggedInUser.role !== 3 && loggedInUser.role !== 2)) {
             return res.json({
@@ -152,7 +152,7 @@ exports.getEmployee = async (req, res) => {
                 message: "Not Authorized",
             });
         }
-        
+
 
         if (loggedInUser.role == 3) {
             const { employeeId } = req.body;
@@ -191,6 +191,7 @@ exports.getEmployee = async (req, res) => {
                     });
                 }
                 const employeeId = Number(result[0].employee)
+                console.log("employeid", employeeId)
                 SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
                     if (error) {
                         return res.json({

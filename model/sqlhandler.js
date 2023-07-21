@@ -1,9 +1,10 @@
-const db = require('./db')
+const { db ,dbB} = require('./db')
 
 exports.insert = (tableName, values, callback) => {
+    const connection = tableName == 'xx_blog_details' || tableName == 'xx_blog_tag' || tableName == 'xx_blog' ? dbB : db;
     const query = `INSERT INTO \`${tableName}\` SET ?`;
     console.log(query)
-    db.query(query, values, (err, results) => {
+    connection.query(query, values, (err, results) => {
         if (err) {
             callback(err);
             return;
@@ -13,6 +14,7 @@ exports.insert = (tableName, values, callback) => {
 }
 
 exports.get = (tableName, columns, condition, callback) => {
+    const connection = tableName == 'xx_blog_details' || tableName == 'xx_blog_tag' || tableName == 'xx_blog' ? dbB : db;
     let columnStr = columns ? columns.join(', ') : '*';
     let query = `SELECT ${columnStr} FROM \`${tableName}\``;
     if (condition) {
@@ -20,7 +22,7 @@ exports.get = (tableName, columns, condition, callback) => {
     }
     query += ` ORDER BY id DESC`;
     console.log(query)
-    db.query(query, (err, results) => {
+    connection.query(query, (err, results) => {
         if (err) {
             callback(err);
             return;
@@ -30,12 +32,13 @@ exports.get = (tableName, columns, condition, callback) => {
 };
 
 exports.update = (tableName, values, condition, callback) => {
+    const connection = tableName == 'xx_blog_details' || tableName == 'xx_blog_tag' || tableName == 'xx_blog' ? dbB : db;
     let query = `UPDATE \`${tableName}\` SET ?`;
     if (condition) {
         query += ` WHERE ${condition}`;
     }
     console.log(query)
-    db.query(query, values, (err, results) => {
+    connection.query(query, values, (err, results) => {
         if (err) {
             callback(err);
             return;
@@ -45,12 +48,13 @@ exports.update = (tableName, values, condition, callback) => {
 };
 
 exports.delete = (tableName, condition, callback) => {
+    const connection = tableName == 'xx_blog_details' || tableName == 'xx_blog_tag' || tableName == 'xx_blog' ? dbB : db;
     let query = `DELETE FROM \`${tableName}\``;
     if (condition) {
         query += ` WHERE ${condition}`;
     }
     console.log(query);
-    db.query(query, (err, results) => {
+    connection.query(query, (err, results) => {
         if (err) {
             callback(err);
             return;

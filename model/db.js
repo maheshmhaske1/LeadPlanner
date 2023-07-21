@@ -4,19 +4,16 @@ const mysql = require("mysql");
 const dotenv = require("dotenv").config();
 
 const {
-  host,
-  port,
-  user,
-  password,
-  database
+  host, user, password, database,
+  hostB, userB, passwordB, databaseB
 } = process.env;
 
 
-// ========== SERVER ========= //
+// ========== FIRST DATABASE CONNECTION ========= //
 const db = mysql.createConnection({
   host: host,
   port: 3306,
-  user:user,
+  user: user,
   password: password,
   database: database,
   multipleStatements: true
@@ -24,10 +21,28 @@ const db = mysql.createConnection({
 
 db.connect((error) => {
   if (error) {
-    console.error("Error connecting to MySQL:", error);
+    console.error("Error connecting to database", error);
   } else {
     console.log("Connected with database!");
   }
 });
 
-module.exports = db;
+// ========== SECOND DATABASE CONNECTION ========= //
+const dbB = mysql.createConnection({
+  host: hostB,
+  port: 3306,
+  user: userB,
+  password: passwordB,
+  database: databaseB,
+  multipleStatements: true
+});
+
+dbB.connect((error) => {
+  if (error) {
+    console.error("Error connecting to database B", error);
+  } else {
+    console.log("Connected with database B!");
+  }
+});
+
+module.exports = { db, dbB };
