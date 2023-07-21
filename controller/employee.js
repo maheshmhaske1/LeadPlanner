@@ -4,66 +4,79 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 const { uploadEmployeeDoc } = require("../model/upload");
+const { error } = require("console");
 
 exports.createEmployee = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
+        console.log(loggedInUser)
         if (!loggedInUser || loggedInUser.role != 3) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
             })
         }
+        const employee_id = loggedInUser.id
 
-
-        let {
-            first_name, last_name, dob, gender, hire_date, emp_no, department,
-            salary, personal_email, mobile, address1, address2, city, state,
-            country, postcode, social1, social2, tax_id, aadhaar_no, position, password,
-        } = req.body;
-
-        if (!first_name || !last_name || !dob || !gender || !hire_date ||
-            !emp_no || !department || !salary || !personal_email || !password || !aadhaar_no) {
-            return res.json({
-                status: 0,
-                message:
-                    "first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email, password, aadhaar_no these are required values",
-            });
-        }
-
-        if (!validator.isEmail(personal_email))
-            return res.json({
-                status: 0,
-                message: `${personal_email} is not valid email`,
-            });
-
-        if (req.body.id || req.body.creation_date || req.body.update_date)
-            return res.json({
-                status: 0,
-                message: "id ,creation_date ,update_date cannot be add",
-            });
-
-
-
-        req.body.password = await bcrypt.hash(password, 10);
-        console.log(password);
-
-        SQL.insert("employee", req.body, (error, results) => {
+        SQL.get('user', ``, `id=${employee_id}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
-                    error: error,
-                });
+                    message: "something went wrong",
+                })
             }
-            if (results.affectedRows > 0) {
-                return res.json({
-                    status: 1,
-                    message: "employee added successfully",
-                    results,
-                });
-            }
-        });
+
+        })
+
+
+        // let {
+        //     first_name, last_name, dob, gender, hire_date, emp_no, department,
+        //     salary, personal_email, mobile, address1, address2, city, state,
+        //     country, postcode, social1, social2, tax_id, aadhaar_no, position, password,
+        // } = req.body;
+
+        // if (!first_name || !last_name || !dob || !gender || !hire_date ||
+        //     !emp_no || !department || !salary || !personal_email || !password || !aadhaar_no) {
+        //     return res.json({
+        //         status: 0,
+        //         message:
+        //             "first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email, password, aadhaar_no these are required values",
+        //     });
+        // }
+
+        // if (!validator.isEmail(personal_email))
+        //     return res.json({
+        //         status: 0,
+        //         message: `${personal_email} is not valid email`,
+        //     });
+
+        // if (req.body.id || req.body.creation_date || req.body.update_date)
+        //     return res.json({
+        //         status: 0,
+        //         message: "id ,creation_date ,update_date cannot be add",
+        //     });
+
+
+
+        // req.body.password = await bcrypt.hash(password, 10);
+        // console.log(password);
+
+        // SQL.insert("employee", req.body, (error, results) => {
+        //     if (error) {
+        //         return res.json({
+        //             status: 0,
+        //             error: error,
+        //         });
+        //     }
+        //     if (results.affectedRows > 0) {
+        //         return res.json({
+        //             status: 1,
+        //             message: "employee added successfully",
+        //             results,
+        //         });
+        //     }
+        // });
     } catch (error) {
         return res.json({
             status: 0,
@@ -123,8 +136,7 @@ exports.updateEmployee = async (req, res) => {
     } catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
-            error: error,
+            message: "something went wrong", error
         });
     }
 };
@@ -132,27 +144,68 @@ exports.updateEmployee = async (req, res) => {
 exports.getEmployee = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 3) {
+        console.log('==>',typeof loggedInUser.role); // Check the data type
+
+        if (!loggedInUser || (loggedInUser.role !== 3 && loggedInUser.role !== 2)) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
-            })
+            });
         }
+        
 
-        const employeeId = req.params.employeeId;
-        SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
-            if (error) {
+        if (loggedInUser.role == 3) {
+            const { employeeId } = req.body;
+            if (!employeeId) {
                 return res.json({
                     status: 0,
-                    error: error,
-                });
+                    message: "please provide employeeId"
+                })
             }
-            return res.json({
-                status: 1,
-                message: "employee details",
-                data: results,
+            SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error,
+                    });
+                }
+                return res.json({
+                    status: 1,
+                    message: "employee details",
+                    data: results,
+                });
             });
-        });
+        }
+        else {
+            await SQL.get('user', ``, `id=${loggedInUser.id}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: "something went wrong", error
+                    });
+                }
+                if (!result[0].employee) {
+                    return res.json({
+                        status: 0,
+                        message: 'your details not generated yet'
+                    });
+                }
+                const employeeId = Number(result[0].employee)
+                SQL.get("employee", "", `id=${employeeId}`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            error: error,
+                        });
+                    }
+                    return res.json({
+                        status: 1,
+                        message: "employee details",
+                        data: results,
+                    });
+                });
+            })
+        }
     } catch (error) {
         return res.json({
             status: 0,
