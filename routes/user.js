@@ -7,6 +7,7 @@ const { verifyToken } = require('../model/auth')
 router.post("/createaccount", userController.createAccount);
 router.post("/login", userController.login);
 router.post("/send-otp", userController.sendOtp);
+router.get("/getuserinfo", verifyToken, userController.getUserInfo);
 router.post("/verify-otp", userController.verifyOTP);
 router.post("/forgot-password", userController.forgotPassword);
 router.post("/logout", userController.logOut);
