@@ -162,7 +162,7 @@ exports.login = async (req, res) => {
 
 exports.getUserInfo = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
