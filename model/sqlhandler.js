@@ -1,4 +1,4 @@
-const { db ,dbB} = require('./db')
+const { db, dbB } = require('./db')
 
 exports.insert = (tableName, values, callback) => {
     const connection = tableName == 'xx_blog_details' || tableName == 'xx_blog_tag' || tableName == 'xx_blog' ? dbB : db;
