@@ -30,53 +30,53 @@ exports.createEmployee = async (req, res) => {
         })
 
 
-        // let {
-        //     first_name, last_name, dob, gender, hire_date, emp_no, department,
-        //     salary, personal_email, mobile, address1, address2, city, state,
-        //     country, postcode, social1, social2, tax_id, aadhaar_no, position, password,
-        // } = req.body;
+        let {
+            first_name, last_name, dob, gender, hire_date, emp_no, department,
+            salary, personal_email, mobile, address1, address2, city, state,
+            country, postcode, social1, social2, tax_id, aadhaar_no, position, password,
+        } = req.body;
 
-        // if (!first_name || !last_name || !dob || !gender || !hire_date ||
-        //     !emp_no || !department || !salary || !personal_email || !password || !aadhaar_no) {
-        //     return res.json({
-        //         status: 0,
-        //         message:
-        //             "first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email, password, aadhaar_no these are required values",
-        //     });
-        // }
+        if (!first_name || !last_name || !dob || !gender || !hire_date ||
+            !emp_no || !department || !salary || !personal_email || !password || !aadhaar_no) {
+            return res.json({
+                status: 0,
+                message:
+                    "first_name, last_name, dob, gender, hire_date, emp_no, department,salary, personal_email, password, aadhaar_no these are required values",
+            });
+        }
 
-        // if (!validator.isEmail(personal_email))
-        //     return res.json({
-        //         status: 0,
-        //         message: `${personal_email} is not valid email`,
-        //     });
+        if (!validator.isEmail(personal_email))
+            return res.json({
+                status: 0,
+                message: `${personal_email} is not valid email`,
+            });
 
-        // if (req.body.id || req.body.creation_date || req.body.update_date)
-        //     return res.json({
-        //         status: 0,
-        //         message: "id ,creation_date ,update_date cannot be add",
-        //     });
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+            return res.json({
+                status: 0,
+                message: "id ,creation_date ,update_date cannot be add",
+            });
 
 
 
-        // req.body.password = await bcrypt.hash(password, 10);
-        // console.log(password);
+        req.body.password = await bcrypt.hash(password, 10);
+        console.log(password);
 
-        // SQL.insert("employee", req.body, (error, results) => {
-        //     if (error) {
-        //         return res.json({
-        //             status: 0,
-        //             error: error,
-        //         });
-        //     }
-        //     if (results.affectedRows > 0) {
-        //         return res.json({
-        //             status: 1,
-        //             message: "employee added successfully",
-        //             results,
-        //         });
-        //     }
-        // });
+        SQL.insert("employee", req.body, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    error: error,
+                });
+            }
+            if (results.affectedRows > 0) {
+                return res.json({
+                    status: 1,
+                    message: "employee added successfully",
+                    results,
+                });
+            }
+        });
     } catch (error) {
         return res.json({
             status: 0,
