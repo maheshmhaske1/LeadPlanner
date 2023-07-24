@@ -517,13 +517,13 @@ exports.deleteLeadFromTrash = async (req, res) => {
                 message: error
             })
         }
-        console.log(result)
         if (result.length == 0) {
             return res.json({
                 status: 0,
                 message: 'no data found'
             })
         }
+        const leadId = result[0].id
         SQL.delete(`lead`, `id=${leadId} AND owner=${owner} AND is_deleted=1`, (error, results) => {
             if (error) {
                 return res.json({
@@ -531,6 +531,7 @@ exports.deleteLeadFromTrash = async (req, res) => {
                     message: error
                 })
             }
+            SQL.delete('notes', `source_id=${leadId}`, (error, result) => { })
             return res.json({
                 status: 1,
                 message: "lead deleted permanently",
@@ -558,13 +559,15 @@ exports.deleteAllLeadFromTrash = async (req, res) => {
                 message: error
             })
         }
-        console.log(result)
         if (result.length == 0) {
             return res.json({
                 status: 0,
                 message: 'No data found'
             })
         }
+        const numbersArray = result.map(obj => obj.id);
+        const leads = numbersArray.join(',');
+
         SQL.delete(`lead`, `owner=${owner} AND is_deleted=1`, (error, results) => {
             if (error) {
                 return res.json({
@@ -572,6 +575,7 @@ exports.deleteAllLeadFromTrash = async (req, res) => {
                     message: error
                 })
             }
+            SQL.delete('notes', `source_id IN (${leads})`, (error, result) => { })
             return res.json({
                 status: 1,
                 message: "leads deleted permanently",

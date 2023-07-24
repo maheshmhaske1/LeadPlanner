@@ -216,3 +216,77 @@ exports.getAllBySource = async (req, res) => {
         })
     }
 }
+
+exports.deleteNote = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+        const owner = loggedInUser.id
+        const noteId = req.params.noteId;
+
+        SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    error: error
+                })
+            }
+
+            if (results.length == 0) {
+                return res.json({
+                    status: 0,
+                    message: "please enter valid noteId"
+                })
+            }
+            const leadId = results[0].source_id
+            SQL.get('lead', ``, `id=${leadId}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+
+                if (result.length == 0) {
+                    return res.json({
+                        status: 0,
+                        message: "please enter valid noteId"
+                    })
+                }
+                if (result.owner != owner) {
+                    if (results.length == 0) {
+                        return res.json({
+                            status: 0,
+                            message: "not an valid owner"
+                        })
+                    }
+                }
+
+                SQL.delete('notes', `id=${noteId}`, (error, result) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            error: error
+                        })
+                    }
+
+                    return res.json({
+                        status: 1,
+                        error: 'note deleted successfully'
+                    })
+                })
+            })
+        });
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong", error,
+        })
+    }
+}

@@ -14,63 +14,63 @@ const { JWT_TOKEN } = process.env;
 
 exports.createAccount = async (req, res) => {
     try {
-        const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
-        const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
-        await Email.sendMail('maheshmhaske2993@gmail.com', 'Account Created Successfully.', ``, html);
-        return;
+        // const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
+        // const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+        // await Email.sendMail('maheshmhaske2993@gmail.com', 'Account Created Successfully.', ``, html);
+        // return;
 
-        // let { first_name, last_name, email, password, phone, role } = req.body
+        let { first_name, last_name, email, password, phone, role } = req.body
 
-        // if (!first_name || !last_name || !email || !password || !phone) {
-        //     return res.json({
-        //         status: 0,
-        //         message: "first_name, last_name, email, password, phone this fields are required"
-        //     })
-        // }
-        // if (!validators.isEmail(email)) {
-        //     return res.json({
-        //         status: 0,
-        //         message: `${email} this is not an valid email`
-        //     })
-        // }
+        if (!first_name || !last_name || !email || !password || !phone) {
+            return res.json({
+                status: 0,
+                message: "first_name, last_name, email, password, phone this fields are required"
+            })
+        }
+        if (!validators.isEmail(email)) {
+            return res.json({
+                status: 0,
+                message: `${email} this is not an valid email`
+            })
+        }
 
-        // if (req.body.id || req.body.creation_date || req.body.update_date)
-        //     return res.json({
-        //         status: 0,
-        //         message: "id ,creation_date ,update_date cannot be add",
-        //     });
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+            return res.json({
+                status: 0,
+                message: "id ,creation_date ,update_date cannot be add",
+            });
 
-        // const user_role = role
-        // delete req.body.role
-        // console.log(req.body)
-        // req.body.password = await bcrypt.hash(password, 10);
-        // SQL.insert('user', req.body, (error, result) => {
-        //     if (error) {
-        //         return res.json({
-        //             status: 0,
-        //             error: error
-        //         })
-        //     }
-        //     const userId = result.insertId;
-        //     SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
-        //         if (error) {
-        //             return res.json({
-        //                 status: 0,
-        //                 error: error
-        //             })
-        //         }
+        const user_role = role
+        delete req.body.role
+        console.log(req.body)
+        req.body.password = await bcrypt.hash(password, 10);
+        SQL.insert('user', req.body, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    error: error
+                })
+            }
+            const userId = result.insertId;
+            SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
 
-        //         const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
-        //         const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
-        //         await Email.sendMail(email, 'Account Created Successfully.', ``, html);
+                const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
+                const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+                await Email.sendMail(email, 'Account Created Successfully.', ``, html);
 
-        //         return res.json({
-        //             status: 1,
-        //             message: 'user registered successfully',
-        //             data: result
-        //         })
-        //     })
-        // })
+                return res.json({
+                    status: 1,
+                    message: 'user registered successfully',
+                    data: result
+                })
+            })
+        })
     }
     catch (error) {
         return res.json({
@@ -188,7 +188,6 @@ exports.getUserInfo = async (req, res) => {
         })
     })
 }
-
 
 exports.logOut = async (req, res) => {
     req.session.destroy(function (err) {
