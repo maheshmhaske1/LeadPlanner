@@ -1,6 +1,6 @@
 // const db = require("../db");
 const SQL = require('../model/sqlhandler')
-const db = require('../model/db')
+const { db } = require('../model/db')
 const csv = require('csv-parser');
 const validator = require("validator");
 const fs = require('fs');
@@ -119,6 +119,7 @@ exports.importLead = async (req, res) => {
                       INSERT INTO \`lead\` (\`owner\`,\`source\`,\`lead_name\`, \`position\`,\`status\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`, \`priority\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
                       VALUES (${owner},'${!result[i].source ? null : result[i].source}', '${!result[i].lead_name ? '' : result[i].lead_name}','${!result[i].position ? '' : result[i].position}','${result[i].status}', '${result[i].company_name}', '${result[i].registration_no}', '${!result[i].employees ? '' : result[i].employees}','${result[i].first_name}', '${result[i].last_name}', '${result[i].priority}', '${!result[i].type ? '' : result[i].type}', ${result[i].value},'${!result[i].address1 ? '' : result[i].address1}', '${!result[i].address2 ? '' : result[i].address2}', '${!result[i].city ? '' : result[i].city}', '${!result[i].state ? '' : result[i].state}','${!result[i].country ? '' : result[i].country}', '${!result[i].pin ? '' : result[i].pin}', '${!result[i].phone ? '' : result[i].phone}','${result[i].email}', '${!result[i].website ? '' : result[i].website}');`
             }
+            console.log(query)
             db.query(query, (err, result) => {
                 if (err) {
                     return res.json({
