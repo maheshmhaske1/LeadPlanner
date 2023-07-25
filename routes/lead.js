@@ -18,6 +18,7 @@ router.post('/restoreallfromtrash', verifyToken, leadController.restoreAllLeadFr
 router.get('/getallfromtrash', verifyToken, leadController.getAllLeadFromTrash)
 router.delete('/deletefromtrash', verifyToken, leadController.deleteLeadFromTrash)
 router.delete('/deleteallfromtrash', verifyToken, leadController.deleteAllLeadFromTrash)
+router.get('/exporttocsv', verifyToken, leadController.exportLeadsInCsv)
 
 
 module.exports = router;

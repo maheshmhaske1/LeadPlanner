@@ -3,6 +3,7 @@ const SQL = require('../model/sqlhandler')
 const { db } = require('../model/db')
 const csv = require('csv-parser');
 const validator = require("validator");
+const XLSX = require('xlsx');
 const fs = require('fs');
 const multer = require('multer');
 
@@ -586,4 +587,30 @@ exports.deleteAllLeadFromTrash = async (req, res) => {
     })
 }
 
+exports.exportLeadsInCsv = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
 
+    SQL.get('lead', ``, `owner=${owner}`, (error, result) => {
+        const data = result
+
+        function generateExcelBuffer(data) {
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+            return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+        }
+
+        const excelBuffer = generateExcelBuffer(data);
+
+        res.setHeader('Content-Disposition', 'attachment; filename=lead.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(excelBuffer);
+    })
+}
