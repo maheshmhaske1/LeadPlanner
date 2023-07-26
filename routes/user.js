@@ -18,7 +18,7 @@ router.get("/getallteammemberfromtrash", verifyToken, userController.getAllTeamM
 router.post("/trashteammember", verifyToken, userController.moveMemberToTrash);
 router.post("/restorememberfromtrash/:teamMemberId", verifyToken, userController.restoreTeamMemberFromTrash);
 router.post("/restoreallmemberfromtrash", verifyToken, userController.restoreAllTeamMemberFromTrash);
-router.delete("/deletememberfromtrash/:teamMemberId", verifyToken, userController.deleteAllTeamMemberFromTrash);
+router.delete("/deletememberfromtrash/:teamMemberId", verifyToken, userController.deleteTeamMemberFromTrash);
 router.delete("/deleteallmemberfromtrash", verifyToken, userController.deleteAllTeamMemberFromTrash);
 
 module.exports = router;

@@ -374,7 +374,7 @@ exports.forgotPassword = async (req, res) => {
 }
 
 exports.addTeamMember = async (req, res) => {
-    const { first_name, last_name, contact } = req.body
+    const { first_name, last_name, phone, password, email } = req.body
 
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
@@ -383,14 +383,17 @@ exports.addTeamMember = async (req, res) => {
             message: "Not Authorized",
         })
     }
+
     console.log(loggedInUser)
-    if (!first_name || !last_name || !contact) {
+    if (!first_name || !last_name || !phone || !password || !email) {
         return res.json({
             status: 0,
-            message: 'first_name,last_name,contact are required fields'
+            message: 'first_name,last_name,phone,password and email are required fields'
         })
     }
+
     req.body.source_id = loggedInUser.id
+    const encryptedPassword = await bcrypt.hash(password, 10);
 
     await SQL.get('user', ``, `id=${loggedInUser.id}`, (error, result) => {
         if (error) {
@@ -407,7 +410,7 @@ exports.addTeamMember = async (req, res) => {
             })
         }
 
-        SQL.insert('team', req.body, (error, result) => {
+        SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id }, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -421,6 +424,7 @@ exports.addTeamMember = async (req, res) => {
                 data: result
             })
         })
+
     })
 }
 
@@ -448,7 +452,7 @@ exports.getTeamMembers = async (req, res) => {
                 message: 'please provide valid source id'
             })
         }
-        await SQL.get('team', ``, `source_id=${loggedInUser.id}`, (error, result) => {
+        await SQL.get('user', ``, `manager_id=${loggedInUser.id} AND is_deleted=0`, async (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -485,14 +489,14 @@ exports.updateTeamMembers = async (req, res) => {
         })
     }
 
-    if (update_data.id || update_data.creation_date || update_data.update_date) {
+    if (update_data.id || update_data.creation_date || update_data.update_date || update_data.password) {
         return res.json({
             status: 0,
-            message: "id ,creation_date ,update_date cannot be edit"
+            message: "id ,creation_date ,update_date and password cannot be edit"
         })
     }
 
-    await SQL.get('team', ``, `id=${member_id}`, async (error, result) => {
+    await SQL.get('user', ``, `id=${member_id} AND manager_id=${loggedInUser.id}`, async (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -506,14 +510,8 @@ exports.updateTeamMembers = async (req, res) => {
                 message: 'please provide valid member_id'
             })
         }
-        if (result[0].source_id != loggedInUser.id) {
-            return res.json({
-                status: 0,
-                message: 'Not Authorized'
-            })
-        }
 
-        await SQL.update('team', update_data, `id=${member_id}`, (error, result) => {
+        await SQL.update('user', update_data, `id=${member_id}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -533,10 +531,9 @@ exports.updateTeamMembers = async (req, res) => {
     })
 }
 
-
 exports.moveMemberToTrash = async (req, res) => {
 
-    const { leadId } = req.body
+    const { member_id } = req.body
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -546,20 +543,20 @@ exports.moveMemberToTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('lead', ``, `id=${leadId} AND owner=${owner}`, (error, result) => {
+    SQL.get('user', ``, `id=${member_id} AND manager_id=${owner}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
                 message: error
             })
         }
-        if (result.length == 0 || result[0].owner !== owner) {
+        if (result.length == 0) {
             return res.json({
                 status: 0,
-                message: 'Not permitted or Invalid Lead'
+                message: 'Not permitted or Invalid User'
             })
         }
-        SQL.update(`lead`, { is_deleted: 1 }, `id=${leadId}`, (error, results) => {
+        SQL.update(`user`, { is_deleted: 1 }, `id=${member_id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -568,7 +565,7 @@ exports.moveMemberToTrash = async (req, res) => {
             }
             return res.json({
                 status: 1,
-                message: "lead moved to trash",
+                message: "member moved to trash",
                 data: results
             })
         });
@@ -584,7 +581,7 @@ exports.getAllTeamMemberFromTrash = async (req, res) => {
         })
     }
     const owner = loggedInUser.id
-    SQL.get(`team`, ``, `source_id=${owner} AND is_deleted=1`, (error, results) => {
+    SQL.get(`user`, ``, `manager_id=${owner} AND is_deleted=1`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -600,7 +597,7 @@ exports.getAllTeamMemberFromTrash = async (req, res) => {
 }
 
 exports.restoreTeamMemberFromTrash = async (req, res) => {
-    const { teamMemberId } = req.body
+    const { teamMemberId } = req.params
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -610,20 +607,20 @@ exports.restoreTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('team', ``, `id=${teamMemberId} AND source_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `id=${teamMemberId} AND manager_id=${owner} AND is_deleted=1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
                 message: error
             })
         }
-        if (result.length == 0 || result[0].owner !== owner) {
+        if (result.length == 0 ) {
             return res.json({
                 status: 0,
-                message: 'Not permitted or Invalid User'
+                message: 'Not permitted or member not in trash'
             })
         }
-        SQL.update(`team`, { is_deleted: 0 }, `id=${teamMemberId}`, (error, results) => {
+        SQL.update(`user`, { is_deleted: 0 }, `id=${teamMemberId}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -632,7 +629,7 @@ exports.restoreTeamMemberFromTrash = async (req, res) => {
             }
             return res.json({
                 status: 1,
-                message: "member restored",
+                message: "team member restored",
                 data: results
             })
         });
@@ -649,7 +646,7 @@ exports.restoreAllTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('team', ``, `source_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `manager_id=${owner} AND is_deleted=1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -662,7 +659,7 @@ exports.restoreAllTeamMemberFromTrash = async (req, res) => {
                 message: 'No team member mark as deleted'
             })
         }
-        SQL.update(`team`, { is_deleted: 0 }, `lead_id=${owner} AND is_deleted=1`, (error, results) => {
+        SQL.update(`user`, { is_deleted: 0 }, `manager_id=${owner} AND is_deleted=1`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -680,7 +677,7 @@ exports.restoreAllTeamMemberFromTrash = async (req, res) => {
 
 exports.deleteTeamMemberFromTrash = async (req, res) => {
 
-    const { teamMemberId } = req.body
+    const { teamMemberId } = req.params
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -690,7 +687,7 @@ exports.deleteTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('team', ``, `id=${teamMemberId} AND lead_id=${owner}  AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `id=${teamMemberId} AND manager_id=${owner} AND is_deleted=1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -703,7 +700,7 @@ exports.deleteTeamMemberFromTrash = async (req, res) => {
                 message: 'no member marked as delete'
             })
         }
-        SQL.delete(`team`, `id=${teamMemberId} AND lead_id=${owner} AND is_deleted=1`, (error, results) => {
+        SQL.delete(`user`, `id=${teamMemberId} AND manager_id=${owner} AND is_deleted=1`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -730,7 +727,7 @@ exports.deleteAllTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('team', ``, `source_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `manager_id=${owner} AND is_deleted=1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -744,7 +741,7 @@ exports.deleteAllTeamMemberFromTrash = async (req, res) => {
             })
         }
 
-        SQL.delete(`team`, `source_id=${owner} AND is_deleted=1`, (error, results) => {
+        SQL.delete(`user`, `manager_id=${owner} AND is_deleted=1`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
