@@ -217,19 +217,6 @@ exports.get = async (req, res) => {
                     message: 'Not permitted or Invalid Lead'
                 })
             }
-            // SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
-            //     if (error) {
-            //         return res.json({
-            //             status: 0,
-            //             message: error
-            //         })
-            //     }
-            //     return res.json({
-            //         status: 1,
-            //         message: "lead details",
-            //         data: results
-            //     })
-            // });
             const query = `SELECT l.*, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
             INNER JOIN user u ON l.owner = u.id
             WHERE l.owner = ${owner} AND l.id = ${leadId} AND l.is_deleted = 0`;

@@ -1,4 +1,5 @@
 // const db = require("../db");
+const { db } = require('../model/db');
 const SQL = require('../model/sqlhandler')
 const validator = require("validator");
 
@@ -194,7 +195,11 @@ exports.getAllBySource = async (req, res) => {
                     message: "please provide valid source_id",
                 });
             }
-            SQL.get('notes', '', `type='${source}' AND source_id=${source_id}`, (error, results) => {
+
+            let query = 'SELECT notes.*, user.first_name as ownerf_name, user.last_name as ownerl_name FROM notes JOIN user ON notes.created_by = user.id WHERE notes.type = ? AND notes.source_id = ?;';
+            let values = [source, source_id];
+
+            db.query(query, values, (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
@@ -204,7 +209,7 @@ exports.getAllBySource = async (req, res) => {
                 return res.json({
                     status: 1,
                     message: "notes of source",
-                    data: results
+                    data: result
                 })
             });
         })
