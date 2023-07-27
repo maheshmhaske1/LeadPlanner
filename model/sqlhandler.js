@@ -62,3 +62,28 @@ exports.delete = (tableName, condition, callback) => {
         callback(null, results);
     });
 };
+
+exports.join = (tables, columns, joinConditions, condition, callback) => {
+    const connection = db; // Assuming you want to perform the join with 'db'. Change to 'dbB' if needed.
+  
+    let tableStr = tables.join(' JOIN ');
+    let columnStr = columns ? columns.join(', ') : '*';
+    let query = `SELECT ${columnStr} FROM ${tableStr}`;
+    if (joinConditions) {
+      query += ` ON ${joinConditions}`;
+    }
+    if (condition) {
+      query += ` WHERE ${condition}`;
+    }
+  
+    console.log(query);
+    connection.query(query, (err, results) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+      callback(null, results);
+    });
+  };
+  
+  

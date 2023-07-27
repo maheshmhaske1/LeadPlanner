@@ -174,11 +174,11 @@ exports.updateLead = async (req, res) => {
                     message: error
                 })
             }
-                return res.json({
-                    status: 1,
-                    message: 'lead details updated successfully',
-                    data: results
-                })
+            return res.json({
+                status: 1,
+                message: 'lead details updated successfully',
+                data: results
+            })
         })
     }
     catch (error) {
@@ -202,6 +202,7 @@ exports.get = async (req, res) => {
 
         const owner = loggedInUser.id
         const leadId = req.params.leadId;
+        console.log(leadId)
 
         SQL.get('lead', ``, `id=${leadId} AND owner=${owner} AND is_deleted=0`, (error, result) => {
             if (error) {
@@ -216,7 +217,24 @@ exports.get = async (req, res) => {
                     message: 'Not permitted or Invalid Lead'
                 })
             }
-            SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
+            // SQL.get(`lead`, ``, `id=${leadId}`, (error, results) => {
+            //     if (error) {
+            //         return res.json({
+            //             status: 0,
+            //             message: error
+            //         })
+            //     }
+            //     return res.json({
+            //         status: 1,
+            //         message: "lead details",
+            //         data: results
+            //     })
+            // });
+            const query = `SELECT l.*, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
+            INNER JOIN user u ON l.owner = u.id
+            WHERE l.owner = ${owner} AND l.id = ${leadId} AND l.is_deleted = 0`;
+
+            db.query(query, (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
@@ -226,10 +244,11 @@ exports.get = async (req, res) => {
                 return res.json({
                     status: 1,
                     message: "lead details",
-                    data: results
+                    data: result
                 })
             });
         })
+
 
     }
     catch (error) {
