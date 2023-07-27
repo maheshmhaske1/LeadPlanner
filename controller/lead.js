@@ -151,10 +151,10 @@ exports.updateLead = async (req, res) => {
             })
         }
 
-        if (update_data.id || update_data.creation_date || update_data.update_date) {
+        if (update_data.id || update_data.creation_date || update_data.update_date || update_data.owner) {
             return res.json({
                 status: 0,
-                message: "id ,creation_date ,update_date cannot be edit"
+                message: "id ,creation_date ,update_date and owner cannot be edit"
             })
         }
 
@@ -165,7 +165,6 @@ exports.updateLead = async (req, res) => {
                     message: error
                 })
             }
-            console.log(result)
         })
 
         SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
@@ -175,13 +174,11 @@ exports.updateLead = async (req, res) => {
                     message: error
                 })
             }
-            if (results.affectedRows > 0) {
                 return res.json({
                     status: 1,
                     message: 'lead details updated successfully',
                     data: results
                 })
-            }
         })
     }
     catch (error) {
