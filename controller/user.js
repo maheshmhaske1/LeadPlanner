@@ -189,6 +189,37 @@ exports.getUserInfo = async (req, res) => {
     })
 }
 
+exports.updateUserInfo = async (req, res) => {
+    const { first_name, last_name, phone, address1, company, employee, city, state, postcode } = req.body
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    SQL.update(`user`,
+     { first_name: first_name, last_name: last_name, phone: phone, address1: address1, company: company, employee: employee, city: city, state: state, postcode: postcode },
+     `id=${loggedInUser.id}`,
+        (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: 'something went wrong',
+                    error: error
+                })
+            }
+            if (result.affectedRows > 0) {
+                return res.json({
+                    status: 1,
+                    message: 'user details updated successfully',
+                    data: result
+                })
+            }
+        })
+}
+
 exports.logOut = async (req, res) => {
     req.session.destroy(function (err) {
         if (!err) {
@@ -614,7 +645,7 @@ exports.restoreTeamMemberFromTrash = async (req, res) => {
                 message: error
             })
         }
-        if (result.length == 0 ) {
+        if (result.length == 0) {
             return res.json({
                 status: 0,
                 message: 'Not permitted or member not in trash'
@@ -754,5 +785,21 @@ exports.deleteAllTeamMemberFromTrash = async (req, res) => {
                 data: results
             })
         });
+    })
+}
+
+exports.getCountryMasterData = async (req, res) => {
+    SQL.get('country', ``, ``, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: `country list`,
+            data: result
+        })
     })
 }

@@ -5,6 +5,7 @@ const session = require('../model/session')
 const { verifyToken } = require('../model/auth')
 
 router.post("/createaccount", userController.createAccount);
+router.put("/update", verifyToken, userController.updateUserInfo);
 router.post("/login", userController.login);
 router.post("/send-otp", userController.sendOtp);
 router.get("/getuserinfo", verifyToken, userController.getUserInfo);
@@ -20,5 +21,6 @@ router.post("/restorememberfromtrash/:teamMemberId", verifyToken, userController
 router.post("/restoreallmemberfromtrash", verifyToken, userController.restoreAllTeamMemberFromTrash);
 router.delete("/deletememberfromtrash/:teamMemberId", verifyToken, userController.deleteTeamMemberFromTrash);
 router.delete("/deleteallmemberfromtrash", verifyToken, userController.deleteAllTeamMemberFromTrash);
+router.get('/getcountries', userController.getCountryMasterData)
 
 module.exports = router;
