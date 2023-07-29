@@ -88,30 +88,31 @@ exports.login = async (req, res) => {
 
     const query = `
     SELECT
-      u.id,
-      u.first_name,
-      u.last_name,
-      u.email,
-      u.password,
-      u.phone,
-      u.address1,
-      u.city,
-      u.state,
-      u.country,
-      u.postcode,
-      u.creation_date,
-      u.update_date,
-      GROUP_CONCAT(p.name) AS permissions
-    FROM
-      user AS u
-      LEFT JOIN roles_users AS ru ON u.id = ru.user_id
-      LEFT JOIN roles AS r ON ru.role_id = r.id
-      LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
-      LEFT JOIN permissions AS p ON pr.permission_id = p.id
-    WHERE
-      u.email = ? OR u.phone = ?
-    GROUP BY
-      u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;
+    u.id,
+    u.first_name,
+    u.last_name,
+    u.email,
+    MAX(u.password) AS password,
+    u.phone,
+    u.address1,
+    u.city,
+    u.state,
+    u.country,
+    u.postcode,
+    MAX(u.creation_date) AS creation_date,
+    MAX(u.update_date) AS update_date,
+    r.name AS role_name,
+    GROUP_CONCAT(p.name) AS permissions
+FROM
+    user AS u
+    LEFT JOIN roles_users AS ru ON u.id = ru.user_id
+    LEFT JOIN roles AS r ON ru.role_id = r.id
+    LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
+    LEFT JOIN permissions AS p ON pr.permission_id = p.id
+WHERE
+    u.email = 'client' OR u.phone = 'client'
+GROUP BY
+    u.id, u.first_name, u.last_name, u.email, u.phone, u.address1, u.city, u.state, u.country, u.postcode, r.id, r.name;
     `;
     const values = [username, username];
 
@@ -200,8 +201,8 @@ exports.updateUserInfo = async (req, res) => {
     }
 
     SQL.update(`user`,
-     { first_name: first_name, last_name: last_name, phone: phone, address1: address1, company: company, employee: employee, city: city, state: state, postcode: postcode },
-     `id=${loggedInUser.id}`,
+        { first_name: first_name, last_name: last_name, phone: phone, address1: address1, company: company, employee: employee, city: city, state: state, postcode: postcode },
+        `id=${loggedInUser.id}`,
         (error, result) => {
             if (error) {
                 return res.json({
