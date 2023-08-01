@@ -358,7 +358,6 @@ exports.convertLeadToDeal = async (req, res) => {
 
 exports.moveLeadToTrash = async (req, res) => {
 
-    const { leadId } = req.body
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -366,35 +365,29 @@ exports.moveLeadToTrash = async (req, res) => {
             message: "Not Authorized",
         })
     }
-    const owner = loggedInUser.id
 
-    SQL.get('lead', ``, `id=${leadId} AND owner=${owner}`, (error, result) => {
+    const owner = loggedInUser.id
+    const { leadIds } = req.body
+    if (!leadIds) {
+        return res.json({
+            status: 0,
+            message: "please provide leadIds",
+        })
+    }
+
+    SQL.update(`lead`, { is_deleted: 1 }, `id IN (${leadIds}) AND owner=${owner}`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
                 message: error
             })
         }
-        if (result.length == 0 || result[0].owner !== owner) {
-            return res.json({
-                status: 0,
-                message: 'Not permitted or Invalid Lead'
-            })
-        }
-        SQL.update(`lead`, { is_deleted: 1 }, `id=${leadId}`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
-            }
-            return res.json({
-                status: 1,
-                message: "lead moved to trash",
-                data: results
-            })
-        });
-    })
+        return res.json({
+            status: 1,
+            message: "lead moved to trash",
+            data: results
+        })
+    });
 }
 
 exports.getAllLeadFromTrash = async (req, res) => {
@@ -620,4 +613,36 @@ exports.exportLeadsInCsv = async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(excelBuffer);
     })
+}
+
+exports.assignLead = async (req, res) => {
+    try {
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role !== 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const owner = loggedInUser.id
+        const { leadId, userId } = req.body
+
+        if (!leadId || !userId) {
+            return res.json({
+                status: 0,
+                message: "leadId and userId are required fields"
+            })
+        }
+
+        SQL.get('lead', ``, `id=${owner}`)
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
 }

@@ -222,6 +222,98 @@ exports.getAllBySource = async (req, res) => {
     }
 }
 
+exports.moveNoteToTrash = async (req, res) => {
+    try {
+        const { notes, source_type } = req.body
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+        const owner = loggedInUser.id
+
+        if (!notes) {
+            return res.json({
+                status: 0,
+                message: "please provide note id's"
+            })
+        }
+
+        let tbl = source_type == 'lead' ? 'lead' : 'deal'
+        SQL.get(`notes`, ``, `id IN (${notes})`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    error: error
+                })
+            }
+            let source_id = []
+            result.map(result => {
+                source_id.push(result.source_id)
+            })
+            SQL.get(tbl, [`owner`], `id IN (${source_id}) and owner = ${owner}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
+                if (result.length == 0) {
+                    return res.json({
+                        status: 0,
+                        error: 'invalid owner'
+                    })
+                }
+                SQL.update('notes', { is_deleted: 1 }, `id IN (${notes})`, (error, result) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            error: error
+                        })
+                    }
+                    if (result.affectedRows > 0) {
+                        return res.json({
+                            status: 1,
+                            message: 'note moved to trash',
+                            data: result
+                        })
+                    }
+                })
+            })
+        })
+
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong", error,
+        })
+    }
+}
+
+exports.getAllTrashedNotes = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+        const owner = loggedInUser.id
+
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong", error,
+        })
+    }
+}
+
+
 exports.deleteNote = async (req, res) => {
     try {
         const loggedInUser = req.decoded
