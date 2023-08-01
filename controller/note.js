@@ -182,7 +182,7 @@ exports.getAllBySource = async (req, res) => {
         }
 
         let tblName = source === 'lead' ? 'lead' : 'deal'
-        SQL.get(tblName, ``, `id=${source_id}`, (error, results) => {
+        SQL.get(tblName, ``, `id=${source_id} AND is_deleted=0`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
