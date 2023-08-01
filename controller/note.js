@@ -226,7 +226,7 @@ exports.moveNoteToTrash = async (req, res) => {
     try {
         const { notes, source_type } = req.body
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -304,6 +304,20 @@ exports.getAllTrashedNotes = async (req, res) => {
         }
         const owner = loggedInUser.id
 
+        SQL.get('notes', ``, `is_deleted=1`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    error: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: 'trashed notes',
+                data: result
+            })
+        })
+
     }
     catch (error) {
         return res.json({
@@ -313,8 +327,7 @@ exports.getAllTrashedNotes = async (req, res) => {
     }
 }
 
-
-exports.deleteNote = async (req, res) => {
+exports.moveFromTrash = async (req, res) => {
     try {
         const loggedInUser = req.decoded
         if (!loggedInUser || loggedInUser.role != 1) {
@@ -323,62 +336,54 @@ exports.deleteNote = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-        const owner = loggedInUser.id
-        const noteId = req.params.noteId;
 
-        SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
+        const { noteIds } = req.body
+        SQL.update('notes', { is_deleted: 0 }, `id IN (${noteIds}) AND is_deleted=1`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     error: error
                 })
             }
+            return res.json({
+                status: 1,
+                message: 'notes restored',
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong", error,
+        })
+    }
+}
 
-            if (results.length == 0) {
+exports.deleteFromTrash = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { noteIds } = req.body
+        SQL.delete('notes', `id IN (${noteIds}) AND is_deleted=1`, (error, result) => {
+            if (error) {
                 return res.json({
                     status: 0,
-                    message: "please enter valid noteId"
+                    error: error
                 })
             }
-            const leadId = results[0].source_id
-            SQL.get('lead', ``, `id=${leadId}`, (error, result) => {
-                if (error) {
-                    return res.json({
-                        status: 0,
-                        error: error
-                    })
-                }
-
-                if (result.length == 0) {
-                    return res.json({
-                        status: 0,
-                        message: "please enter valid noteId"
-                    })
-                }
-                if (result.owner != owner) {
-                    if (results.length == 0) {
-                        return res.json({
-                            status: 0,
-                            message: "not an valid owner"
-                        })
-                    }
-                }
-
-                SQL.delete('notes', `id=${noteId}`, (error, result) => {
-                    if (error) {
-                        return res.json({
-                            status: 0,
-                            error: error
-                        })
-                    }
-
-                    return res.json({
-                        status: 1,
-                        error: 'note deleted successfully'
-                    })
-                })
+            return res.json({
+                status: 1,
+                message: 'notes deleted permanently',
+                data: result
             })
-        });
+        })
     }
     catch (error) {
         return res.json({
