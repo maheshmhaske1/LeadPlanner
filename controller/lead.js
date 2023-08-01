@@ -400,11 +400,8 @@ exports.getAllLeadFromTrash = async (req, res) => {
         })
     }
     const owner = loggedInUser.id
-    const query = `SELECT l.*, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
-    INNER JOIN user u ON l.owner = u.id
-    WHERE l.owner = ${owner} AND l.is_deleted = 1`;
 
-    db.query(query, (error, result) => {
+    SQL.get('lead', ``, `is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -416,7 +413,7 @@ exports.getAllLeadFromTrash = async (req, res) => {
             message: "lead details",
             data: result
         })
-    });
+    })
 }
 
 exports.restoreLeadFromTrash = async (req, res) => {
