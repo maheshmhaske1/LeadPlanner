@@ -8,7 +8,7 @@ const upload = multer({ dest: '/public/leadcsv/' });
 const { verifyToken } = require('../model/auth')
 
 router.post('/add', verifyToken, leadController.createLead)
-router.put('/edit/:leadId', verifyToken, leadController.updateLead)
+router.put('/edit', verifyToken, leadController.updateLead)
 router.get('/get/:leadId', verifyToken, leadController.get)
 router.get('/getall', verifyToken, leadController.getAll)
 router.post('/importcsv', verifyToken, upload.single('file'), leadController.importLead)

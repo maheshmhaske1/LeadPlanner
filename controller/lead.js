@@ -140,55 +140,57 @@ exports.importLead = async (req, res) => {
 
 exports.updateLead = async (req, res) => {
     try {
-        const { leadId } = req.params
-        const update_data = req.body
-
-        const loggedInUser = req.decoded
+        const loggedInUser = req.decoded;
         if (!loggedInUser || loggedInUser.role !== 1) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
-            })
+            });
         }
+
+        const owner = loggedInUser.id;
+        const update_data = req.body;
+        if (update_data.leadIds.length === 0) {
+            return res.json({
+                status: 0,
+                message: "please provide leadIds",
+            });
+        }
+        const leads = update_data.leadIds;
+        delete update_data.leadIds;
 
         if (update_data.id || update_data.creation_date || update_data.update_date || update_data.owner) {
             return res.json({
                 status: 0,
-                message: "id ,creation_date ,update_date and owner cannot be edit"
-            })
+                message: "id, creation_date, update_date, and owner cannot be edited",
+            });
         }
 
-        SQL.get('lead', '', `id=${leadId} AND owner=${loggedInUser.id} AND is_deleted=0`, (error, result) => {
+        SQL.update('lead', update_data, `id IN (${leads}) AND owner = ${owner}`, (error, results) => {
             if (error) {
+                console.error("Error occurred:", error); // Log the error for debugging
                 return res.json({
                     status: 0,
-                    message: error
-                })
-            }
-        })
-
-        SQL.update('lead', update_data, `id=${leadId}`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
+                    message: "An error occurred while updating lead details",
+                    error: error.message, // Include the error message in the response
+                });
             }
             return res.json({
                 status: 1,
-                message: 'lead details updated successfully',
-                data: results
-            })
-        })
+                message: 'Lead details updated successfully',
+                data: results,
+            });
+        });
     }
     catch (error) {
+        console.error("Catch block error:", error); // Log the error for debugging
         return res.json({
             status: 0,
-            message: "something went wrong",
-            message: error
-        })
+            message: "Something went wrong",
+            error: error.message, // Include the error message in the response
+        });
     }
-}
+};
 
 exports.get = async (req, res) => {
     try {
