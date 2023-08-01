@@ -418,7 +418,7 @@ exports.getAllLeadFromTrash = async (req, res) => {
 
 exports.restoreLeadFromTrash = async (req, res) => {
 
-    const { leadId } = req.body
+    const { leadIds } = req.body
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -428,20 +428,7 @@ exports.restoreLeadFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('lead', ``, `id=${leadId} AND owner=${owner} AND is_deleted=1`, (error, result) => {
-        if (error) {
-            return res.json({
-                status: 0,
-                message: error
-            })
-        }
-        if (result.length == 0 || result[0].owner !== owner) {
-            return res.json({
-                status: 0,
-                message: 'Not permitted or Invalid Lead'
-            })
-        }
-        SQL.update(`lead`, { is_deleted: 0 }, `id=${leadId}`, (error, results) => {
+        SQL.update(`lead`, { is_deleted: 0 }, `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -454,7 +441,6 @@ exports.restoreLeadFromTrash = async (req, res) => {
                 data: results
             })
         });
-    })
 }
 
 exports.restoreAllLeadFromTrash = async (req, res) => {
