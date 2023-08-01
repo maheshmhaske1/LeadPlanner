@@ -428,64 +428,24 @@ exports.restoreLeadFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-        SQL.update(`lead`, { is_deleted: 0 }, `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
-            }
-            return res.json({
-                status: 1,
-                message: "lead restored",
-                data: results
-            })
-        });
-}
-
-exports.restoreAllLeadFromTrash = async (req, res) => {
-
-    const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
-        return res.json({
-            status: 0,
-            message: "Not Authorized",
-        })
-    }
-    const owner = loggedInUser.id
-
-    SQL.get('lead', ``, `owner=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.update(`lead`, { is_deleted: 0 }, `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
                 message: error
             })
         }
-        if (result.length == 0) {
-            return res.json({
-                status: 0,
-                message: 'No lead mark as deleted'
-            })
-        }
-        SQL.update(`lead`, { is_deleted: 0 }, `owner=${owner} AND is_deleted=1`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
-            }
-            return res.json({
-                status: 1,
-                message: "leads restored",
-                data: results
-            })
-        });
-    })
+        return res.json({
+            status: 1,
+            message: "lead restored",
+            data: results
+        })
+    });
 }
 
 exports.deleteLeadFromTrash = async (req, res) => {
 
-    const { leadId } = req.body
+    const { leadIds } = req.body
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -495,79 +455,20 @@ exports.deleteLeadFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('lead', ``, `id=${leadId} AND owner=${owner}  AND is_deleted=1`, (error, result) => {
+    SQL.delete('lead', `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
                 message: error
             })
         }
-        if (result.length == 0) {
-            return res.json({
-                status: 0,
-                message: 'no data found'
-            })
-        }
-        const leadId = result[0].id
-        SQL.delete(`lead`, `id=${leadId} AND owner=${owner} AND is_deleted=1`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
-            }
-            SQL.delete('notes', `source_id=${leadId}`, (error, result) => { })
-            return res.json({
-                status: 1,
-                message: "lead deleted permanently",
-                data: results
-            })
-        });
-    })
-}
-
-exports.deleteAllLeadFromTrash = async (req, res) => {
-
-    const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
-            status: 0,
-            message: "Not Authorized",
+            status: 1,
+            message: "leads deleted permanently",
+            data: result
         })
-    }
-    const owner = loggedInUser.id
-
-    SQL.get('lead', ``, `owner=${owner} AND is_deleted=1`, (error, result) => {
-        if (error) {
-            return res.json({
-                status: 0,
-                message: error
-            })
-        }
-        if (result.length == 0) {
-            return res.json({
-                status: 0,
-                message: 'No data found'
-            })
-        }
-        const numbersArray = result.map(obj => obj.id);
-        const leads = numbersArray.join(',');
-
-        SQL.delete(`lead`, `owner=${owner} AND is_deleted=1`, (error, results) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
-            }
-            SQL.delete('notes', `source_id IN (${leads})`, (error, result) => { })
-            return res.json({
-                status: 1,
-                message: "leads deleted permanently",
-                data: results
-            })
-        });
     })
+
 }
 
 exports.exportLeadsInCsv = async (req, res) => {

@@ -14,10 +14,8 @@ router.get('/getall', verifyToken, leadController.getAll)
 router.post('/importcsv', verifyToken, upload.single('file'), leadController.importLead)
 router.delete('/movetotrash', verifyToken, leadController.moveLeadToTrash)
 router.post('/restorefromtrash', verifyToken, leadController.restoreLeadFromTrash)
-router.post('/restoreallfromtrash', verifyToken, leadController.restoreAllLeadFromTrash)
 router.get('/getallfromtrash', verifyToken, leadController.getAllLeadFromTrash)
 router.delete('/deletefromtrash', verifyToken, leadController.deleteLeadFromTrash)
-router.delete('/deleteallfromtrash', verifyToken, leadController.deleteAllLeadFromTrash)
 router.get('/exporttocsv', verifyToken, leadController.exportLeadsInCsv)
 
 
