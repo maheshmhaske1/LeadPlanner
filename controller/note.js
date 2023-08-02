@@ -139,7 +139,7 @@ exports.get = async (req, res) => {
         }
 
         const noteId = req.params.noteId;
-        SQL.get(`notes`, ``, `id=${noteId}`, (error, results) => {
+        SQL.get(`notes`, ``, `id=${noteId} AND is_deleted=0`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
