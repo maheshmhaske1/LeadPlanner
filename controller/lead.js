@@ -58,7 +58,7 @@ exports.createLead = async (req, res) => {
     }
     catch (error) {
         return res.json({
-            status: 1,
+            status: 0,
             message: "something went wrong",
             message: error
         })
@@ -259,8 +259,9 @@ exports.getAll = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-
         let leadOwner = loggedInUser.id
+
+
         let Open = [];
         let New = [];
         let Unread = [];

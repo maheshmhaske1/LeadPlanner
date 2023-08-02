@@ -86,38 +86,67 @@ exports.login = async (req, res) => {
     const { username, password } = req.body;
     await validator.checkMandatoryFields(req, { username, password });
 
+    //     const query = `
+    //     SELECT
+    //     u.id,
+    //     u.first_name,
+    //     u.last_name,
+    //     u.email,
+    //     MAX(u.password) AS password,
+    //     u.phone,
+    //     u.address1,
+    //     u.city,
+    //     u.state,
+    //     u.country,
+    //     u.postcode,
+    //     MAX(u.creation_date) AS creation_date,
+    //     MAX(u.update_date) AS update_date,
+    //     r.name AS role_name,
+    //     GROUP_CONCAT(p.name) AS permissions
+    // FROM
+    //     user AS u
+    //     LEFT JOIN roles_users AS ru ON u.id = ru.user_id
+    //     LEFT JOIN roles AS r ON ru.role_id = r.id
+    //     LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
+    //     LEFT JOIN permissions AS p ON pr.permission_id = p.id
+    // WHERE
+    //     u.email = 'client' OR u.phone = 'client'
+    // GROUP BY
+    //     u.id, u.first_name, u.last_name, u.email, u.phone, u.address1, u.city, u.state, u.country, u.postcode, r.id, r.name;
+    //     `;
+
+
     const query = `
     SELECT
-    u.id,
-    u.first_name,
-    u.last_name,
-    u.email,
-    MAX(u.password) AS password,
-    u.phone,
-    u.address1,
-    u.city,
-    u.state,
-    u.country,
-    u.postcode,
-    MAX(u.creation_date) AS creation_date,
-    MAX(u.update_date) AS update_date,
-    r.name AS role_name,
-    GROUP_CONCAT(p.name) AS permissions
-FROM
-    user AS u
-    LEFT JOIN roles_users AS ru ON u.id = ru.user_id
-    LEFT JOIN roles AS r ON ru.role_id = r.id
-    LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
-    LEFT JOIN permissions AS p ON pr.permission_id = p.id
-WHERE
-    u.email = 'client' OR u.phone = 'client'
-GROUP BY
-    u.id, u.first_name, u.last_name, u.email, u.phone, u.address1, u.city, u.state, u.country, u.postcode, r.id, r.name;
-    `;
+      u.id,
+      u.first_name,
+      u.last_name,
+      u.email,
+      u.password,
+      u.phone,
+      u.address1,
+      u.city,
+      u.state,
+      u.country,
+      u.postcode,
+      u.creation_date,
+      u.update_date,
+      GROUP_CONCAT(p.name) AS permissions
+    FROM
+      user AS u
+      LEFT JOIN roles_users AS ru ON u.id = ru.user_id
+      LEFT JOIN roles AS r ON ru.role_id = r.id
+      LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
+      LEFT JOIN permissions AS p ON pr.permission_id = p.id
+    WHERE
+      u.email = ? OR u.phone = ?
+    GROUP BY
+      u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;`
     const values = [username, username];
 
     db.query(query, values, (error, results) => {
         const userDetails = results
+        console.log(results)
         if (error) {
             return res.json({
                 status: 0,
@@ -135,7 +164,8 @@ GROUP BY
                 console.log("userDetails[0].id => 124", userDetails[0].id)
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
-                        SQL.get('roles_users', '', `user_id=${results[0].id}`, async (error, results) => {
+                        SQL.get('roles_users', '', `user_id = ${results[0].id}`, async (error, results) => {
+                            console.log("results[0].role_id ---->", results[0])
                             const role = results[0].role_id
                             const token = await jwt.sign({ id: userDetails[0].id, role: results[0].role_id }, JWT_TOKEN, { expiresIn: '10d' });
                             results[0].token = token;
@@ -143,7 +173,7 @@ GROUP BY
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `/lp` : role == 2 ? '/admin' : role == 3 ? '/admin' : '',
+                                landingurl: role == 1 ? `/ lp` : role == 2 ? '/admin' : role == 3 ? '/admin' : '',
                                 user: userDetails,
                                 token: token
                             });
@@ -173,7 +203,7 @@ exports.getUserInfo = async (req, res) => {
 
     const userId = loggedInUser.id
 
-    SQL.get('user', ``, `id=${userId}`, (error, result) => {
+    SQL.get('user', ``, `id = ${userId} `, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -202,7 +232,7 @@ exports.updateUserInfo = async (req, res) => {
 
     SQL.update(`user`,
         { first_name: first_name, last_name: last_name, phone: phone, address1: address1, company: company, employee: employee, city: city, state: state, postcode: postcode },
-        `id=${loggedInUser.id}`,
+        `id = ${loggedInUser.id} `,
         (error, result) => {
             if (error) {
                 return res.json({
@@ -255,17 +285,17 @@ exports.sendOtp = async (req, res) => {
         // if (response.length == 0) {
         //     return res.json({
         //         status: 0,
-        //         message: `this email ${email} is not registered`
+        //         message: `this email ${ email } is not registered`
         //     })
         // }
     })
 
     const otp = Math.floor(100000 + Math.random() * 900000);
-    const isEmailSent = await Email.sendMail(email, 'Otp Verification', `Your OTP is: ${otp}`);
-    const sql = `INSERT INTO otps (email, otp, validUntill) VALUES (?, ?, ?)`;
+    const isEmailSent = await Email.sendMail(email, 'Otp Verification', `Your OTP is: ${otp} `);
+    const sql = `INSERT INTO otps(email, otp, validUntill) VALUES(?, ?, ?)`;
     const values = [email, otp, Date.now() + 600000];
 
-    db.query(`DELETE FROM otps WHERE email = ?`, [email], (error, response) => {
+    db.query(`DELETE FROM otps WHERE email = ? `, [email], (error, response) => {
         if (error) {
             console.error('Error deleting OTP:', error);
             return res.json({
@@ -287,7 +317,7 @@ exports.sendOtp = async (req, res) => {
 
             return res.json({
                 status: 1,
-                message: `OTP sent to ${email}`
+                message: `OTP sent to ${email} `
             });
         });
     });
@@ -427,7 +457,7 @@ exports.addTeamMember = async (req, res) => {
     req.body.source_id = loggedInUser.id
     const encryptedPassword = await bcrypt.hash(password, 10);
 
-    await SQL.get('user', ``, `id=${loggedInUser.id}`, (error, result) => {
+    await SQL.get('user', ``, `id = ${loggedInUser.id} `, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -470,7 +500,7 @@ exports.getTeamMembers = async (req, res) => {
         })
     }
 
-    await SQL.get('user', ``, `id=${loggedInUser.id}`, async (error, result) => {
+    await SQL.get('user', ``, `id = ${loggedInUser.id} `, async (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -484,7 +514,7 @@ exports.getTeamMembers = async (req, res) => {
                 message: 'please provide valid source id'
             })
         }
-        await SQL.get('user', ``, `manager_id=${loggedInUser.id} AND is_deleted=0`, async (error, result) => {
+        await SQL.get('user', ``, `manager_id = ${loggedInUser.id} AND is_deleted = 0`, async (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -528,7 +558,7 @@ exports.updateTeamMembers = async (req, res) => {
         })
     }
 
-    await SQL.get('user', ``, `id=${member_id} AND manager_id=${loggedInUser.id}`, async (error, result) => {
+    await SQL.get('user', ``, `id = ${member_id} AND manager_id = ${loggedInUser.id} `, async (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -543,7 +573,7 @@ exports.updateTeamMembers = async (req, res) => {
             })
         }
 
-        await SQL.update('user', update_data, `id=${member_id}`, (error, result) => {
+        await SQL.update('user', update_data, `id = ${member_id} `, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -575,7 +605,7 @@ exports.moveMemberToTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('user', ``, `id=${member_id} AND manager_id=${owner}`, (error, result) => {
+    SQL.get('user', ``, `id = ${member_id} AND manager_id = ${owner} `, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -588,7 +618,7 @@ exports.moveMemberToTrash = async (req, res) => {
                 message: 'Not permitted or Invalid User'
             })
         }
-        SQL.update(`user`, { is_deleted: 1 }, `id=${member_id}`, (error, results) => {
+        SQL.update(`user`, { is_deleted: 1 }, `id = ${member_id} `, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -613,7 +643,7 @@ exports.getAllTeamMemberFromTrash = async (req, res) => {
         })
     }
     const owner = loggedInUser.id
-    SQL.get(`user`, ``, `manager_id=${owner} AND is_deleted=1`, (error, results) => {
+    SQL.get(`user`, ``, `manager_id = ${owner} AND is_deleted = 1`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -639,7 +669,7 @@ exports.restoreTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('user', ``, `id=${teamMemberId} AND manager_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `id = ${teamMemberId} AND manager_id = ${owner} AND is_deleted = 1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -652,7 +682,7 @@ exports.restoreTeamMemberFromTrash = async (req, res) => {
                 message: 'Not permitted or member not in trash'
             })
         }
-        SQL.update(`user`, { is_deleted: 0 }, `id=${teamMemberId}`, (error, results) => {
+        SQL.update(`user`, { is_deleted: 0 }, `id = ${teamMemberId} `, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -678,7 +708,7 @@ exports.restoreAllTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('user', ``, `manager_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `manager_id = ${owner} AND is_deleted = 1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -691,7 +721,7 @@ exports.restoreAllTeamMemberFromTrash = async (req, res) => {
                 message: 'No team member mark as deleted'
             })
         }
-        SQL.update(`user`, { is_deleted: 0 }, `manager_id=${owner} AND is_deleted=1`, (error, results) => {
+        SQL.update(`user`, { is_deleted: 0 }, `manager_id = ${owner} AND is_deleted = 1`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -719,7 +749,7 @@ exports.deleteTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('user', ``, `id=${teamMemberId} AND manager_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `id = ${teamMemberId} AND manager_id = ${owner} AND is_deleted = 1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -732,7 +762,7 @@ exports.deleteTeamMemberFromTrash = async (req, res) => {
                 message: 'no member marked as delete'
             })
         }
-        SQL.delete(`user`, `id=${teamMemberId} AND manager_id=${owner} AND is_deleted=1`, (error, results) => {
+        SQL.delete(`user`, `id = ${teamMemberId} AND manager_id = ${owner} AND is_deleted = 1`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -759,7 +789,7 @@ exports.deleteAllTeamMemberFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.get('user', ``, `manager_id=${owner} AND is_deleted=1`, (error, result) => {
+    SQL.get('user', ``, `manager_id = ${owner} AND is_deleted = 1`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -773,7 +803,7 @@ exports.deleteAllTeamMemberFromTrash = async (req, res) => {
             })
         }
 
-        SQL.delete(`user`, `manager_id=${owner} AND is_deleted=1`, (error, results) => {
+        SQL.delete(`user`, `manager_id = ${owner} AND is_deleted = 1`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,

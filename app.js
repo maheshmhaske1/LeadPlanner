@@ -17,6 +17,7 @@ var leadDocRouter = require("./routes/leaddocument");
 var siteRouter = require("./routes/site");
 var pipelineRouter = require("./routes/pipeline");
 var productRouter = require("./routes/product");
+var settingRouter = require('./routes/settings')
 
 var app = express();
 var corsOptions = {
@@ -53,6 +54,7 @@ app.use("/api/lead/doc", leadDocRouter);
 app.use("/api/site", siteRouter);
 app.use("/api/product", productRouter);
 app.use("/api/pipeline", pipelineRouter);
+app.use('/api/setting',settingRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
