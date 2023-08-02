@@ -454,8 +454,43 @@ exports.addTeamMember = async (req, res) => {
         })
     }
 
+    SQL.get('password_settings', ``, ``, (error, result) => {
+
+        const termValues = result.reduce((result, row) => {
+            result[row.term] = row.active;
+            return result;
+        }, {});
+
+        let error_message = ``
+        if (termValues.password_length == 1 && password.length < 8) {
+            error_message += `password should be 8 or more character long`
+        }
+        if (termValues.lowercase == 1) {
+            const containsLowercase = (str) => /[a-z]/.test(str);
+            if (!containsLowercase(password))
+                error_message += `, password should contain atleast one lowercase letter`
+        }
+        if (termValues.uppercase == 1) {
+            const containsUppercase = (str) => /[A-Z]/.test(str);
+            if (!containsUppercase(password))
+                error_message += `, password should contain atleast one uppercase letter`
+        }
+        if (termValues.uppercase == 1) {
+            const containsSpecialCharacter = (str) => /\W/.test(str);
+            if (!containsSpecialCharacter(password))
+                error_message += `, password should contain atleast one special letter`
+        }
+        if (error_message != ``) {
+            return res.json({
+                status: 0,
+                message: error_message
+            })
+        }
+    })
+
     req.body.source_id = loggedInUser.id
     const encryptedPassword = await bcrypt.hash(password, 10);
+
 
     await SQL.get('user', ``, `id = ${loggedInUser.id} `, (error, result) => {
         if (error) {
