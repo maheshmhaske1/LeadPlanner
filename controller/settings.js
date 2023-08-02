@@ -113,7 +113,7 @@ exports.getPasswordSetting = async (req, res) => {
             })
         }
         console.log(loggedInUser)
-        let condition = loggedInUser.role == 1 ? `` : `active=1`;
+        let condition = loggedInUser.role == 1 ? `` : ``;
         SQL.get('password_settings', ``, condition, (error, result) => {
             if (error) {
                 return res.json({
