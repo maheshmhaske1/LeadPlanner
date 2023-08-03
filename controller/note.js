@@ -196,7 +196,7 @@ exports.getAllBySource = async (req, res) => {
                 });
             }
 
-            let query = 'SELECT notes.*, user.first_name as ownerf_name, user.last_name as ownerl_name FROM notes JOIN user ON notes.created_by = user.id WHERE notes.type = ? AND notes.source_id = ?;';
+            let query = 'SELECT notes.*, user.first_name as ownerf_name, user.last_name as ownerl_name FROM notes JOIN user ON notes.created_by = user.id WHERE notes.type = ? AND notes.source_id = ? AND notes.is_deleted=0;';
             let values = [source, source_id];
 
             db.query(query, values, (error, result) => {
