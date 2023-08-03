@@ -141,7 +141,7 @@ exports.importLead = async (req, res) => {
 exports.updateLead = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser || loggedInUser.role !== 1 || !loggedInUser.role !== 4) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -159,10 +159,10 @@ exports.updateLead = async (req, res) => {
         const leads = update_data.leadIds;
         delete update_data.leadIds;
 
-        if (update_data.id || update_data.creation_date || update_data.update_date || update_data.owner) {
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
                 status: 0,
-                message: "id, creation_date, update_date, and owner cannot be edited",
+                message: "id, creation_date, update_date cannot be edited",
             });
         }
 
