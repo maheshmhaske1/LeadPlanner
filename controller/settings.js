@@ -67,18 +67,24 @@ exports.updatePasswordSetting = async (req, res) => {
             })
         }
         const { passSettingId } = req.params
-        const { active } = req.body
+        let update_data = req.body
+        console.log(update_data.active)
 
-
-        if (active === undefined || active === null) {
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
                 status: 0,
-                message: "active is required value",
+                message: "id ,creation_date ,update_date cannot be edit"
+            })
+        }
+
+        if (!update_data.hasOwnProperty("active") || !update_data.hasOwnProperty("value")) {
+            return res.json({
+                status: 0,
+                message: "at least one field required from active and value"
             });
         }
 
-
-        SQL.update('password_settings', { active }, `id=${passSettingId}`, (error, result) => {
+        SQL.update('password_settings', update_data, `id=${passSettingId}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -124,6 +130,176 @@ exports.getPasswordSetting = async (req, res) => {
             return res.json({
                 status: 1,
                 message: 'password settings',
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.addLabel = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { name, colour_code } = req.body
+        if (!colour_code || !name) {
+            return res.json({
+                status: 0,
+                message: "name, colour_code are required fields",
+            })
+        }
+
+
+
+        SQL.insert(`label`, { name, colour_code }, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: `label is added.`,
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.updateLabel = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { labelId } = req.params
+        const update_data = req.body
+
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.json({
+                status: 0,
+                message: "id ,creation_date ,update_date cannot be edit"
+            })
+        }
+
+        SQL.update('label', update_data, `id=${labelId}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: 'label updated',
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.deleteLabel = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { labelId } = req.params
+
+        SQL.get('label', ``, `id=${labelId}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            console.log(result.length)
+            if (result.length == 0) {
+                return res.json({
+                    status: 0,
+                    message: `please provide valid labelId`
+                })
+            }
+            SQL.delete('label', `id=${labelId}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                return res.json({
+                    status: 1,
+                    message: "label deleted",
+                    data: result
+                })
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.getAllLabels = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        console.log(loggedInUser)
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        SQL.get('label', ``, ``, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "labels",
                 data: result
             })
         })

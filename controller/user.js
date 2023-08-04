@@ -456,29 +456,57 @@ exports.addTeamMember = async (req, res) => {
 
     SQL.get('password_settings', ``, ``, (error, result) => {
 
+
         const termValues = result.reduce((result, row) => {
             result[row.term] = row.active;
             return result;
         }, {});
 
+        const values = result.reduce((result, row) => {
+            result[row.term] = row.value;
+            return result;
+        }, {});
+
+        console.log(termValues)
+        console.log(values)
+
         let error_message = ``
-        if (termValues.password_length == 1 && password.length < 8) {
-            error_message += `password should be 8 or more character long`
+        if (termValues.password_length == 1 && password.length < values.length) {
+            error_message += `password should be ${values.length} or greater`
         }
         if (termValues.lowercase == 1) {
-            const containsLowercase = (str) => /[a-z]/.test(str);
-            if (!containsLowercase(password))
-                error_message += `, password should contain atleast one lowercase letter`
+            const containsLowercase = (str, minCount) => {
+                const lowercaseCount = (str.match(/[a-z]/g) || []).length;
+                return lowercaseCount >= minCount;
+            };
+            if (!containsLowercase(password, values.lowercase)) {
+                error_message += `, password should contain at least ${values.lowercase} lowercase letters`;
+            }
         }
+
         if (termValues.uppercase == 1) {
-            const containsUppercase = (str) => /[A-Z]/.test(str);
-            if (!containsUppercase(password))
-                error_message += `, password should contain atleast one uppercase letter`
+            const containsUppercase = (str, minCount) => {
+                const uppercaseCount = (str.match(/[A-Z]/g) || []).length;
+                return uppercaseCount >= minCount;
+            };
+            if (!containsUppercase(password, values.uppercase)) {
+                error_message += `, password should contain at least ${values.uppercase} uppercase letters`;
+            }
         }
         if (termValues.uppercase == 1) {
             const containsSpecialCharacter = (str) => /\W/.test(str);
             if (!containsSpecialCharacter(password))
                 error_message += `, password should contain atleast one special letter`
+        }
+        if (termValues.number_symbol == 1) {
+            const containsSpecialCharacter = (str, minCount) => {
+                const specialCharCount = (str.match(/[!@#$%^&*]/g) || []).length;
+                return specialCharCount >= minCount;
+            };
+        
+            if (!containsSpecialCharacter(password, values.number_symbol)) {
+                error_message += `, password should contain at least ${values.number_symbol} special characters`;
+            }
         }
         if (error_message != ``) {
             return res.json({
@@ -492,37 +520,37 @@ exports.addTeamMember = async (req, res) => {
     const encryptedPassword = await bcrypt.hash(password, 10);
 
 
-    await SQL.get('user', ``, `id = ${loggedInUser.id} `, (error, result) => {
-        if (error) {
-            return res.json({
-                status: 0,
-                message: 'something went wrong',
-                error: error
-            })
-        }
-        if (result.length == 0) {
-            return res.json({
-                status: 0,
-                message: 'please provide valid source id'
-            })
-        }
+    // await SQL.get('user', ``, `id = ${loggedInUser.id} `, (error, result) => {
+    //     if (error) {
+    //         return res.json({
+    //             status: 0,
+    //             message: 'something went wrong',
+    //             error: error
+    //         })
+    //     }
+    //     if (result.length == 0) {
+    //         return res.json({
+    //             status: 0,
+    //             message: 'please provide valid source id'
+    //         })
+    //     }
 
-        SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id }, (error, result) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: 'something went wrong',
-                    error: error
-                })
-            }
-            return res.json({
-                status: 1,
-                message: 'team member added',
-                data: result
-            })
-        })
+    //     SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id }, (error, result) => {
+    //         if (error) {
+    //             return res.json({
+    //                 status: 0,
+    //                 message: 'something went wrong',
+    //                 error: error
+    //             })
+    //         }
+    //         return res.json({
+    //             status: 1,
+    //             message: 'team member added',
+    //             data: result
+    //         })
+    //     })
 
-    })
+    // })
 }
 
 exports.getTeamMembers = async (req, res) => {

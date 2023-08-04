@@ -7,4 +7,10 @@ const { verifyToken } = require('../model/auth')
 router.put('/password/edit/:passSettingId', verifyToken, settingController.updatePasswordSetting)
 router.get('/password/get', verifyToken, settingController.getPasswordSetting)
 
+// ====== label master settings ====== //
+router.post('/label/add', verifyToken, settingController.addLabel)
+router.put('/label/edit/:labelId', verifyToken, settingController.updateLabel)
+router.get('/label/getAll', verifyToken, settingController.getAllLabels)
+router.delete('/label/delete/:labelId', verifyToken, settingController.deleteLabel)
+
 module.exports = router;
