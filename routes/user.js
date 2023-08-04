@@ -22,5 +22,10 @@ router.post("/restoreallmemberfromtrash", verifyToken, userController.restoreAll
 router.delete("/deletememberfromtrash/:teamMemberId", verifyToken, userController.deleteTeamMemberFromTrash);
 router.delete("/deleteallmemberfromtrash", verifyToken, userController.deleteAllTeamMemberFromTrash);
 router.get('/getcountries', userController.getCountryMasterData)
+router.post("/ticket/raise", verifyToken, userController.addTicket);
+router.get("/ticket/getAll/:status", verifyToken, userController.getAllTickets);
+router.get("/ticket/getmytickets", verifyToken, userController.getTickets);
+router.put("/ticket/update/:ticketId", verifyToken, userController.updateTickets);
+
 
 module.exports = router;

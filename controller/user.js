@@ -503,7 +503,7 @@ exports.addTeamMember = async (req, res) => {
                 const specialCharCount = (str.match(/[!@#$%^&*]/g) || []).length;
                 return specialCharCount >= minCount;
             };
-        
+
             if (!containsSpecialCharacter(password, values.number_symbol)) {
                 error_message += `, password should contain at least ${values.number_symbol} special characters`;
             }
@@ -520,37 +520,37 @@ exports.addTeamMember = async (req, res) => {
     const encryptedPassword = await bcrypt.hash(password, 10);
 
 
-    // await SQL.get('user', ``, `id = ${loggedInUser.id} `, (error, result) => {
-    //     if (error) {
-    //         return res.json({
-    //             status: 0,
-    //             message: 'something went wrong',
-    //             error: error
-    //         })
-    //     }
-    //     if (result.length == 0) {
-    //         return res.json({
-    //             status: 0,
-    //             message: 'please provide valid source id'
-    //         })
-    //     }
+    await SQL.get('user', ``, `id = ${loggedInUser.id} `, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: 'something went wrong',
+                error: error
+            })
+        }
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'please provide valid source id'
+            })
+        }
 
-    //     SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id }, (error, result) => {
-    //         if (error) {
-    //             return res.json({
-    //                 status: 0,
-    //                 message: 'something went wrong',
-    //                 error: error
-    //             })
-    //         }
-    //         return res.json({
-    //             status: 1,
-    //             message: 'team member added',
-    //             data: result
-    //         })
-    //     })
+        SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id }, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: 'something went wrong',
+                    error: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: 'team member added',
+                data: result
+            })
+        })
 
-    // })
+    })
 }
 
 exports.getTeamMembers = async (req, res) => {
@@ -883,6 +883,13 @@ exports.deleteAllTeamMemberFromTrash = async (req, res) => {
 }
 
 exports.getCountryMasterData = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
     SQL.get('country', ``, ``, (error, result) => {
         if (error) {
             return res.json({
@@ -893,6 +900,127 @@ exports.getCountryMasterData = async (req, res) => {
         return res.json({
             status: 1,
             message: `country list`,
+            data: result
+        })
+    })
+}
+
+exports.addTicket = async (req, res) => {
+
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const user_id = loggedInUser.id
+    let { mobile, title, description, email, category, priority } = req.body;
+    req.body.user_id = user_id
+
+    if (!mobile || !title || !description || !email || !category) {
+        return res.json({
+            status: 0,
+            message: ` mobile, title, description, email, category are required values`
+        })
+    }
+
+    SQL.insert('tickets', req.body, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: `ticked raised`,
+            data: result
+        })
+    })
+}
+
+exports.updateTickets = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { ticketId } = req.params
+    const { priority, assigned_to,status } = req.body
+    if (!priority || !assigned_to) {
+        return res.json({
+            status: 0,
+            message: "priority, assigned_to are required fields",
+        })
+    }
+
+    SQL.update('tickets', { priority, assigned_to,status }, `id=${ticketId}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "ticket updated",
+            data: result
+        })
+    })
+}
+
+exports.getTickets = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const userId = loggedInUser.id
+
+    SQL.get('tickets', ``, `user_id = ${userId}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "tickets",
+            data: result
+        })
+    })
+}
+
+exports.getAllTickets = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { status } = req.params
+
+    SQL.get('tickets', ``, `status='${status}'`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "tickets",
             data: result
         })
     })
