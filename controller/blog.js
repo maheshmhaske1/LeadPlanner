@@ -87,71 +87,66 @@ exports.getBlogs = async (req, res) => {
 
 exports.editBlog = async (req, res) => {
   try {
-    const { blogId } = req.params
-    const { title, url, description, site, route, image, tag, date, sections } = req.body
+    const { blogId } = req.params;
+    const { title, url, description, site, route, image, tag, date, sections } = req.body;
 
     if (!blogId) {
-      return res, json({
+      return res.json({
         status: 0,
         message: "please provide blogId"
-      })
+      });
     }
 
     if (req.body.id || req.body.creation_date || req.body.update_date) {
       return res.json({
         status: 0,
-        message: "id ,creation_date ,update_date cannot be edit",
+        message: "id, creation_date, update_date cannot be edited",
       });
     }
 
-    let new_section = []
-    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date }, `id=${blogId}`, (error, response) => {
+    let new_section = [];
+    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date }, `id=${blogId}`, async (error, response) => {
       if (error) {
         return res.json({
           status: 0,
-          message: 'something went wrong ', error
-        })
-      }
-      else {
-        if (sections)
-          sections.map(async (section) => {
-            if (section.id)
+          message: 'something went wrong',
+          error: error
+        });
+      } else {
+        if (sections) {
+          for (const section of sections) {
+            if (section.id) {
               await SQL.update('xx_blog_details', section, `id=${section.id}`, (error, response) => {
                 if (error) {
-                  return res.json({
-                    status: 0,
-                    message: 'something went wrong -2'.error
-                  })
+                  console.error('something went wrong -2', error);
                 }
-              })
-            if (!section.id) {
-              section["blogId"] = parseInt(blogId)
-              console.log("section no id", section)
+              });
+            } else {
+              section["blogId"] = parseInt(blogId);
+              console.log("section no id", section);
               await SQL.insert('xx_blog_details', section, (error, results) => {
                 if (error) {
-                  return res.json({
-                    status: 0,
-                    error: error
-                  })
+                  console.error('something went wrong', error);
                 }
-              })
+              });
             }
-          })
+          }
+        }
         return res.json({
           status: 1,
           message: "blog details updated successfully"
-        })
+        });
       }
-    })
-  }
-  catch (error) {
+    });
+  } catch (error) {
     return res.json({
       status: 0,
       message: "something went wrong",
       error: error
-    })
+    });
   }
 };
+
 
 exports.getBlog = async (req, res) => {
   try {
