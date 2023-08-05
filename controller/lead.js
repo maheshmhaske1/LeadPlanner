@@ -141,7 +141,7 @@ exports.importLead = async (req, res) => {
 exports.updateLead = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
-        if (!loggedInUser || loggedInUser.role !== 1 || !loggedInUser.role !== 4) {
+        if (!loggedInUser || loggedInUser.role !== 1 ) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
