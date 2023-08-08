@@ -141,7 +141,7 @@ exports.importLead = async (req, res) => {
 exports.updateLead = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
-        if (!loggedInUser || loggedInUser.role !== 1 ) {
+        if (!loggedInUser || loggedInUser.role !== 1) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -195,7 +195,7 @@ exports.updateLead = async (req, res) => {
 exports.get = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -249,11 +249,52 @@ exports.get = async (req, res) => {
     }
 }
 
+exports.getLeadByOwner = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser || loggedInUser.role !== 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const userId = req.params.userId;
+
+        const query = `SELECT l.*, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
+            INNER JOIN user u ON l.owner = u.id
+            WHERE l.owner = ${userId} AND l.is_deleted = 0`;
+
+        db.query(query, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "lead details",
+                data: result
+            })
+        })
+
+
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
 exports.getAll = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser || loggedInUser.role != 1) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -362,7 +403,7 @@ exports.convertLeadToDeal = async (req, res) => {
 exports.moveLeadToTrash = async (req, res) => {
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -476,7 +517,7 @@ exports.deleteLeadFromTrash = async (req, res) => {
 
 exports.exportLeadsInCsv = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
