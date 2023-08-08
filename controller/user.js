@@ -639,7 +639,7 @@ exports.updateTeamMembers = async (req, res) => {
 
         let roles = []
         if (update_data.roles) roles = update_data.roles
-        if (update_data.password) update_data.password = await bcrypt.hash(password, 10);
+        if (update_data.password) update_data.password = await bcrypt.hash(update_data.password, 10);
         delete update_data.roles
         await SQL.update('user', update_data, `id = ${member_id} `, (error, result) => {
             if (error) {
