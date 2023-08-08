@@ -598,7 +598,7 @@ exports.getTeamMembers = async (req, res) => {
 
 exports.updateTeamMembers = async (req, res) => {
     const { member_id } = req.params
-    const update_data = req.body
+    let update_data = req.body
 
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
@@ -615,10 +615,10 @@ exports.updateTeamMembers = async (req, res) => {
         })
     }
 
-    if (update_data.id || update_data.creation_date || update_data.update_date || update_data.password) {
+    if (update_data.id || update_data.creation_date || update_data.update_date) {
         return res.json({
             status: 0,
-            message: "id ,creation_date ,update_date and password cannot be edit"
+            message: "id ,creation_date ,update_date cannot be edit"
         })
     }
 
@@ -637,6 +637,10 @@ exports.updateTeamMembers = async (req, res) => {
             })
         }
 
+        let roles = []
+        if (update_data.roles) roles = update_data.roles
+        if (update_data.password) update_data.password = await bcrypt.hash(password, 10);
+        delete update_data.roles
         await SQL.update('user', update_data, `id = ${member_id} `, (error, result) => {
             if (error) {
                 return res.json({
@@ -645,6 +649,9 @@ exports.updateTeamMembers = async (req, res) => {
                     error: error
                 })
             }
+            roles.map(roles => {
+                SQL.insert('roles_users', roles, (error, result) => { console.log(error) })
+            })
             if (result.affectedRows > 0) {
                 return res.json({
                     status: 1,
