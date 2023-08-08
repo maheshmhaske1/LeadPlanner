@@ -165,15 +165,15 @@ exports.login = async (req, res) => {
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
                         SQL.get('roles_users', '', `user_id = ${results[0].id}`, async (error, results) => {
-                            console.log("results[0].role_id ---->", results[0])
-                            const role = results[0].role_id
-                            const token = await jwt.sign({ id: userDetails[0].id, role: results[0].role_id }, JWT_TOKEN, { expiresIn: '10d' });
-                            results[0].token = token;
-                            delete results[0].password;
+                            console.log(results)
+
+                            let role = ``
+                            results.length == 0 ? role = `` : role = results[0].role_id
+                            const token = await jwt.sign({ id: userDetails[0].id, role: role }, JWT_TOKEN, { expiresIn: '10d' });
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `/lp` : role == 2 ? '/admin' : role == 3 ? '/admin' : '',
+                                landingurl: role == 1 ? `/lp` : role == 2 ? '/admin' : role == 3 ? '/admin' : role == 5 ? '/lp' : '',
                                 user: userDetails,
                                 token: token
                             });
@@ -543,6 +543,7 @@ exports.addTeamMember = async (req, res) => {
                     error: error
                 })
             }
+
             return res.json({
                 status: 1,
                 message: 'team member added',
@@ -719,6 +720,36 @@ exports.getAllTeamMemberFromTrash = async (req, res) => {
             data: results
         })
     });
+}
+
+exports.getUserRolesByUser = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { userId } = req.params
+
+    let query = `
+    SELECT u.id AS user_id, r.* FROM user u JOIN roles_users ru ON u.id = ru.user_id JOIN roles r ON ru.role_id = r.id where u.id=${userId};`
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        else {
+            return res.json({
+                status: 1,
+                message: `user roles`,
+                data: result
+            })
+        }
+    })
 }
 
 exports.restoreTeamMemberFromTrash = async (req, res) => {
@@ -951,7 +982,7 @@ exports.updateTickets = async (req, res) => {
     }
 
     const { ticketId } = req.params
-    const { priority, assigned_to,status } = req.body
+    const { priority, assigned_to, status } = req.body
     if (!priority || !assigned_to) {
         return res.json({
             status: 0,
@@ -959,7 +990,7 @@ exports.updateTickets = async (req, res) => {
         })
     }
 
-    SQL.update('tickets', { priority, assigned_to,status }, `id=${ticketId}`, (error, result) => {
+    SQL.update('tickets', { priority, assigned_to, status }, `id=${ticketId}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -1021,6 +1052,30 @@ exports.getAllTickets = async (req, res) => {
         return res.json({
             status: 1,
             message: "tickets",
+            data: result
+        })
+    })
+}
+
+exports.getAllRoles = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    SQL.get('roles', ``, ``, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "roles",
             data: result
         })
     })

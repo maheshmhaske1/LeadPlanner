@@ -26,6 +26,8 @@ router.post("/ticket/raise", verifyToken, userController.addTicket);
 router.get("/ticket/getAll/:status", verifyToken, userController.getAllTickets);
 router.get("/ticket/getmytickets", verifyToken, userController.getTickets);
 router.put("/ticket/update/:ticketId", verifyToken, userController.updateTickets);
+router.get('/getallroles', verifyToken, userController.getAllRoles)
+router.get('/getrolesByUser/:userId', verifyToken, userController.getUserRolesByUser)
 
 
 module.exports = router;
