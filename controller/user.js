@@ -454,67 +454,67 @@ exports.addTeamMember = async (req, res) => {
         })
     }
 
-    SQL.get('password_settings', ``, ``, (error, result) => {
+    // SQL.get('password_settings', ``, ``, (error, result) => {
+
+    //     const termValues = result.reduce((result, row) => {
+    //         result[row.term] = row.active;
+    //         return result;
+    //     }, {});
+
+    //     const values = result.reduce((result, row) => {
+    //         result[row.term] = row.value;
+    //         return result;
+    //     }, {});
 
 
-        const termValues = result.reduce((result, row) => {
-            result[row.term] = row.active;
-            return result;
-        }, {});
+    //     console.log(termValues)
+    //     console.log(values)
 
-        const values = result.reduce((result, row) => {
-            result[row.term] = row.value;
-            return result;
-        }, {});
+    //     let error_message = ``
+    //     if (termValues.password_length == 1 && password.length < values.length) {
+    //         error_message += `password should be ${values.length} or greater`
+    //     }
+    //     if (termValues.lowercase == 1) {
+    //         const containsLowercase = (str, minCount) => {
+    //             const lowercaseCount = (str.match(/[a-z]/g) || []).length;
+    //             return lowercaseCount >= minCount;
+    //         };
+    //         if (!containsLowercase(password, values.lowercase)) {
+    //             error_message += `, password should contain at least ${values.lowercase} lowercase letters`;
+    //         }
+    //     }
 
-        console.log(termValues)
-        console.log(values)
+    //     if (termValues.uppercase == 1) {
+    //         const containsUppercase = (str, minCount) => {
+    //             const uppercaseCount = (str.match(/[A-Z]/g) || []).length;
+    //             return uppercaseCount >= minCount;
+    //         };
+    //         if (!containsUppercase(password, values.uppercase)) {
+    //             error_message += `, password should contain at least ${values.uppercase} uppercase letters`;
+    //         }
+    //     }
+    //     if (termValues.uppercase == 1) {
+    //         const containsSpecialCharacter = (str) => /\W/.test(str);
+    //         if (!containsSpecialCharacter(password))
+    //             error_message += `, password should contain atleast one special letter`
+    //     }
+    //     if (termValues.number_symbol == 1) {
+    //         const containsSpecialCharacter = (str, minCount) => {
+    //             const specialCharCount = (str.match(/[!@#$%^&*]/g) || []).length;
+    //             return specialCharCount >= minCount;
+    //         };
 
-        let error_message = ``
-        if (termValues.password_length == 1 && password.length < values.length) {
-            error_message += `password should be ${values.length} or greater`
-        }
-        if (termValues.lowercase == 1) {
-            const containsLowercase = (str, minCount) => {
-                const lowercaseCount = (str.match(/[a-z]/g) || []).length;
-                return lowercaseCount >= minCount;
-            };
-            if (!containsLowercase(password, values.lowercase)) {
-                error_message += `, password should contain at least ${values.lowercase} lowercase letters`;
-            }
-        }
-
-        if (termValues.uppercase == 1) {
-            const containsUppercase = (str, minCount) => {
-                const uppercaseCount = (str.match(/[A-Z]/g) || []).length;
-                return uppercaseCount >= minCount;
-            };
-            if (!containsUppercase(password, values.uppercase)) {
-                error_message += `, password should contain at least ${values.uppercase} uppercase letters`;
-            }
-        }
-        if (termValues.uppercase == 1) {
-            const containsSpecialCharacter = (str) => /\W/.test(str);
-            if (!containsSpecialCharacter(password))
-                error_message += `, password should contain atleast one special letter`
-        }
-        if (termValues.number_symbol == 1) {
-            const containsSpecialCharacter = (str, minCount) => {
-                const specialCharCount = (str.match(/[!@#$%^&*]/g) || []).length;
-                return specialCharCount >= minCount;
-            };
-
-            if (!containsSpecialCharacter(password, values.number_symbol)) {
-                error_message += `, password should contain at least ${values.number_symbol} special characters`;
-            }
-        }
-        if (error_message != ``) {
-            return res.json({
-                status: 0,
-                message: error_message
-            })
-        }
-    })
+    //         if (!containsSpecialCharacter(password, values.number_symbol)) {
+    //             error_message += `, password should contain at least ${values.number_symbol} special characters`;
+    //         }
+    //     }
+    //     if (error_message != ``) {
+    //         return res.json({
+    //             status: 0,
+    //             message: error_message
+    //         })
+    //     }
+    // })
 
     req.body.source_id = loggedInUser.id
     const encryptedPassword = await bcrypt.hash(password, 10);
@@ -1047,9 +1047,10 @@ exports.getAllTickets = async (req, res) => {
         })
     }
 
-    const { status } = req.params
+    let { status } = req.params
+    let condition = status == 'all' ? `` : `status='${status}'`
 
-    SQL.get('tickets', ``, `status='${status}'`, (error, result) => {
+    SQL.get('tickets', ``, condition, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
