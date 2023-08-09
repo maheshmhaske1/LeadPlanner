@@ -89,7 +89,7 @@ exports.updatePasswordSetting = async (req, res) => {
                 if (error) {
                     return res.json({
                         status: 0,
-                        message: "---->",error,result
+                        message: "---->", error, result
                     })
                 }
             })
@@ -195,29 +195,44 @@ exports.updateLabel = async (req, res) => {
             })
         }
 
-        const { labelId } = req.params
-        const update_data = req.body
-
-        if (update_data.id || update_data.creation_date || update_data.update_date) {
+        const update_data = req.body.data
+        if (!update_data) {
             return res.json({
                 status: 0,
-                message: "id ,creation_date ,update_date cannot be edit"
+                message: "please provide data"
             })
         }
 
-        SQL.update('label', update_data, `id=${labelId}`, (error, result) => {
-            if (error) {
+        update_data.map((update_data, i) => {
+            if (update_data.creation_date || update_data.update_date) {
                 return res.json({
                     status: 0,
-                    message: error
+                    message: "creation_date ,update_date cannot be edit"
                 })
             }
-            return res.json({
-                status: 1,
-                message: 'label updated',
-                data: result
+            if (!update_data.id) {
+                return res.json({
+                    status: 0,
+                    message: `id at ${i} object is missing`
+                })
+            }
+            let labelId = update_data.id
+            delete update_data.id
+
+            SQL.update('label', update_data, `id=${labelId}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
             })
         })
+        return res.json({
+            status: 1,
+            message: 'label updated'
+        })
+
     }
     catch (error) {
         return res.json({
@@ -290,6 +305,42 @@ exports.getAllLabels = async (req, res) => {
         }
 
         SQL.get('label', ``, ``, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "labels",
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.getAllLabelsForEntity = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        console.log(loggedInUser)
+        if (!loggedInUser ) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { entity } = req.params
+
+        SQL.get('label', ``, `entity LIKE '%${entity}%'`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,

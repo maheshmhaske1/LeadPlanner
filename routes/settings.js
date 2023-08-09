@@ -12,5 +12,6 @@ router.post('/label/add', verifyToken, settingController.addLabel)
 router.put('/label/edit/:labelId', verifyToken, settingController.updateLabel)
 router.get('/label/getAll', verifyToken, settingController.getAllLabels)
 router.delete('/label/delete/:labelId', verifyToken, settingController.deleteLabel)
+router.get('/label/getbyentity/:entity', verifyToken, settingController.getAllLabelsForEntity)
 
 module.exports = router;
