@@ -66,38 +66,37 @@ exports.updatePasswordSetting = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-        const { passSettingId } = req.params
         let update_data = req.body
-        console.log(update_data.active)
 
-        if (update_data.id || update_data.creation_date || update_data.update_date) {
-            return res.json({
-                status: 0,
-                message: "id ,creation_date ,update_date cannot be edit"
-            })
-        }
 
-        if (!update_data.hasOwnProperty("active") || !update_data.hasOwnProperty("value")) {
-            return res.json({
-                status: 0,
-                message: "at least one field required from active and value"
-            });
-        }
-
-        SQL.update('password_settings', update_data, `id=${passSettingId}`, (error, result) => {
-            if (error) {
+        update_data.data.map(async (update_data) => {
+            if (update_data.creation_date || update_data.update_date) {
                 return res.json({
                     status: 0,
-                    message: error
+                    message: "creation_date ,update_date cannot be edit"
                 })
             }
-            if (result.affectedRows > 0) {
+            if (!update_data.hasOwnProperty("active") || !update_data.hasOwnProperty("value")) {
                 return res.json({
-                    status: 1,
-                    message: 'password settings changed successfully.',
-                    data: result
-                })
+                    status: 0,
+                    message: "at least one field required from active and value"
+                });
             }
+            let id = update_data.id
+            delete update_data.id
+            console.log(update_data)
+            await SQL.update('password_settings', update_data, `id=${id}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: "---->",error,result
+                    })
+                }
+            })
+        })
+        return res.json({
+            status: 1,
+            message: 'password settings changed successfully.'
         })
     }
     catch (error) {

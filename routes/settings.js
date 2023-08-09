@@ -4,7 +4,7 @@ const settingController = require('../controller/settings')
 const { verifyToken } = require('../model/auth')
 
 // ====== password master settings ====== //
-router.put('/password/edit/:passSettingId', verifyToken, settingController.updatePasswordSetting)
+router.put('/password/edit', verifyToken, settingController.updatePasswordSetting)
 router.get('/password/get', verifyToken, settingController.getPasswordSetting)
 
 // ====== label master settings ====== //
