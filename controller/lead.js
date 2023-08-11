@@ -49,7 +49,17 @@ exports.createLead = async (req, res) => {
                 })
             }
             if (results.affectedRows > 0) {
-                SQL.insert('xx_log', { attr1: `lead:create`, attr2: loggedInUser.id, attr4: `lead created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+                SQL.get('company_settings', ``, `audit_lead=1`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    if (results.affectedRows > 0)
+                        SQL.insert('xx_log', { attr1: `lead:create`, attr2: loggedInUser.id, attr4: `lead created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+
+                })
                 return res.json({
                     status: 1,
                     message: 'lead added successfully', results

@@ -378,11 +378,11 @@ exports.updateAudit = async (req, res) => {
         const { id } = req.params
         const { is_enabled } = req.body
 
-        if (!is_enabled) {
+        if (is_enabled === undefined || is_enabled === null) {
             return res.json({
                 status: 0,
-                message: "is_enabled is require filed"
-            })
+                message: "is_enabled is a required field",
+            });
         }
 
         SQL.update('company_settings', { is_enabled: is_enabled }, `id=${id}`, (error, result) => {
