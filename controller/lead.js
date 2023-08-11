@@ -49,6 +49,7 @@ exports.createLead = async (req, res) => {
                 })
             }
             if (results.affectedRows > 0) {
+                SQL.insert('xx_log', { attr1: `lead:create`, attr2: loggedInUser.id, attr4: `lead created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
                 return res.json({
                     status: 1,
                     message: 'lead added successfully', results
@@ -129,10 +130,11 @@ exports.importLead = async (req, res) => {
                     })
                 }
                 else
-                    return res.json({
-                        status: 1,
-                        message: "data imported successfully"
-                    })
+                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
+                return res.json({
+                    status: 1,
+                    message: "data imported successfully"
+                })
             })
 
         });
@@ -168,13 +170,12 @@ exports.updateLead = async (req, res) => {
 
         SQL.update('lead', update_data, `id IN (${leads}) AND owner = ${owner}`, (error, results) => {
             if (error) {
-                console.error("Error occurred:", error); // Log the error for debugging
                 return res.json({
                     status: 0,
-                    message: "An error occurred while updating lead details",
-                    error: error.message, // Include the error message in the response
+                    message: "something went wrong", error,
                 });
             }
+            SQL.insert('xx_log', { attr1: `lead:update`, attr2: loggedInUser.id, attr3: `updated ${leads} with ${JSON.stringify(update_data)}`, attr5: 'D' }, (error, results) => { console.log(error) })
             return res.json({
                 status: 1,
                 message: 'Lead details updated successfully',
@@ -183,11 +184,11 @@ exports.updateLead = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("Catch block error:", error); // Log the error for debugging
+        console.error("Catch block error:", error);
         return res.json({
             status: 0,
             message: "Something went wrong",
-            error: error.message, // Include the error message in the response
+            error: error.message,
         });
     }
 };
@@ -390,6 +391,7 @@ exports.convertLeadToDeal = async (req, res) => {
                         status: 0,
                         message: error
                     })
+                SQL.insert('xx_log', { attr1: `lead:converted to deal`, attr2: loggedInUser.id, attr4: `lead ${leadId} converted to deal`, attr5: 'D' }, (error, results) => { })
                 return res.json({
                     status: 1,
                     message: 'lead successfully converted to deal'
@@ -426,6 +428,7 @@ exports.moveLeadToTrash = async (req, res) => {
                 message: error
             })
         }
+        SQL.insert('xx_log', { attr1: `lead:moved to trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} moved to trash`, attr5: 'D' }, (error, results) => { console.log(error) })
         return res.json({
             status: 1,
             message: "lead moved to trash",
@@ -479,6 +482,7 @@ exports.restoreLeadFromTrash = async (req, res) => {
                 message: error
             })
         }
+        SQL.insert('xx_log', { attr1: `lead:restore from trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} restore from trash`, attr5: 'D' }, (error, results) => { })
         return res.json({
             status: 1,
             message: "lead restored",
@@ -500,12 +504,14 @@ exports.deleteLeadFromTrash = async (req, res) => {
     const owner = loggedInUser.id
 
     SQL.delete('lead', `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
+
         if (error) {
             return res.json({
                 status: 0,
                 message: error
             })
         }
+        SQL.insert('xx_log', { attr1: `lead:deleted from trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} deleted from trash`, attr5: 'D' }, (error, results) => { })
         return res.json({
             status: 1,
             message: "leads deleted permanently",
@@ -526,6 +532,7 @@ exports.exportLeadsInCsv = async (req, res) => {
     const owner = loggedInUser.id
 
     SQL.get('lead', ``, `owner=${owner}`, (error, result) => {
+        SQL.insert('xx_log', { attr1: `lead:export lead to .csv`, attr2: loggedInUser.id, attr4: `leads exported`, attr5: 'D' }, (error, results) => { })
         const data = result
 
         function generateExcelBuffer(data) {
