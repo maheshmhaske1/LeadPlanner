@@ -331,7 +331,7 @@ exports.getAllLabelsForEntity = async (req, res) => {
     try {
         const loggedInUser = req.decoded
         console.log(loggedInUser)
-        if (!loggedInUser ) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -350,6 +350,85 @@ exports.getAllLabelsForEntity = async (req, res) => {
             return res.json({
                 status: 1,
                 message: "labels",
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.updateAudit = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        console.log(loggedInUser)
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+
+        const { id } = req.params
+        const { is_enabled } = req.body
+
+        if (!is_enabled) {
+            return res.json({
+                status: 0,
+                message: "is_enabled is require filed"
+            })
+        }
+
+        SQL.update('company_settings', { is_enabled: is_enabled }, `id=${id}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "audit edited",
+                data: result
+            })
+        })
+    }
+    catch (error) {
+        return res.json({
+            status: 0,
+            message: "something went wrong",
+            message: error
+        })
+    }
+}
+
+exports.getAllAudits = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        console.log(loggedInUser)
+        if (!loggedInUser || loggedInUser.role != 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        SQL.get('company_settings', ``, ``, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "company settings",
                 data: result
             })
         })

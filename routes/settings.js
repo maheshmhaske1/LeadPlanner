@@ -14,4 +14,7 @@ router.get('/label/getAll', verifyToken, settingController.getAllLabels)
 router.delete('/label/delete/:labelId', verifyToken, settingController.deleteLabel)
 router.get('/label/getbyentity/:entity', verifyToken, settingController.getAllLabelsForEntity)
 
+router.put('/audit/edit/:id', verifyToken, settingController.updateAudit)
+router.get('/audit/getAll', verifyToken, settingController.getAllAudits)
+
 module.exports = router;

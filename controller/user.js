@@ -989,7 +989,7 @@ exports.updateTickets = async (req, res) => {
     }
 
     const { ticketId } = req.params
-    const { priority, assigned_to, status } = req.body
+    const { priority, assigned_to, status, mobile, title, description, email, category } = req.body
     if (!priority || !assigned_to) {
         return res.json({
             status: 0,
@@ -997,7 +997,7 @@ exports.updateTickets = async (req, res) => {
         })
     }
 
-    SQL.update('tickets', { priority, assigned_to, status }, `id=${ticketId}`, (error, result) => {
+    SQL.update('tickets', { priority, assigned_to, status, mobile, title, description, email, category }, `id=${ticketId}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
