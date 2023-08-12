@@ -255,20 +255,21 @@ exports.deleteLabel = async (req, res) => {
 
         const { labelIds } = req.body
 
-        if(!labelIds){
-         return res,json({
-            status: 0,
-            message: "please provide labelid",
-         })   
+        if (!labelIds) {
+            return res, json({
+                status: 0,
+                message: "please provide labelid",
+            })
         }
 
-        SQL.update('label', {is_deleted:1},`id IN (${labelIds})`, (error, result) => {
+        SQL.update('label', { is_deleted: 1 }, `id IN (${labelIds})`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     message: error
                 })
             }
+        SQL.update('lead', { label_id: -1 }, `label_id IN (${labelIds})`, (error, result) => {})
             return res.json({
                 status: 1,
                 message: "label deleted",
