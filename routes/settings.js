@@ -11,7 +11,7 @@ router.get('/password/get', verifyToken, settingController.getPasswordSetting)
 router.post('/label/add', verifyToken, settingController.addLabel)
 router.put('/label/edit/:labelId', verifyToken, settingController.updateLabel)
 router.get('/label/getAll', verifyToken, settingController.getAllLabels)
-router.delete('/label/delete/:labelId', verifyToken, settingController.deleteLabel)
+router.delete('/label/delete', verifyToken, settingController.deleteLabel)
 router.get('/label/getbyentity/:entity', verifyToken, settingController.getAllLabelsForEntity)
 
 router.put('/audit/edit/:id', verifyToken, settingController.updateAudit)

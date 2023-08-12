@@ -49,17 +49,17 @@ exports.createLead = async (req, res) => {
                 })
             }
             if (results.affectedRows > 0) {
-                SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => { 
+                SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
                     if (error) {
                         return res.json({
                             status: 0,
                             message: error
                         })
                     }
-                    if(results.length>0)
-                SQL.insert('xx_log', { attr1: `lead:create`, attr2: loggedInUser.id, attr4: `lead created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+                    if (results.length > 0)
+                        SQL.insert('xx_log', { attr1: `lead:create`, attr2: loggedInUser.id, attr4: `lead created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
 
-                 })
+                })
                 return res.json({
                     status: 1,
                     message: 'lead added successfully', results
@@ -139,12 +139,23 @@ exports.importLead = async (req, res) => {
                         message: err
                     })
                 }
-                else
-                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
-                return res.json({
-                    status: 1,
-                    message: "data imported successfully"
-                })
+                if (results.affectedRows > 0) {
+                    SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
+                        if (results.length > 0)
+                            SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
+
+                    })
+                    return res.json({
+                        status: 1,
+                        message: "data imported successfully"
+                    })
+                }
             })
 
         });
@@ -185,7 +196,16 @@ exports.updateLead = async (req, res) => {
                     message: "something went wrong", error,
                 });
             }
-            SQL.insert('xx_log', { attr1: `lead:update`, attr2: loggedInUser.id, attr3: `updated ${leads} with ${JSON.stringify(update_data)}`, attr5: 'D' }, (error, results) => { console.log(error) })
+            SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `lead:update`, attr2: loggedInUser.id, attr3: `updated ${leads} with ${JSON.stringify(update_data)}`, attr5: 'D' }, (error, results) => { console.log(error) })
+            })
             return res.json({
                 status: 1,
                 message: 'Lead details updated successfully',
@@ -230,8 +250,9 @@ exports.get = async (req, res) => {
                     message: 'Not permitted or Invalid Lead'
                 })
             }
-            const query = `SELECT l.*, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
+            const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
             INNER JOIN user u ON l.owner = u.id
+            INNER JOIN label lb ON l.label_id = lb.id
             WHERE l.owner = ${owner} AND l.id = ${leadId} AND l.is_deleted = 0`;
 
             db.query(query, (error, result) => {
@@ -241,6 +262,16 @@ exports.get = async (req, res) => {
                         message: error
                     })
                 }
+                SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    if (results.length > 0)
+                        SQL.insert('xx_log', { attr1: `lead:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.log(error) })
+                })
                 return res.json({
                     status: 1,
                     message: "lead details",
@@ -272,8 +303,9 @@ exports.getLeadByOwner = async (req, res) => {
 
         const userId = req.params.userId;
 
-        const query = `SELECT l.*, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
+        const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
             INNER JOIN user u ON l.owner = u.id
+            INNER JOIN label lb ON l.label_id = lb.id
             WHERE l.owner = ${userId} AND l.is_deleted = 0`;
 
         db.query(query, (error, result) => {
@@ -283,6 +315,16 @@ exports.getLeadByOwner = async (req, res) => {
                     message: error
                 })
             }
+            SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `lead:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.log(error) })
+            })
             return res.json({
                 status: 1,
                 message: "lead details",
@@ -303,55 +345,57 @@ exports.getLeadByOwner = async (req, res) => {
 
 exports.getAll = async (req, res) => {
     try {
-
-        const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser || loggedInUser.role !== 1) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
-            })
+            });
         }
-        let leadOwner = loggedInUser.id
+        const leadOwner = loggedInUser.id;
 
+        const getLeadData = async (status) => {
+            const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure,
+                            u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
+                            u.email AS owner_email, u.phone AS owner_phone 
+                          FROM \`lead\` l
+                          INNER JOIN user u ON l.owner = u.id
+                          INNER JOIN label lb ON l.label_id = lb.id
+                          WHERE l.owner = ${leadOwner} AND l.is_deleted = 0 AND status='${status}'`;
 
-        let Open = [];
-        let New = [];
-        let Unread = [];
-        let InProgress = [];
+            return new Promise((resolve, reject) => {
+                db.query(query, (error, result) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+        };
 
-        SQL.get(`lead`, ``, `status="Open" AND owner=${leadOwner} AND is_deleted=0`, async (error, results) => {
-            Open = results;
-            await SQL.get('lead', '', `status="New" AND owner=${leadOwner} AND is_deleted=0`, async (error, result) => {
-                New = result;
-                await SQL.get('lead', '', `status="Unread" AND owner=${leadOwner} AND is_deleted=0`, async (error, result) => {
-                    Unread = result;
-                    await SQL.get('lead', '', `status="In Progress" AND owner=${leadOwner} AND is_deleted=0`, (error, result) => {
-                        InProgress = result;
-                        if (error)
-                            return res.json({
-                                status: 0,
-                                message: error
-                            });
+        const [Open, Unread, InProgress, New] = await Promise.all([
+            getLeadData("Open"),
+            getLeadData("Unread"),
+            getLeadData("In Progress"),
+            getLeadData("New"),
+        ]);
 
-                        return res.json({
-                            status: 1,
-                            message: "Lead details",
-                            data: {
-                                New,
-                                Open,
-                                Unread,
-                                InProgress,
-                            }
-                        })
-                    })
-                })
-            })
-        })
+        return res.json({
+            status: 1,
+            message: "Lead details",
+            data: {
+                New,
+                Open,
+                Unread,
+                InProgress,
+            },
+        });
     } catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
-            message: error,
+            message: "Something went wrong",
+            error: error.message,
         });
     }
 };
@@ -401,7 +445,16 @@ exports.convertLeadToDeal = async (req, res) => {
                         status: 0,
                         message: error
                     })
-                SQL.insert('xx_log', { attr1: `lead:converted to deal`, attr2: loggedInUser.id, attr4: `lead ${leadId} converted to deal`, attr5: 'D' }, (error, results) => { })
+                SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    if (results.length > 0)
+                        SQL.insert('xx_log', { attr1: `lead:converted to deal`, attr2: loggedInUser.id, attr4: `lead ${leadId} converted to deal`, attr5: 'D' }, (error, results) => { })
+                })
                 return res.json({
                     status: 1,
                     message: 'lead successfully converted to deal'
@@ -438,7 +491,16 @@ exports.moveLeadToTrash = async (req, res) => {
                 message: error
             })
         }
-        SQL.insert('xx_log', { attr1: `lead:moved to trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} moved to trash`, attr5: 'D' }, (error, results) => { console.log(error) })
+        SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `lead:moved to trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} moved to trash`, attr5: 'D' }, (error, results) => { console.log(error) })
+        })
         return res.json({
             status: 1,
             message: "lead moved to trash",
@@ -465,6 +527,16 @@ exports.getAllLeadFromTrash = async (req, res) => {
                 message: error
             })
         }
+        SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `lead:get from trash`, attr2: loggedInUser.id, attr3: `get leads from trash`, attr5: 'D' }, (error, results) => { console.log(error) })
+        })
         return res.json({
             status: 1,
             message: "lead details",
@@ -492,7 +564,16 @@ exports.restoreLeadFromTrash = async (req, res) => {
                 message: error
             })
         }
-        SQL.insert('xx_log', { attr1: `lead:restore from trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} restore from trash`, attr5: 'D' }, (error, results) => { })
+        SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `lead:restore from trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} restore from trash`, attr5: 'D' }, (error, results) => { })
+        })
         return res.json({
             status: 1,
             message: "lead restored",
@@ -521,7 +602,16 @@ exports.deleteLeadFromTrash = async (req, res) => {
                 message: error
             })
         }
-        SQL.insert('xx_log', { attr1: `lead:deleted from trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} deleted from trash`, attr5: 'D' }, (error, results) => { })
+        SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `lead:deleted from trash`, attr2: loggedInUser.id, attr4: `lead ${leadIds} deleted from trash`, attr5: 'D' }, (error, results) => { })
+        })
         return res.json({
             status: 1,
             message: "leads deleted permanently",
@@ -542,7 +632,16 @@ exports.exportLeadsInCsv = async (req, res) => {
     const owner = loggedInUser.id
 
     SQL.get('lead', ``, `owner=${owner}`, (error, result) => {
-        SQL.insert('xx_log', { attr1: `lead:export lead to .csv`, attr2: loggedInUser.id, attr4: `leads exported`, attr5: 'D' }, (error, results) => { })
+        SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `lead:export lead to .csv`, attr2: loggedInUser.id, attr4: `leads exported`, attr5: 'D' }, (error, results) => { })
+        })
         const data = result
 
         function generateExcelBuffer(data) {

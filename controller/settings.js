@@ -253,34 +253,26 @@ exports.deleteLabel = async (req, res) => {
             })
         }
 
-        const { labelId } = req.params
+        const { labelIds } = req.body
 
-        SQL.get('label', ``, `id=${labelId}`, (error, result) => {
+        if(!labelIds){
+         return res,json({
+            status: 0,
+            message: "please provide labelid",
+         })   
+        }
+
+        SQL.update('label', {is_deleted:1},`id IN (${labelIds})`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     message: error
                 })
             }
-            console.log(result.length)
-            if (result.length == 0) {
-                return res.json({
-                    status: 0,
-                    message: `please provide valid labelId`
-                })
-            }
-            SQL.delete('label', `id=${labelId}`, (error, result) => {
-                if (error) {
-                    return res.json({
-                        status: 0,
-                        message: error
-                    })
-                }
-                return res.json({
-                    status: 1,
-                    message: "label deleted",
-                    data: result
-                })
+            return res.json({
+                status: 1,
+                message: "label deleted",
+                data: result
             })
         })
     }
@@ -304,7 +296,7 @@ exports.getAllLabels = async (req, res) => {
             })
         }
 
-        SQL.get('label', ``, ``, (error, result) => {
+        SQL.get('label', ``, `is_deleted=0`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -340,7 +332,7 @@ exports.getAllLabelsForEntity = async (req, res) => {
 
         const { entity } = req.params
 
-        SQL.get('label', ``, `entity LIKE '%${entity}%'`, (error, result) => {
+        SQL.get('label', ``, `entity LIKE '%${entity}%' AND is_deleted=0`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
