@@ -13,7 +13,6 @@ const upload = multer({ storage: storage });
 exports.createLead = async (req, res) => {
     console.log(req.decoded)
     try {
-        const { company_name, registration_no, employees, value, first_name, last_name, email, status } = req.body;
         const loggedInUser = req.decoded
         if (!loggedInUser || loggedInUser.role != 1) {
             return res.json({
@@ -21,6 +20,8 @@ exports.createLead = async (req, res) => {
                 message: "Not Authorized",
             })
         }
+
+        const { company_name, registration_no, employees, value, first_name, last_name, email, status } = req.body;
         if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value) {
             return res.json({
                 status: 0,
@@ -346,7 +347,7 @@ exports.getLeadByOwner = async (req, res) => {
 exports.getAll = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -359,12 +360,14 @@ exports.getAll = async (req, res) => {
                             u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
                             u.email AS owner_email, u.phone AS owner_phone 
                           FROM \`lead\` l
-                          INNER JOIN user u ON l.owner = u.id
-                          INNER JOIN label lb ON l.label_id = lb.id
+                           LEFT JOIN user u ON l.owner = u.id
+                           LEFT JOIN label lb ON l.label_id = lb.id
                           WHERE l.owner = ${leadOwner} AND l.is_deleted = 0 AND status='${status}'`;
+                          console.log(query)
 
             return new Promise((resolve, reject) => {
                 db.query(query, (error, result) => {
+                    console.log(result)
                     if (error) {
                         reject(error);
                     } else {
@@ -657,37 +660,5 @@ exports.exportLeadsInCsv = async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(excelBuffer);
     })
-}
-
-exports.assignLead = async (req, res) => {
-    try {
-
-        const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role !== 1) {
-            return res.json({
-                status: 0,
-                message: "Not Authorized",
-            })
-        }
-
-        const owner = loggedInUser.id
-        const { leadId, userId } = req.body
-
-        if (!leadId || !userId) {
-            return res.json({
-                status: 0,
-                message: "leadId and userId are required fields"
-            })
-        }
-
-        SQL.get('lead', ``, `id=${owner}`)
-    }
-    catch (error) {
-        return res.json({
-            status: 0,
-            message: "something went wrong",
-            message: error
-        })
-    }
 }
 
