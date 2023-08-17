@@ -13,15 +13,15 @@ exports.createDeal = async (req, res) => {
         }
 
         const {
-            lead_id, deal_name, email, mobile, currency, status,
+            lead_id, deal_name, email, mobile, currency, status, label_id,
             organization, probability, closure_date, priority, contact, value, pipeline_id
         } = req.body;
 
 
-        if (!deal_name || !email || !mobile || !probability || !value || !closure_date) {
+        if (!deal_name || !email || !mobile || !probability || !value || !closure_date || !label_id) {
             return res.json({
                 status: 0,
-                message: 'deal_name, email, value, mobile , probability ,closure_date these are required values'
+                message: 'deal_name, email, value, mobile , probability ,closure_date, label_id these are required values'
             })
         }
 
@@ -32,32 +32,45 @@ exports.createDeal = async (req, res) => {
             });
 
         req.body.owner = loggedInUser.id
-        SQL.insert('deal', req.body, (error, results) => {
-            if (error) {
+
+        await SQL.get('label', ``, `id=${label_id}`, async (error, result) => {
+            console.log(result)
+            if (result.length === 0) {
                 return res.json({
                     status: 0,
-                    message: error
+                    message: 'please provide valid label_id'
                 })
             }
-            if (results.affectedRows > 0) {
-                SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
-                    if (error) {
-                        return res.json({
-                            status: 0,
-                            message: error
-                        })
-                    }
-                    if (results.length > 0)
-                        SQL.insert('xx_log', { attr1: `deal:create`, attr2: loggedInUser.id, attr4: `deal created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
 
-                })
-                return res.json({
-                    status: 1,
-                    message: 'deal created successfully',
-                    data: results
-                })
-            }
-        });
+            SQL.insert('deal', req.body, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.affectedRows > 0) {
+                    SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
+                        if (results.length > 0)
+                            SQL.insert('xx_log', { attr1: `deal:create`, attr2: loggedInUser.id, attr4: `deal created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+
+                    })
+                    return res.json({
+                        status: 1,
+                        message: 'deal created successfully',
+                        data: results
+                    })
+                }
+            });
+        })
+
+
     }
     catch (error) {
         return res.json({
@@ -67,7 +80,6 @@ exports.createDeal = async (req, res) => {
         })
     }
 };
-
 
 exports.updateDeal = async (req, res) => {
     try {
@@ -131,7 +143,6 @@ exports.updateDeal = async (req, res) => {
     }
 };
 
-
 exports.get = async (req, res) => {
     try {
         const loggedInUser = req.decoded
@@ -143,50 +154,38 @@ exports.get = async (req, res) => {
         }
 
         const owner = loggedInUser.id
-        const dealId = req.params.leadId;
+        const dealId = req.params.dealId;
 
-        SQL.get('deal', ``, `id=${dealId} AND owner=${owner} AND is_deleted=0`, (error, result) => {
+        const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
+            user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
+            LEFT JOIN user ON user.id = deal.owner
+            LEFT JOIN label ON label.id = deal.label_id
+            WHERE deal.id =${dealId} AND deal.owner = ${owner} AND deal.is_deleted = 0`;
+
+        db.query(query, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     message: error
                 })
             }
-            if (result.length == 0 || result[0].owner !== owner) {
-                return res.json({
-                    status: 0,
-                    message: 'Not permitted or Invalid Lead'
-                })
-            }
-            const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
-            INNER JOIN user u ON l.owner = u.id
-            INNER JOIN label lb ON l.label_id = lb.id
-            WHERE l.owner = ${owner} AND l.id = ${dealId} AND l.is_deleted = 0`;
-
-            db.query(query, (error, result) => {
+            SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
                 if (error) {
                     return res.json({
                         status: 0,
                         message: error
                     })
                 }
-                SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
-                    if (error) {
-                        return res.json({
-                            status: 0,
-                            message: error
-                        })
-                    }
-                    if (results.length > 0)
-                        SQL.insert('xx_log', { attr1: `deal:get`, attr2: loggedInUser.id, attr3: `get deals`, attr5: 'D' }, (error, results) => { console.log(error) })
-                })
-                return res.json({
-                    status: 1,
-                    message: "lead details",
-                    data: result
-                })
-            });
-        })
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `deal:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.log(error) })
+            })
+            return res.json({
+                status: 1,
+                message: "lead details",
+                data: result
+            })
+        });
+
     }
     catch (error) {
         return res.json({
@@ -209,10 +208,11 @@ exports.getDealByOwner = async (req, res) => {
 
         const userId = req.params.userId;
 
-        const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
-            INNER JOIN user u ON l.owner = u.id
-            INNER JOIN label lb ON l.label_id = lb.id
-            WHERE l.owner = ${userId} AND l.is_deleted = 0`;
+        const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
+        user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
+        LEFT JOIN user ON user.id = deal.owner
+        LEFT JOIN label ON label.id = deal.label_id
+        WHERE deal.owner = ${userId} AND deal.is_deleted = 0`;
 
         db.query(query, (error, result) => {
             if (error) {
@@ -237,8 +237,6 @@ exports.getDealByOwner = async (req, res) => {
                 data: result
             })
         })
-
-
     }
     catch (error) {
         return res.json({
@@ -261,10 +259,11 @@ exports.getAll = async (req, res) => {
         const owner = loggedInUser.id;
 
         const getLeadData = async (status) => {
-            const query = `SELECT user.*,deal.* from deal
-            JOIN user ON user.id = deal.owner
+            const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
+            user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
+            LEFT JOIN user ON user.id = deal.owner
+            LEFT JOIN label ON label.id = deal.label_id
             WHERE deal.owner = ${owner} AND deal.is_deleted = 0 AND status='${status}'`;
-            console.log(query)
             return new Promise((resolve, reject) => {
                 db.query(query, (error, result) => {
                     if (error) {

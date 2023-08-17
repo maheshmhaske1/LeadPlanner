@@ -363,7 +363,6 @@ exports.getAll = async (req, res) => {
                            LEFT JOIN user u ON l.owner = u.id
                            LEFT JOIN label lb ON l.label_id = lb.id
                           WHERE l.owner = ${leadOwner} AND l.is_deleted = 0 AND status='${status}'`;
-                          console.log(query)
 
             return new Promise((resolve, reject) => {
                 db.query(query, (error, result) => {
