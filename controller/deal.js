@@ -300,3 +300,199 @@ exports.getAll = async (req, res) => {
         });
     }
 };
+
+////////////////////////////////////////
+
+exports.moveDealToTrash = async (req, res) => {
+
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const owner = loggedInUser.id
+    const { dealIds } = req.body
+    if (!leadIds) {
+        return res.json({
+            status: 0,
+            message: "please provide dealId",
+        })
+    }
+
+    SQL.update(`deal`, { is_deleted: 1 }, `id IN (${dealIds}) AND owner=${owner}`, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `deal:moved to trash`, attr2: loggedInUser.id, attr4: `deal ${dealIds} moved to trash`, attr5: 'D' }, (error, results) => { console.log(error) })
+        })
+        return res.json({
+            status: 1,
+            message: "lead moved to trash",
+            data: results
+        })
+    });
+}
+
+exports.getAllLeadFromTrash = async (req, res) => {
+
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    SQL.get('deal', ``, `is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `get:get from trash`, attr2: loggedInUser.id, attr3: `get deals from trash`, attr5: 'D' }, (error, results) => { console.log(error) })
+        })
+        return res.json({
+            status: 1,
+            message: "deal details",
+            data: result
+        })
+    })
+}
+
+exports.restoreLeadFromTrash = async (req, res) => {
+
+    const { dealIds } = req.body
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    SQL.update(`deal`, { is_deleted: 0 }, `id IN (${dealIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `deal:restore from trash`, attr2: loggedInUser.id, attr4: `lead ${dealIds} restore from trash`, attr5: 'D' }, (error, results) => { })
+        })
+        return res.json({
+            status: 1,
+            message: "lead restored",
+            data: results
+        })
+    });
+}
+
+exports.deleteLeadFromTrash = async (req, res) => {
+
+    const { leadIds } = req.body
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    SQL.delete('deal', `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
+
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `deal:deleted from trash`, attr2: loggedInUser.id, attr4: `deal ${leadIds} deleted from trash`, attr5: 'D' }, (error, results) => { })
+        })
+        return res.json({
+            status: 1,
+            message: "leads deleted permanently",
+            data: result
+        })
+    })
+
+}
+
+exports.exportLeadsInCsv = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    SQL.get('lead', ``, `owner=${owner}`, (error, result) => {
+        SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `lead:export lead to .csv`, attr2: loggedInUser.id, attr4: `leads exported`, attr5: 'D' }, (error, results) => { })
+        })
+        const data = result
+
+        function generateExcelBuffer(data) {
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+            return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+        }
+
+        const excelBuffer = generateExcelBuffer(data);
+
+        res.setHeader('Content-Disposition', 'attachment; filename=lead.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(excelBuffer);
+    })
+}
