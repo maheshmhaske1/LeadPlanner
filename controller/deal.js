@@ -93,14 +93,16 @@ exports.updateDeal = async (req, res) => {
 
         const owner = loggedInUser.id;
         const update_data = req.body;
+        console.log(update_data)
         if (update_data.dealIds.length === 0) {
             return res.json({
                 status: 0,
-                message: "please provide leadIds",
+                message: "please provide dealIds",
             });
         }
         const dealIds = update_data.dealIds;
-        delete update_data.leadIds;
+        delete update_data.dealIds;
+        console.log(update_data)
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -181,7 +183,7 @@ exports.get = async (req, res) => {
             })
             return res.json({
                 status: 1,
-                message: "lead details",
+                message: "Deal details",
                 data: result
             })
         });
@@ -233,7 +235,7 @@ exports.getDealByOwner = async (req, res) => {
             })
             return res.json({
                 status: 1,
-                message: "lead details",
+                message: "Deal details",
                 data: result
             })
         })
@@ -284,7 +286,7 @@ exports.getAll = async (req, res) => {
 
         return res.json({
             status: 1,
-            message: "Lead details",
+            message: "Deal details",
             data: {
                 New,
                 Open,
