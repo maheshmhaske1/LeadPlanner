@@ -4,10 +4,15 @@ const dealController = require('../controller/deal')
 const { verifyToken } = require('../model/auth')
 
 
-router.post('/add',verifyToken, dealController.createDeal)
-router.put('/edit/:dealId',verifyToken, dealController.updateDeal)
-router.get('/get/:dealId',verifyToken, dealController.get)
-router.get('/getall', verifyToken,dealController.getAll)
-router.get('/getbyowner/:userId', verifyToken,dealController.getDealByOwner)
+router.post('/add', verifyToken, dealController.createDeal)
+router.put('/edit/:dealId', verifyToken, dealController.updateDeal)
+router.get('/get/:dealId', verifyToken, dealController.get)
+router.get('/getall', verifyToken, dealController.getAll)
+router.get('/getbyowner/:userId', verifyToken, dealController.getDealByOwner)
+
+router.delete('/movetotrash', verifyToken, dealController.moveDealToTrash)
+router.post('/restorefromtrash', verifyToken, dealController.restoreDealFromTrash)
+router.get('/getallfromtrash', verifyToken, dealController.getAllDealFromTrash)
+router.delete('/deletefromtrash', verifyToken, dealController.deleteDealFromTrash)
 
 module.exports = router;

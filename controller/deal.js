@@ -317,7 +317,7 @@ exports.moveDealToTrash = async (req, res) => {
 
     const owner = loggedInUser.id
     const { dealIds } = req.body
-    if (!leadIds) {
+    if (!dealIds) {
         return res.json({
             status: 0,
             message: "please provide dealId",
@@ -349,7 +349,7 @@ exports.moveDealToTrash = async (req, res) => {
     });
 }
 
-exports.getAllLeadFromTrash = async (req, res) => {
+exports.getAllDealFromTrash = async (req, res) => {
 
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
@@ -375,7 +375,7 @@ exports.getAllLeadFromTrash = async (req, res) => {
                 })
             }
             if (results.length > 0)
-                SQL.insert('xx_log', { attr1: `get:get from trash`, attr2: loggedInUser.id, attr3: `get deals from trash`, attr5: 'D' }, (error, results) => { console.log(error) })
+                SQL.insert('xx_log', { attr1: `get:get deal from trash`, attr2: loggedInUser.id, attr3: `get deals from trash`, attr5: 'D' }, (error, results) => { console.log(error) })
         })
         return res.json({
             status: 1,
@@ -385,7 +385,7 @@ exports.getAllLeadFromTrash = async (req, res) => {
     })
 }
 
-exports.restoreLeadFromTrash = async (req, res) => {
+exports.restoreDealFromTrash = async (req, res) => {
 
     const { dealIds } = req.body
     const loggedInUser = req.decoded
@@ -396,6 +396,7 @@ exports.restoreLeadFromTrash = async (req, res) => {
         })
     }
     const owner = loggedInUser.id
+    console.log(dealIds)
 
     SQL.update(`deal`, { is_deleted: 0 }, `id IN (${dealIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, results) => {
         if (error) {
@@ -412,7 +413,7 @@ exports.restoreLeadFromTrash = async (req, res) => {
                 })
             }
             if (results.length > 0)
-                SQL.insert('xx_log', { attr1: `deal:restore from trash`, attr2: loggedInUser.id, attr4: `lead ${dealIds} restore from trash`, attr5: 'D' }, (error, results) => { })
+                SQL.insert('xx_log', { attr1: `deal:restore from trash`, attr2: loggedInUser.id, attr4: `deal ${dealIds} restore from trash`, attr5: 'D' }, (error, results) => { })
         })
         return res.json({
             status: 1,
@@ -422,9 +423,9 @@ exports.restoreLeadFromTrash = async (req, res) => {
     });
 }
 
-exports.deleteLeadFromTrash = async (req, res) => {
+exports.deleteDealFromTrash = async (req, res) => {
 
-    const { leadIds } = req.body
+    const { dealIds } = req.body
     const loggedInUser = req.decoded
     if (!loggedInUser || loggedInUser.role != 1) {
         return res.json({
@@ -434,7 +435,7 @@ exports.deleteLeadFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    SQL.delete('deal', `id IN (${leadIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
+    SQL.delete('deal', `id IN (${dealIds}) AND is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
 
         if (error) {
             return res.json({
@@ -450,7 +451,7 @@ exports.deleteLeadFromTrash = async (req, res) => {
                 })
             }
             if (results.length > 0)
-                SQL.insert('xx_log', { attr1: `deal:deleted from trash`, attr2: loggedInUser.id, attr4: `deal ${leadIds} deleted from trash`, attr5: 'D' }, (error, results) => { })
+                SQL.insert('xx_log', { attr1: `deal:deleted from trash`, attr2: loggedInUser.id, attr4: `deal ${dealIds} deleted from trash`, attr5: 'D' }, (error, results) => { })
         })
         return res.json({
             status: 1,
