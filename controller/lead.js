@@ -355,44 +355,28 @@ exports.getAll = async (req, res) => {
         }
         const leadOwner = loggedInUser.id;
 
-        const getLeadData = async (status) => {
-            const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure,
-                            u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
-                            u.email AS owner_email, u.phone AS owner_phone 
-                          FROM \`lead\` l
-                           LEFT JOIN user u ON l.owner = u.id
-                           LEFT JOIN label lb ON l.label_id = lb.id
-                          WHERE l.owner = ${leadOwner} AND l.is_deleted = 0 AND status='${status}'`;
+        const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure,
+        u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
+        u.email AS owner_email, u.phone AS owner_phone 
+      FROM \`lead\` l
+       LEFT JOIN user u ON l.owner = u.id
+       LEFT JOIN label lb ON l.label_id = lb.id
+      WHERE l.owner = ${leadOwner} AND l.is_deleted = 0`;
 
-            return new Promise((resolve, reject) => {
-                db.query(query, (error, result) => {
-                    console.log(result)
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
-        };
-
-        const [Open, Unread, InProgress, New] = await Promise.all([
-            getLeadData("Open"),
-            getLeadData("Unread"),
-            getLeadData("In Progress"),
-            getLeadData("New"),
-        ]);
-
+      db.query(query,(error,result)=>{
+        if (error)
+        return res.json({
+            status: 0,
+            message: error
+        })
         return res.json({
             status: 1,
             message: "Lead details",
-            data: {
-                New,
-                Open,
-                Unread,
-                InProgress,
-            },
+            data:result
         });
+      })
+
+       
     } catch (error) {
         return res.json({
             status: 0,

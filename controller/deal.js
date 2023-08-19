@@ -260,40 +260,26 @@ exports.getAll = async (req, res) => {
         }
         const owner = loggedInUser.id;
 
-        const getLeadData = async (status) => {
-            const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
-            user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
-            LEFT JOIN user ON user.id = deal.owner
-            LEFT JOIN label ON label.id = deal.label_id
-            WHERE deal.owner = ${owner} AND deal.is_deleted = 0 AND status='${status}'`;
-            return new Promise((resolve, reject) => {
-                db.query(query, (error, result) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve(result);
-                    }
-                });
+        const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
+        user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
+        LEFT JOIN user ON user.id = deal.owner
+        LEFT JOIN label ON label.id = deal.label_id
+        WHERE deal.owner = ${owner} AND deal.is_deleted = 0`;
+
+        db.query(query, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "Deal details",
+                data: result
             });
-        };
+        })
 
-        const [Open, Unread, InProgress, New] = await Promise.all([
-            getLeadData("Open"),
-            getLeadData("Unread"),
-            getLeadData("In Progress"),
-            getLeadData("New"),
-        ]);
-
-        return res.json({
-            status: 1,
-            message: "Deal details",
-            data: {
-                New,
-                Open,
-                Unread,
-                InProgress,
-            },
-        });
     } catch (error) {
         return res.json({
             status: 0,
@@ -303,7 +289,6 @@ exports.getAll = async (req, res) => {
     }
 };
 
-////////////////////////////////////////
 
 exports.moveDealToTrash = async (req, res) => {
 
@@ -499,3 +484,5 @@ exports.exportLeadsInCsv = async (req, res) => {
         res.send(excelBuffer);
     })
 }
+
+// 1.enquiry received 2.contact made 4.all doc received 
