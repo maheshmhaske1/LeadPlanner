@@ -143,6 +143,7 @@ exports.login = async (req, res) => {
     GROUP BY
       u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;`
     const values = [username, username];
+    console.log(query)
 
     db.query(query, values, (error, results) => {
         const userDetails = results
@@ -173,7 +174,7 @@ exports.login = async (req, res) => {
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `/lp` : role == 2 ? '/admin' : role == 3 ? '/admin' : role == 5 ? '/lp' : '',
+                                landingurl: role == 1 ? `/lp` : role == 2 || role==6 ? '/admin' : role == 3 ? '/admin' : role == 5 ? '/lp' : '',
                                 user: userDetails,
                                 token: token
                             });

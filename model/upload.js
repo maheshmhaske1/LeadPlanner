@@ -35,3 +35,14 @@ exports.uploadEmployeeDoc = multer({
     },
   }),
 }).single("employeeDoc");
+
+exports.uploadDealLeadDoc = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, `./public/leadDealDoc/`);
+    },
+    filename: function (req, file, cb) {
+      cb(null, `DOC` + `${Date.now()}` + `_` + file.originalname);
+    },
+  }),
+}).single("ldDoc");

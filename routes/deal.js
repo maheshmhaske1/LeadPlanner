@@ -14,5 +14,7 @@ router.delete('/movetotrash', verifyToken, dealController.moveDealToTrash)
 router.post('/restorefromtrash', verifyToken, dealController.restoreDealFromTrash)
 router.get('/getallfromtrash', verifyToken, dealController.getAllDealFromTrash)
 router.delete('/deletefromtrash', verifyToken, dealController.deleteDealFromTrash)
+router.get('/requireddocs', verifyToken, dealController.getAllRequiredDocForDeal)
+router.post('/uplaoddoc', verifyToken, dealController.uploadDealDocuments)
 
 module.exports = router;

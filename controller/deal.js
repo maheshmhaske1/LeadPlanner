@@ -289,7 +289,6 @@ exports.getAll = async (req, res) => {
     }
 };
 
-
 exports.moveDealToTrash = async (req, res) => {
 
     const loggedInUser = req.decoded
@@ -485,4 +484,92 @@ exports.exportLeadsInCsv = async (req, res) => {
     })
 }
 
+exports.getAllRequiredDocForDeal = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    SQL.get('document_master', ``, ``, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "All documents",
+            data: results
+        })
+    })
+}
+
+exports.uploadDealDocuments = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+    const { dealId, docId } = req.body
+
+    if (!dealId || !docId) {
+        return res.json({
+            status: 0,
+            message: "dealId and docId are required fields",
+        })
+    }
+
+    SQL.get('deal', ``, `id=${dealId}`, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        if (results.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'invalid deal id'
+            })
+        }
+
+        SQL.get('document_master', ``, `id=${docId}`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length == 0) {
+                return res.json({
+                    status: 0,
+                    message: 'invalid docId'
+                })
+            }
+
+
+            SQL.get('deal_documents', ``, `deal_id=${dealId} AND doc_id=${docId}`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length == 0) {
+                    return res.json({
+                        status: 0,
+                        message: 'this document is already attached'
+                    })
+                }
+            })
+        })
+    })
+}
 // 1.enquiry received 2.contact made 4.all doc received 
