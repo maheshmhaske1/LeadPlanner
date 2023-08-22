@@ -11,7 +11,8 @@ exports.createEmployee = async (req, res) => {
 
         const loggedInUser = req.decoded
         console.log(loggedInUser)
-        if (!loggedInUser || loggedInUser.role != 3) {
+        // if (!loggedInUser || loggedInUser.role != 3) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -90,7 +91,8 @@ exports.updateEmployee = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 3) {
+        // if (!loggedInUser || loggedInUser.role != 3) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -146,8 +148,9 @@ exports.getEmployee = async (req, res) => {
         const loggedInUser = req.decoded
         console.log('==>', loggedInUser); // Check the data type
 
-        if (!loggedInUser || (loggedInUser.role !== 3 && loggedInUser.role !== 2)) {
-            return res.json({
+        // if (!loggedInUser || (loggedInUser.role !== 3 && loggedInUser.role !== 2)) {
+            if (!loggedInUser) {
+        return res.json({
                 status: 0,
                 message: "Not Authorized",
             });
@@ -221,8 +224,9 @@ exports.getAll = async (req, res) => {
 
         const loggedInUser = req.decoded
         console.log(loggedInUser)
-        if (!loggedInUser || loggedInUser.role != 3) {
-            return res.json({
+        // if (!loggedInUser || loggedInUser.role != 3) {
+            if (!loggedInUser) {
+                return res.json({
                 status: 0,
                 message: "Not Authorized",
             })
@@ -345,8 +349,9 @@ exports.getPayslips = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 2) {
-            return res.json({
+        // if (!loggedInUser || loggedInUser.role != 2) {
+            if (!loggedInUser) {
+                return res.json({
                 status: 0,
                 message: "Not Authorized",
             })
@@ -378,8 +383,9 @@ exports.getPayslip = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 2) {
-            return res.json({
+        // if (!loggedInUser || loggedInUser.role != 2) {
+            if (!loggedInUser) {
+                return res.json({
                 status: 0,
                 message: "Not Authorized",
             })
