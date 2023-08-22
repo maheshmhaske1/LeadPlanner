@@ -269,7 +269,7 @@ exports.deleteLabel = async (req, res) => {
                     message: error
                 })
             }
-        SQL.update('lead', { label_id: -1 }, `label_id IN (${labelIds})`, (error, result) => {})
+            SQL.update('lead', { label_id: -1 }, `label_id IN (${labelIds})`, (error, result) => { })
             return res.json({
                 status: 1,
                 message: "label deleted",
@@ -432,5 +432,112 @@ exports.getAllAudits = async (req, res) => {
             message: "something went wrong",
             message: error
         })
+    }
+}
+
+exports.getAllRequiredDocForDeal = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    SQL.get('document_master', ``, ``, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "All documents",
+            data: results
+        })
+    })
+}
+
+exports.addDocumentInDocMaster = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { document_name, is_required } = req.body
+
+    if (!document_name || !is_required) {
+        return res.json({
+            status: 0,
+            message: "document_name, is_required  are required fields"
+        })
+    }
+
+    SQL.insert('document_master', req.body, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "Document Added",
+            data: results
+        })
+    })
+}
+
+exports.updateMasterDoc = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser || loggedInUser.role !== 1) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+        const update_data = req.body;
+        if (update_data.docId.length === 0) {
+            return res.json({
+                status: 0,
+                message: "please provide docId",
+            });
+        }
+        const docId = update_data.docId;
+        delete update_data.docId;
+
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.json({
+                status: 0,
+                message: "id, creation_date, update_date cannot be edited",
+            });
+        }
+
+        SQL.update('document_master', update_data, `id IN (${docId})`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: "something went wrong", error,
+                });
+            }
+            return res.json({
+                status: 1,
+                message: 'Deals details updated successfully',
+                data: results,
+            });
+        });
+    }
+    catch (error) {
+        console.error("Catch block error:", error);
+        return res.json({
+            status: 0,
+            message: "Something went wrong",
+        });
     }
 }

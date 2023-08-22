@@ -484,30 +484,6 @@ exports.exportLeadsInCsv = async (req, res) => {
     })
 }
 
-exports.getAllRequiredDocForDeal = async (req, res) => {
-    const loggedInUser = req.decoded
-    if (!loggedInUser) {
-        return res.json({
-            status: 0,
-            message: "Not Authorized",
-        })
-    }
-
-    SQL.get('document_master', ``, ``, (error, results) => {
-        if (error) {
-            return res.json({
-                status: 0,
-                message: error
-            })
-        }
-        return res.json({
-            status: 1,
-            message: "All documents",
-            data: results
-        })
-    })
-}
-
 exports.uploadDealDocuments = async (req, res) => {
     const loggedInUser = req.decoded
     if (!loggedInUser) {
