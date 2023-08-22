@@ -69,7 +69,7 @@ exports.getBlogs = async (req, res) => {
     LEFT JOIN xx_blog_details AS d
     ON b.id = d.blogid
     GROUP BY b.id
-    ORDER BY b.id;`
+    ORDER BY b.id DESC;`
 
     dbB.query(query, (error, result) => {
       if (error) {
