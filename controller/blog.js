@@ -1,4 +1,5 @@
-const db = require("../model/db");
+// const db = require("../model/db");
+const { db, dbB } = require('../model/db');
 const fs = require("fs");
 const { uploadBlogImg } = require("../model/upload");
 const { checkMandatoryFields } = require("../model/validators");
@@ -62,7 +63,15 @@ exports.addBlog = async (req, res) => {
 
 exports.getBlogs = async (req, res) => {
   try {
-    SQL.get(`xx_blog`, ``, ``, (error, results) => {
+    let query = `
+    SELECT b.*,COUNT(d.blogid) AS section_count
+    FROM xx_blog AS b
+    LEFT JOIN xx_blog_details AS d
+    ON b.id = d.blogid
+    GROUP BY b.id
+    ORDER BY b.id;`
+
+    dbB.query(query, (error, result) => {
       if (error) {
         return res.json({
           status: 0,
@@ -72,9 +81,22 @@ exports.getBlogs = async (req, res) => {
       return res.json({
         status: 1,
         message: "blog details",
-        data: results
+        data: result
       })
-    });
+    })
+    // SQL.get(`xx_blog`, ``, ``, (error, results) => {
+    //   if (error) {
+    //     return res.json({
+    //       status: 0,
+    //       error: error
+    //     })
+    //   }
+    //   return res.json({
+    //     status: 1,
+    //     message: "blog details",
+    //     data: results
+    //   })
+    // });
   }
   catch (error) {
     return res.json({
