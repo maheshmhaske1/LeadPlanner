@@ -9,7 +9,14 @@ const { json } = require("express");
 exports.addBlog = async (req, res) => {
   try {
 
-    
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
+
     const { title, url, description, route, image, site, tag, date, sections } = req.body;
 
     if (!title || !url || !description || !tag || !date) {
@@ -65,6 +72,15 @@ exports.addBlog = async (req, res) => {
 
 exports.getBlogs = async (req, res) => {
   try {
+
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
+
     let query = `
     SELECT b.*,COUNT(d.blogid) AS section_count
     FROM xx_blog AS b
@@ -111,6 +127,13 @@ exports.getBlogs = async (req, res) => {
 
 exports.editBlog = async (req, res) => {
   try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
     const { blogId } = req.params;
     const { title, url, description, site, route, image, tag, date, sections } = req.body;
 
@@ -171,9 +194,15 @@ exports.editBlog = async (req, res) => {
   }
 };
 
-
 exports.getBlog = async (req, res) => {
   try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
     const blogId = req.params.blogId;
     SQL.get('xx_blog', '', `id=${blogId}`, (error, results) => {
       if (error) {
@@ -200,6 +229,13 @@ exports.getBlog = async (req, res) => {
 
 exports.getAllBlogTags = async (req, res) => {
   try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
     SQL.get('xx_blog_tag', '', ``, (error, results) => {
       if (error) {
         return res.json({
@@ -225,7 +261,13 @@ exports.getAllBlogTags = async (req, res) => {
 
 exports.addBlogTag = async (req, res) => {
   try {
-
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
     const { site, tag, url, title } = req.body;
     await checkMandatoryFields(res, { site, tag, url, title });
 
@@ -296,6 +338,13 @@ exports.deleteBlogImage = async (req, res) => {
 
 exports.editSection = async (req, res) => {
   try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
     const { sectionId } = req.params;
     const update_data = req.body
 
@@ -332,6 +381,13 @@ exports.editSection = async (req, res) => {
 
 exports.getSectionByBlog = async (req, res) => {
   try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
     const { blogId } = req.params;
     await checkMandatoryFields({ blogId });
     SQL.get('xx_blog_details', '', `blogid=${blogId}`, (error, results) => {
