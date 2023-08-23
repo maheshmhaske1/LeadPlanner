@@ -40,6 +40,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use('/blog', express.static(path.join(__dirname, 'public/blog'))) // PROFILE IMAGES
 app.use('/employee/doc', express.static(path.join(__dirname, 'public/employeeDoc'))) // PROFILE IMAGES
+app.use('/deal/doc', express.static(path.join(__dirname, 'public/leadDealDoc'))) // deal IMAGES
 app.use('/images', express.static(path.join(__dirname, 'public/images')))
 
 app.use("/", indexRouter);
@@ -54,7 +55,7 @@ app.use("/api/lead/doc", leadDocRouter);
 app.use("/api/site", siteRouter);
 app.use("/api/product", productRouter);
 app.use("/api/pipeline", pipelineRouter);
-app.use('/api/setting',settingRouter)
+app.use('/api/setting', settingRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

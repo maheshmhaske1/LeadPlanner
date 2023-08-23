@@ -149,8 +149,8 @@ exports.getEmployee = async (req, res) => {
         console.log('==>', loggedInUser); // Check the data type
 
         // if (!loggedInUser || (loggedInUser.role !== 3 && loggedInUser.role !== 2)) {
-            if (!loggedInUser) {
-        return res.json({
+        if (!loggedInUser) {
+            return res.json({
                 status: 0,
                 message: "Not Authorized",
             });
@@ -225,8 +225,8 @@ exports.getAll = async (req, res) => {
         const loggedInUser = req.decoded
         console.log(loggedInUser)
         // if (!loggedInUser || loggedInUser.role != 3) {
-            if (!loggedInUser) {
-                return res.json({
+        if (!loggedInUser) {
+            return res.json({
                 status: 0,
                 message: "Not Authorized",
             })
@@ -350,8 +350,8 @@ exports.getPayslips = async (req, res) => {
 
         const loggedInUser = req.decoded
         // if (!loggedInUser || loggedInUser.role != 2) {
-            if (!loggedInUser) {
-                return res.json({
+        if (!loggedInUser) {
+            return res.json({
                 status: 0,
                 message: "Not Authorized",
             })
@@ -384,8 +384,8 @@ exports.getPayslip = async (req, res) => {
 
         const loggedInUser = req.decoded
         // if (!loggedInUser || loggedInUser.role != 2) {
-            if (!loggedInUser) {
-                return res.json({
+        if (!loggedInUser) {
+            return res.json({
                 status: 0,
                 message: "Not Authorized",
             })

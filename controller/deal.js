@@ -1,5 +1,6 @@
 const { db } = require('../model/db');
 const SQL = require('../model/sqlhandler')
+const fs = require("fs");
 const validator = require("validator");
 
 exports.createDeal = async (req, res) => {
@@ -492,8 +493,12 @@ exports.uploadDealDocuments = async (req, res) => {
             message: "Not Authorized",
         })
     }
+
     const owner = loggedInUser.id
-    const { dealId, docId } = req.body
+    const { dealId, docId } = req.body;
+
+    console.log(docId, dealId)
+
 
     if (!dealId || !docId) {
         return res.json({
@@ -501,6 +506,9 @@ exports.uploadDealDocuments = async (req, res) => {
             message: "dealId and docId are required fields",
         })
     }
+    const imageName = req.file.filename;
+    const imagePath = `./public/leadDealDoc/${imageName}`;
+
 
     SQL.get('deal', ``, `id=${dealId}`, (error, results) => {
         if (error) {
@@ -510,13 +518,14 @@ exports.uploadDealDocuments = async (req, res) => {
             })
         }
         if (results.length == 0) {
+            fs.unlink(imagePath, (error) => { })
             return res.json({
                 status: 0,
                 message: 'invalid deal id'
             })
         }
 
-        SQL.get('document_master', ``, `id=${docId}`, (error, results) => {
+        SQL.get('document_master', ``, `id=${docId} AND is_deleted=0`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -524,12 +533,12 @@ exports.uploadDealDocuments = async (req, res) => {
                 })
             }
             if (results.length == 0) {
+                fs.unlink(imagePath, (error) => { })
                 return res.json({
                     status: 0,
                     message: 'invalid docId'
                 })
             }
-
 
             SQL.get('deal_documents', ``, `deal_id=${dealId} AND doc_id=${docId}`, (error, results) => {
                 if (error) {
@@ -538,12 +547,70 @@ exports.uploadDealDocuments = async (req, res) => {
                         message: error
                     })
                 }
-                if (results.length == 0) {
+                if (results.length > 0) {
+                    fs.unlink(imagePath, (error) => { })
                     return res.json({
                         status: 0,
                         message: 'this document is already attached'
                     })
                 }
+                SQL.insert('deal_documents', { deal_id: dealId, doc_id: docId, document_url: imageName }, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    return res.json({
+                        status: 1,
+                        message: 'Document uploaded successfully'
+                    })
+                })
+            })
+        })
+    })
+}
+
+exports.getUploadedDocs = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const owner = loggedInUser.id
+    const { dealId } = req.params
+
+    SQL.get('deal', ``, `id=${dealId} AND owner = ${owner}`, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        if (results.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'invalid deal_id or ownership'
+            })
+        }
+        let query = `
+        select deal_documents.*,document_master.* from deal_documents
+        join document_master on deal_documents.doc_id = document_master.id where deal_id=${dealId}`
+
+        db.query(query, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: 'deal documents.',
+                message: results
             })
         })
     })
