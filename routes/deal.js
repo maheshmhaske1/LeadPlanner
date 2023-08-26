@@ -6,7 +6,7 @@ const { uploadDealLeadDoc } = require('../model/upload')
 
 
 router.post('/add', verifyToken, dealController.createDeal)
-router.put('/edit/:dealId', verifyToken, dealController.updateDeal)
+router.put('/edit/:dealIds', verifyToken, dealController.updateDeal)
 router.get('/get/:dealId', verifyToken, dealController.get)
 router.get('/getall', verifyToken, dealController.getAll)
 router.get('/getbyowner/:userId', verifyToken, dealController.getDealByOwner)
@@ -17,5 +17,9 @@ router.get('/getallfromtrash', verifyToken, dealController.getAllDealFromTrash)
 router.delete('/deletefromtrash', verifyToken, dealController.deleteDealFromTrash)
 router.post('/uplaoddoc', verifyToken, uploadDealLeadDoc, dealController.uploadDealDocuments)
 router.get('/getuplaoddoc/:dealId', verifyToken, dealController.getUploadedDocs)
+
+// ====== workflow ====== //
+router.get('/getAllStages', verifyToken, dealController.getAllDealStages)
+router.put('/workflow/updatestagerequirnment', verifyToken, dealController.updateStagesRequirement)
 
 module.exports = router;

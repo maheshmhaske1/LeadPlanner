@@ -94,16 +94,14 @@ exports.updateDeal = async (req, res) => {
 
         const owner = loggedInUser.id;
         const update_data = req.body;
-        console.log(update_data)
-        if (update_data.dealIds.length === 0) {
+        const { dealIds } = req.params;
+
+        if (!dealIds) {
             return res.json({
                 status: 0,
                 message: "please provide dealIds",
             });
         }
-        const dealIds = update_data.dealIds;
-        delete update_data.dealIds;
-        console.log(update_data)
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -112,6 +110,54 @@ exports.updateDeal = async (req, res) => {
             });
         }
 
+
+        // SQL.get('deal', ``, `id IN (${dealIds}) AND owner = ${owner}`, (error, result) => {
+        //     if (error) {
+        //         return res.json({
+        //             status: 0,
+        //             message: "something went wrong", error,
+        //         });
+        //     }
+        //     if (result.length === 0) {
+        //         return res.json({
+        //             status: 0,
+        //             message: 'please provide valid dealId'
+        //         })
+        //     }
+
+        //     const stagesComplete = result[0].stages_complete;
+        //     let requiredStages = ''
+        //     console.log("stagesComplete", stagesComplete)
+        //     if (update_data.update_stage_id) {
+        //         SQL.get('workflow', ``, `deal_stage IN (${update_data.update_stage_id})`, (error, result) => {
+        //             if (error) {
+        //                 return res.json({
+        //                     status: 0,
+        //                     message: "something went wrong", error,
+        //                 });
+        //             }
+        //             requiredStages = result[0].required_stages;
+        //             console.log("requiredStages", requiredStages)
+        //         })
+        //         const stagesCompleteArray = stagesComplete.split(',');
+        //         const requiredStagesArray = requiredStages.split(',');
+
+        //         const missingStages = requiredStagesArray.filter(stage => !stagesCompleteArray.includes(stage)).join(',')
+
+        //         if (missingStages.length > 0 || requiredStagesArray.length > 0) {
+        //             console.log('All required stages are completed.');
+        //         } else {
+        //             console.log('Not all required stages are completed.');
+        //             console.log(`Missing stages: ${missingStages}`);
+        //         }
+
+        //         if (missingStages.length > 0) {
+        //             SQL.get('deal_stage_master', ``, `id IN ${missingStages}`, (error, result) => {
+        //                 console.log(result)
+        //             })
+        //         }
+        //     }
+        // })
         SQL.update('deal', update_data, `id IN (${dealIds}) AND owner = ${owner}`, (error, results) => {
             if (error) {
                 return res.json({
@@ -615,4 +661,72 @@ exports.getUploadedDocs = async (req, res) => {
         })
     })
 }
-// 1.enquiry received 2.contact made 4.all doc received 
+
+exports.getAllDealStages = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    await SQL.get('deal_stage_master', ``, ``, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: 'deal stages.',
+            message: result
+        })
+    })
+}
+
+exports.updateStagesRequirement = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { deal_stage, required_stages } = req.body
+
+    if (!deal_stage || !required_stages) {
+        return res.json({
+            status: 0,
+            message: "required_stages and stage_id are required fields"
+        })
+    }
+
+    const requiredStages = required_stages.split(',').map(Number);
+    const dealStage = deal_stage;
+    const allSmaller = requiredStages.every(stage => stage < dealStage);
+
+    if (!allSmaller) {
+        return res.json({
+            status: 0,
+            message: "required stages must be before by current stage"
+        })
+    }
+
+    await SQL.update('workflow', { required_stages }, `deal_stage=${deal_stage}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: `required stages update ${deal_stage}`,
+            message: result
+        })
+    })
+
+}
