@@ -94,14 +94,16 @@ exports.updateDeal = async (req, res) => {
 
         const owner = loggedInUser.id;
         const update_data = req.body;
-        const { dealIds } = req.params;
-
-        if (!dealIds) {
+        console.log(update_data)
+        if (update_data.dealIds.length === 0) {
             return res.json({
                 status: 0,
                 message: "please provide dealIds",
             });
         }
+        const dealIds = update_data.dealIds;
+        delete update_data.dealIds;
+        console.log(update_data)
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -110,54 +112,6 @@ exports.updateDeal = async (req, res) => {
             });
         }
 
-
-        // SQL.get('deal', ``, `id IN (${dealIds}) AND owner = ${owner}`, (error, result) => {
-        //     if (error) {
-        //         return res.json({
-        //             status: 0,
-        //             message: "something went wrong", error,
-        //         });
-        //     }
-        //     if (result.length === 0) {
-        //         return res.json({
-        //             status: 0,
-        //             message: 'please provide valid dealId'
-        //         })
-        //     }
-
-        //     const stagesComplete = result[0].stages_complete;
-        //     let requiredStages = ''
-        //     console.log("stagesComplete", stagesComplete)
-        //     if (update_data.update_stage_id) {
-        //         SQL.get('workflow', ``, `deal_stage IN (${update_data.update_stage_id})`, (error, result) => {
-        //             if (error) {
-        //                 return res.json({
-        //                     status: 0,
-        //                     message: "something went wrong", error,
-        //                 });
-        //             }
-        //             requiredStages = result[0].required_stages;
-        //             console.log("requiredStages", requiredStages)
-        //         })
-        //         const stagesCompleteArray = stagesComplete.split(',');
-        //         const requiredStagesArray = requiredStages.split(',');
-
-        //         const missingStages = requiredStagesArray.filter(stage => !stagesCompleteArray.includes(stage)).join(',')
-
-        //         if (missingStages.length > 0 || requiredStagesArray.length > 0) {
-        //             console.log('All required stages are completed.');
-        //         } else {
-        //             console.log('Not all required stages are completed.');
-        //             console.log(`Missing stages: ${missingStages}`);
-        //         }
-
-        //         if (missingStages.length > 0) {
-        //             SQL.get('deal_stage_master', ``, `id IN ${missingStages}`, (error, result) => {
-        //                 console.log(result)
-        //             })
-        //         }
-        //     }
-        // })
         SQL.update('deal', update_data, `id IN (${dealIds}) AND owner = ${owner}`, (error, results) => {
             if (error) {
                 return res.json({
@@ -257,10 +211,12 @@ exports.getDealByOwner = async (req, res) => {
 
         const userId = req.params.userId;
 
-        const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
-        user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
+        const query = `SELECT deal.*,label.name AS label_name,label.colour_code AS label_coloure,user.first_name AS ownerf_name,
+        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name
+        FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
+        LEFT JOIN deal_stage_master ON deal.stage_id = deal_stage_master.id
         WHERE deal.owner = ${userId} AND deal.is_deleted = 0`;
 
         db.query(query, (error, result) => {
@@ -307,10 +263,12 @@ exports.getAll = async (req, res) => {
         }
         const owner = loggedInUser.id;
 
-        const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
-        user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
+        const query = `SELECT deal.*,label.name AS label_name,label.colour_code AS label_coloure,user.first_name AS ownerf_name,
+        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name
+        FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
+        LEFT JOIN deal_stage_master ON deal.stage_id = deal_stage_master.id
         WHERE deal.owner = ${owner} AND deal.is_deleted = 0`;
 
         db.query(query, (error, result) => {
