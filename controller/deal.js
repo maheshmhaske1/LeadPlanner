@@ -93,17 +93,17 @@ exports.updateDeal = async (req, res) => {
         }
 
         const owner = loggedInUser.id;
+        const {dealIds} = req.params;
         const update_data = req.body;
-        console.log(update_data)
-        if (update_data.dealIds.length === 0) {
+
+        console.log(dealIds)
+
+        if (!dealIds) {
             return res.json({
                 status: 0,
                 message: "please provide dealIds",
             });
         }
-        const dealIds = update_data.dealIds;
-        delete update_data.dealIds;
-        console.log(update_data)
 
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.json({
@@ -112,7 +112,7 @@ exports.updateDeal = async (req, res) => {
             });
         }
 
-        SQL.update('deal', update_data, `id IN (${dealIds}) AND owner = ${owner}`, (error, results) => {
+        SQL.update('deal', update_data, `id = ${dealIds} AND owner = ${owner}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
