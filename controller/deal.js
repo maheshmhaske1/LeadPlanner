@@ -82,6 +82,7 @@ exports.createDeal = async (req, res) => {
     }
 };
 
+
 exports.updateDeal = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
@@ -93,7 +94,7 @@ exports.updateDeal = async (req, res) => {
         }
 
         const owner = loggedInUser.id;
-        const {dealIds} = req.params;
+        const { dealIds } = req.params;
         const update_data = req.body;
 
         console.log(dealIds)
@@ -112,29 +113,106 @@ exports.updateDeal = async (req, res) => {
             });
         }
 
-        SQL.update('deal', update_data, `id = ${dealIds} AND owner = ${owner}`, (error, results) => {
+        SQL.get(`deal`, ``, `id = ${dealIds} AND owner = ${owner} AND is_deleted=0`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     message: "something went wrong", error,
                 });
             }
-            SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
-                if (error) {
-                    return res.json({
-                        status: 0,
-                        message: error
+            if (result.length === 0) {
+                return res.json({
+                    status: 0,
+                    message: "Invalid dealId"
+                });
+            }
+
+            const stage_id = result[0].stage_id
+
+            // checking if updating stage 
+            if (update_data.stage_id) {
+                SQL.get(`workflow`, ``, `deal_stage = ${stage_id}`, async (error, result) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: "something went wrong", error,
+                        });
+                    }
+                    if (result.length == 0) {
+                        return res.json({
+                            status: 0,
+                            message: "Invalid stage id",
+                        });
+                    }
+                    let currentStagePassed = true;
+
+                    for (const condition of result) {
+                        if (condition.validator === 'doc_verification') {
+                            const docResult = await new Promise((resolve) => {
+                                SQL.get('deal', '', `id=${dealIds} AND document_verified=1`, (error, result) => {
+                                    console.log('result00000', result);
+                                    resolve(result);
+                                });
+                            });
+                            if (docResult.length === 0) {
+                                currentStagePassed = false;
+                                return res.json({
+                                    status: 0,
+                                    message: 'documents not verified for this deal'
+                                });
+                            }
+                        }
+                    }
+                 checkNextStage()
+                })
+            }
+
+            async function checkNextStage() {
+                console.log('==')
+                let sql = `SELECT * FROM workflow WHERE deal_stage > ${stage_id} AND deal_stage < ${update_data.stage_id}`
+                db.query(sql, (error, result) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: "something went wrong", error,
+                        });
+                    }
+                    if (result.length > 0) {
+                        return res.json({
+                            status: 0,
+                            message: "you cant change this status. please check workflow"
+                        });
+                    }
+                    else updateDeal()
+                })
+            }
+
+            async function updateDeal() {
+                SQL.update('deal', update_data, `id = ${dealIds} AND owner = ${owner}`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: "something went wrong", error,
+                        });
+                    }
+                    SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
+                        if (results.length > 0)
+                            SQL.insert('xx_log', { attr1: `deal:update`, attr2: loggedInUser.id, attr3: `updated ${dealIds} with ${JSON.stringify(update_data)}`, attr5: 'D' }, (error, results) => { console.log(error) })
                     })
-                }
-                if (results.length > 0)
-                    SQL.insert('xx_log', { attr1: `deal:update`, attr2: loggedInUser.id, attr3: `updated ${dealIds} with ${JSON.stringify(update_data)}`, attr5: 'D' }, (error, results) => { console.log(error) })
-            })
-            return res.json({
-                status: 1,
-                message: 'Deals details updated successfully',
-                data: results,
-            });
-        });
+                    return res.json({
+                        status: 1,
+                        message: 'Deals details updated successfully',
+                        data: results,
+                    });
+                });
+            }
+        })
     }
     catch (error) {
         console.error("Catch block error:", error);
@@ -268,8 +346,7 @@ exports.getAll = async (req, res) => {
         FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
-        LEFT JOIN deal_stage_master ON deal.stage_id = deal_stage_master.id
-        WHERE deal.owner = ${owner} AND deal.is_deleted = 0`;
+        LEFT JOIN deal_stage_master ON deal.stage_id = deal_stage_master.id`;
 
         db.query(query, (error, result) => {
             if (error) {
