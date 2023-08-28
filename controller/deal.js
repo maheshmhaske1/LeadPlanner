@@ -139,31 +139,31 @@ exports.updateDeal = async (req, res) => {
                         });
                     }
                     if (result.length == 0) {
-                        return res.json({
-                            status: 0,
-                            message: "Invalid stage id",
-                        });
+                        checkNextStage()
                     }
-                    let currentStagePassed = true;
+                    else {
+                        let currentStagePassed = true;
 
-                    for (const condition of result) {
-                        if (condition.validator === 'doc_verification') {
-                            const docResult = await new Promise((resolve) => {
-                                SQL.get('deal', '', `id=${dealIds} AND document_verified=1`, (error, result) => {
-                                    console.log('result00000', result);
-                                    resolve(result);
+                        for (const condition of result) {
+                            if (condition.validator === 'doc_verification') {
+                                const docResult = await new Promise((resolve) => {
+                                    SQL.get('deal', '', `id=${dealIds} AND document_verified=1`, (error, result) => {
+                                        console.log('result00000', result);
+                                        resolve(result);
+                                    });
                                 });
-                            });
-                            if (docResult.length === 0) {
-                                currentStagePassed = false;
-                                return res.json({
-                                    status: 0,
-                                    message: 'documents not verified for this deal'
-                                });
+                                if (docResult.length === 0) {
+                                    currentStagePassed = false;
+                                    return res.json({
+                                        status: 0,
+                                        message: 'documents not verified for this deal'
+                                    });
+                                }
                             }
                         }
                     }
-                 checkNextStage()
+
+                    checkNextStage()
                 })
             }
 
@@ -177,6 +177,7 @@ exports.updateDeal = async (req, res) => {
                             message: "something went wrong", error,
                         });
                     }
+                    console.log(result)
                     if (result.length > 0) {
                         return res.json({
                             status: 0,
