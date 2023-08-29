@@ -291,7 +291,7 @@ exports.getDealByOwner = async (req, res) => {
         const userId = req.params.userId;
 
         const query = `SELECT deal.*,label.name AS label_name,label.colour_code AS label_coloure,user.first_name AS ownerf_name,
-        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name
+        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name,deal_stage_master.stage_name AS status
         FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
@@ -343,7 +343,7 @@ exports.getAll = async (req, res) => {
         const owner = loggedInUser.id;
 
         const query = `SELECT deal.*,label.name AS label_name,label.colour_code AS label_coloure,user.first_name AS ownerf_name,
-        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name
+        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name,deal_stage_master.stage_name AS status
         FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
