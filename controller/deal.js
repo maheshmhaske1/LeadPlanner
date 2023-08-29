@@ -82,7 +82,6 @@ exports.createDeal = async (req, res) => {
     }
 };
 
-
 exports.updateDeal = async (req, res) => {
     try {
         const loggedInUser = req.decoded;

@@ -174,7 +174,7 @@ exports.login = async (req, res) => {
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                landingurl: role == 1 ? `/lp` : role == 2 || role==6 ? '/admin' : role == 3 ? '/admin' : role == 5 ? '/lp' : '',
+                                landingurl: role == 1 ? `/lp` : role == 2 || role == 6 ? '/admin' : role == 3 ? '/admin' : role == 5 ? '/lp' : '',
                                 user: userDetails,
                                 token: token
                             });
@@ -1085,6 +1085,58 @@ exports.getAllRoles = async (req, res) => {
         return res.json({
             status: 1,
             message: "roles",
+            data: result
+        })
+    })
+}
+
+exports.searchHelpQuestions = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { help_title } = req.params
+
+    SQL.get('xx_help', ``, `title LIKE '%${help_title}%'`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "All help questions",
+            data: result
+        })
+    })
+}
+
+exports.getHelpQuestionsById = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { helpQuestionId } = req.params
+
+    SQL.get('xx_help', ``, `id=${helpQuestionId}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "help question",
             data: result
         })
     })
