@@ -127,6 +127,8 @@ exports.updateDeal = async (req, res) => {
             }
 
             const stage_id = result[0].stage_id
+            if (!update_data.stage_id)
+                updateDeal()
 
             // checking if updating stage 
             if (update_data.stage_id) {
