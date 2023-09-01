@@ -28,8 +28,9 @@ router.get("/ticket/getmytickets", verifyToken, userController.getTickets);
 router.put("/ticket/update/:ticketId", verifyToken, userController.updateTickets);
 router.get('/getallroles', verifyToken, userController.getAllRoles)
 router.get('/getrolesByUser/:userId', verifyToken, userController.getUserRolesByUser)
-router.get('/help/searchquestion/:help_title', verifyToken, userController.searchHelpQuestions)
+router.post('/help/searchquestion', verifyToken, userController.searchHelpQuestions)
 router.get('/help/getbyid/:helpQuestionId', verifyToken, userController.getHelpQuestionsById)
+router.put('/help/update/:helpQuestionId', verifyToken, userController.updateHeplQuetions)
 
 
 module.exports = router;

@@ -1099,9 +1099,23 @@ exports.searchHelpQuestions = async (req, res) => {
         })
     }
 
-    const { help_title } = req.params
+    let { condition, help_title } = req.body
 
-    SQL.get('xx_help', ``, `title LIKE '%${help_title}%'`, (error, result) => {
+    if (!condition && !help_title) {
+        return res.json({
+            status: 0,
+            message: "please provide at least one value from condition or help_title"
+        })
+    }
+
+    if (condition == `all`) {
+        condition = ``
+    } else {
+        condition = `title LIKE '%${help_title}%'`
+    }
+    console.log(condition)
+
+    SQL.get('xx_help', ``, condition, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -1138,6 +1152,41 @@ exports.getHelpQuestionsById = async (req, res) => {
             status: 1,
             message: "help question",
             data: result
+        })
+    })
+}
+
+exports.updateHeplQuetions = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { helpQuestionId } = req.params
+    const update_data = req.body
+
+    SQL.get('xx_help', ``, `id=${helpQuestionId}`, (error, result) => {
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: "invalid helpQuestionId",
+            })
+        }
+        SQL.update('xx_help', update_data, `id=${helpQuestionId}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: `something went wrong`, error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: 'help details updated',
+                data:result
+            })
         })
     })
 }
