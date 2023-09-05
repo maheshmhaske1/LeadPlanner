@@ -172,11 +172,12 @@ exports.login = async (req, res) => {
                             results.length == 0 ? role = `` : role = results[0].role_id
                             const token = await jwt.sign({ id: userDetails[0].id, role: role }, JWT_TOKEN, { expiresIn: '10d' });
                             userDetails.role = role
+                            console.log(role)
                             return res.json({
                                 status: 1,
                                 message: 'Logged in',
-                                role:role,
-                                landingurl: role == 1 ? `/lp` : role == 2 || role == 6 ? '/admin' : role == 3 ? '/admin' : role == 5 ? '/lp' : '',
+                                role: role,
+                                landingurl: role == 1 ? `/lp/home` : '/lp/admin',
                                 user: userDetails,
                                 token: token
                             });
