@@ -1193,3 +1193,27 @@ exports.updateHeplQuetions = async (req, res) => {
         })
     })
 }
+
+exports.getAllEligibilityFilters = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    await SQL.get('banks_eligibility', ``, ``, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "All eligibility criteria",
+            data: result
+        })
+    })
+}
