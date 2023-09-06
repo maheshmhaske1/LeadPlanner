@@ -14,63 +14,104 @@ const { JWT_TOKEN } = process.env;
 
 exports.createAccount = async (req, res) => {
     try {
-        // const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
-        // const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+        const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
+        const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
         // await Email.sendMail('maheshmhaske2993@gmail.com', 'Account Created Successfully.', ``, html);
         // return;
+        console.log('ppppp')
 
-        let { first_name, last_name, email, password, phone, role } = req.body
+        const axios = require('axios');
+        let data = {
+            "sender": {
+                "name": "vaneet gupta",
+                "email": "maheshmhaske241198@gmail.com"
+            },
+            "to": [
+                {
+                    "email": "maheshmhaske241198@gmail.com",
+                    "name": "John Doe"
+                }
+            ],
+            "subject": "Hello world",
+            "htmlContent": `${html}`
+        };
 
-        if (!first_name || !last_name || !email || !password || !phone) {
-            return res.json({
-                status: 0,
-                message: "first_name, last_name, email, password, phone this fields are required"
+        console.log("data-->", data)
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.brevo.com/v3/smtp/email',
+            headers: {
+                'accept': 'application/json',
+                'api-key': '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', // Replace with your actual API key
+                'content-type': 'application/json'
+            },
+            data: JSON.stringify(data)
+        };
+
+        axios.request(config)
+            .then((response) => {
+                console.log(JSON.stringify(response.data));
             })
-        }
-        if (!validators.isEmail(email)) {
-            return res.json({
-                status: 0,
-                message: `${email} this is not an valid email`
-            })
-        }
-
-        if (req.body.id || req.body.creation_date || req.body.update_date)
-            return res.json({
-                status: 0,
-                message: "id ,creation_date ,update_date cannot be add",
+            .catch((error) => {
+                return error
+                console.log(error);
             });
 
-        const user_role = role
-        delete req.body.role
-        console.log(req.body)
-        req.body.password = await bcrypt.hash(password, 10);
-        SQL.insert('user', req.body, (error, result) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    error: error
-                })
-            }
-            const userId = result.insertId;
-            SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
-                if (error) {
-                    return res.json({
-                        status: 0,
-                        error: error
-                    })
-                }
 
-                const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
-                const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
-                await Email.sendMail(email, 'Account Created Successfully.', ``, html);
+        // let { first_name, last_name, email, password, phone, role } = req.body
 
-                return res.json({
-                    status: 1,
-                    message: 'user registered successfully',
-                    data: result
-                })
-            })
-        })
+        // if (!first_name || !last_name || !email || !password || !phone) {
+        //     return res.json({
+        //         status: 0,
+        //         message: "first_name, last_name, email, password, phone this fields are required"
+        //     })
+        // }
+        // if (!validators.isEmail(email)) {
+        //     return res.json({
+        //         status: 0,
+        //         message: `${email} this is not an valid email`
+        //     })
+        // }
+
+        // if (req.body.id || req.body.creation_date || req.body.update_date)
+        //     return res.json({
+        //         status: 0,
+        //         message: "id ,creation_date ,update_date cannot be add",
+        //     });
+
+        // const user_role = role
+        // delete req.body.role
+        // console.log(req.body)
+        // req.body.password = await bcrypt.hash(password, 10);
+        // SQL.insert('user', req.body, (error, result) => {
+        //     if (error) {
+        //         return res.json({
+        //             status: 0,
+        //             error: error
+        //         })
+        //     }
+        //     const userId = result.insertId;
+        //     SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
+        //         if (error) {
+        //             return res.json({
+        //                 status: 0,
+        //                 error: error
+        //             })
+        //         }
+
+        //         const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
+        //         const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+        //         await Email.sendMail(email, 'Account Created Successfully.', ``, html);
+
+        //         return res.json({
+        //             status: 1,
+        //             message: 'user registered successfully',
+        //             data: result
+        //         })
+        //     })
+        // })
     }
     catch (error) {
         return res.json({
