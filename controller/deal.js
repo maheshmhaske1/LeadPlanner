@@ -767,7 +767,7 @@ exports.addStagesForDealLead = async (req, res) => {
         })
     }
 
-    const { display_name, stage_type, stage_name } = req.body
+    const { display_name, stage_type, stage_name,position } = req.body
 
     if (!display_name || !stage_type || !stage_name) {
         return res.json({
