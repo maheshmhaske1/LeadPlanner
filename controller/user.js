@@ -9,109 +9,105 @@ const SQL = require('../model/sqlhandler')
 const dotenv = require("dotenv").config();
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 
 const { JWT_TOKEN } = process.env;
 
 exports.createAccount = async (req, res) => {
     try {
-        const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
-        const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
-        // await Email.sendMail('maheshmhaske2993@gmail.com', 'Account Created Successfully.', ``, html);
-        // return;
-        console.log('ppppp')
 
-        const axios = require('axios');
-        let data = {
-            "sender": {
-                "name": "vaneet gupta",
-                "email": "maheshmhaske241198@gmail.com"
-            },
-            "to": [
-                {
-                    "email": "maheshmhaske241198@gmail.com",
-                    "name": "John Doe"
-                }
-            ],
-            "subject": "Hello world",
-            "htmlContent": `${html}`
-        };
+        let { first_name, last_name, email, password, phone, role } = req.body
 
-        console.log("data-->", data)
-
-        let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://api.brevo.com/v3/smtp/email',
-            headers: {
-                'accept': 'application/json',
-                'api-key': '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', // Replace with your actual API key
-                'content-type': 'application/json'
-            },
-            data: JSON.stringify(data)
-        };
-
-        axios.request(config)
-            .then((response) => {
-                console.log(JSON.stringify(response.data));
+        if (!first_name || !last_name || !email || !password || !phone) {
+            return res.json({
+                status: 0,
+                message: "first_name, last_name, email, password, phone this fields are required"
             })
-            .catch((error) => {
-                return error
-                console.log(error);
+        }
+        if (!validators.isEmail(email)) {
+            return res.json({
+                status: 0,
+                message: `${email} this is not an valid email`
+            })
+        }
+
+        if (req.body.id || req.body.creation_date || req.body.update_date)
+            return res.json({
+                status: 0,
+                message: "id ,creation_date ,update_date cannot be add",
             });
 
+        const user_role = role
+        delete req.body.role
+        req.body.password = await bcrypt.hash(password, 10);
+        SQL.insert('user', req.body, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    error: error
+                })
+            }
+            const userId = result.insertId;
+            SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        error: error
+                    })
+                }
 
-        // let { first_name, last_name, email, password, phone, role } = req.body
+                function sendWelcomeEmail() {
+                    const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
+                    let html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+                    html = html.replace('{{first_name}}', req.body.first_name);
 
-        // if (!first_name || !last_name || !email || !password || !phone) {
-        //     return res.json({
-        //         status: 0,
-        //         message: "first_name, last_name, email, password, phone this fields are required"
-        //     })
-        // }
-        // if (!validators.isEmail(email)) {
-        //     return res.json({
-        //         status: 0,
-        //         message: `${email} this is not an valid email`
-        //     })
-        // }
 
-        // if (req.body.id || req.body.creation_date || req.body.update_date)
-        //     return res.json({
-        //         status: 0,
-        //         message: "id ,creation_date ,update_date cannot be add",
-        //     });
+                    let data = {
+                        "sender": {
+                            "name": "Mahesh Mhaske",
+                            "email": "maheshmhaske241198@gmail.com"
+                        },
+                        "to": [
+                            {
+                                "email": `${email}`,
+                                "name": `${first_name} ${last_name}`
+                            }
+                        ],
+                        "subject": "Hello world",
+                        "htmlContent": `${html}`
+                    };
 
-        // const user_role = role
-        // delete req.body.role
-        // console.log(req.body)
-        // req.body.password = await bcrypt.hash(password, 10);
-        // SQL.insert('user', req.body, (error, result) => {
-        //     if (error) {
-        //         return res.json({
-        //             status: 0,
-        //             error: error
-        //         })
-        //     }
-        //     const userId = result.insertId;
-        //     SQL.insert('roles_users', { user_id: userId, role_id: role }, async (error, result) => {
-        //         if (error) {
-        //             return res.json({
-        //                 status: 0,
-        //                 error: error
-        //             })
-        //         }
+                    let config = {
+                        method: 'post',
+                        maxBodyLength: Infinity,
+                        url: 'https://api.brevo.com/v3/smtp/email',
+                        headers: {
+                            'accept': 'application/json',
+                            'api-key': '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', // Replace with your actual API key
+                            'content-type': 'application/json'
+                        },
+                        data: JSON.stringify(data)
+                    };
 
-        //         const welcomeTemplatePath = path.join(__dirname, '../public/templates/welcome.html');
-        //         const html = fs.readFileSync(welcomeTemplatePath, 'utf8');
-        //         await Email.sendMail(email, 'Account Created Successfully.', ``, html);
 
-        //         return res.json({
-        //             status: 1,
-        //             message: 'user registered successfully',
-        //             data: result
-        //         })
-        //     })
-        // })
+                    axios.request(config)
+                        .then((response) => {
+                            console.log(JSON.stringify(response.data));
+                        })
+                        .catch((error) => {
+                            // return error
+                            console.log(error);
+                        });
+                }
+
+                await sendWelcomeEmail()
+                return res.json({
+                    status: 1,
+                    message: 'user registered successfully',
+                    data: result
+                })
+            })
+        })
     }
     catch (error) {
         return res.json({
@@ -1254,6 +1250,40 @@ exports.getAllEligibilityFilters = async (req, res) => {
         return res.json({
             status: 1,
             message: "All eligibility criteria",
+            data: result
+        })
+    })
+}
+
+
+exports.AddHelpQuestions = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { site, slug, title, details, category } = req.body;
+
+    if (!site || !slug || !title || !details || !category) {
+        return res.json({
+            status: 0,
+            message: "site, slug, title, details, category are required values",
+        });
+    }
+
+    SQL.insert('xx_help', req.body, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "help question Added",
             data: result
         })
     })

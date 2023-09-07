@@ -31,7 +31,8 @@ router.get('/getrolesByUser/:userId', verifyToken, userController.getUserRolesBy
 router.post('/help/searchquestion', verifyToken, userController.searchHelpQuestions)
 router.get('/help/getbyid/:helpQuestionId', verifyToken, userController.getHelpQuestionsById)
 router.put('/help/update/:helpQuestionId', verifyToken, userController.updateHeplQuetions)
-router.get('/geteligibilitycriteria',verifyToken,userController.getAllEligibilityFilters)
+router.post('/help/addquation', verifyToken, userController.AddHelpQuestions)
+router.get('/geteligibilitycriteria', verifyToken, userController.getAllEligibilityFilters)
 
 
 module.exports = router;
