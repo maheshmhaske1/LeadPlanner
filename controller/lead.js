@@ -21,11 +21,11 @@ exports.createLead = async (req, res) => {
             })
         }
 
-        const { company_name, registration_no, employees, value, first_name, last_name, email, status } = req.body;
-        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value) {
+        const { company_name, registration_no, employees, value, first_name, last_name, email, status, stage_id } = req.body;
+        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value || !stage_id) {
             return res.json({
                 status: 0,
-                message: 'first_name, last_name, company_name, registration_no, value ,employees, ,status ,email these are required values'
+                message: 'first_name, last_name, company_name, registration_no, value ,employees, ,status ,email ,stage_id these are required values'
             })
         }
 
@@ -304,10 +304,13 @@ exports.getLeadByOwner = async (req, res) => {
 
         const userId = req.params.userId;
 
-        const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
-            INNER JOIN user u ON l.owner = u.id
-            INNER JOIN label lb ON l.label_id = lb.id
-            WHERE l.owner = ${userId} AND l.is_deleted = 0`;
+        const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone,
+        stage_master.display_name AS stage_name, stage_master.stage_name AS status FROM \`lead\` l
+        LEFT JOIN user u ON l.owner = u.id
+        LEFT JOIN label lb ON l.label_id = lb.id
+        LEFT JOIN stage_master ON l.stage_id = stage_master.id
+        WHERE l.owner = ${userId} AND l.is_deleted = 0`;
+
 
         db.query(query, (error, result) => {
             if (error) {
@@ -354,29 +357,30 @@ exports.getAll = async (req, res) => {
             });
         }
         const leadOwner = loggedInUser.id;
-
         const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure,
-        u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
-        u.email AS owner_email, u.phone AS owner_phone 
-      FROM \`lead\` l
-       LEFT JOIN user u ON l.owner = u.id
-       LEFT JOIN label lb ON l.label_id = lb.id
-      WHERE l.owner = ${leadOwner} AND l.is_deleted = 0`;
+                        u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
+                        u.email AS owner_email, u.phone AS owner_phone, 
+                        stage_master.display_name AS stage_name, stage_master.stage_name AS status
+                        FROM \`lead\` l
+                        LEFT JOIN user u ON l.owner = u.id
+                        LEFT JOIN label lb ON l.label_id = lb.id
+                        LEFT JOIN stage_master ON l.stage_id = stage_master.id
+                        WHERE l.owner = ${leadOwner} AND l.is_deleted = 0`;
 
-      db.query(query,(error,result)=>{
-        if (error)
-        return res.json({
-            status: 0,
-            message: error
+        db.query(query, (error, result) => {
+            if (error)
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            return res.json({
+                status: 1,
+                message: "Lead details",
+                data: result
+            });
         })
-        return res.json({
-            status: 1,
-            message: "Lead details",
-            data:result
-        });
-      })
 
-       
+
     } catch (error) {
         return res.json({
             status: 0,

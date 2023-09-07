@@ -292,11 +292,11 @@ exports.getDealByOwner = async (req, res) => {
         const userId = req.params.userId;
 
         const query = `SELECT deal.*,label.name AS label_name,label.colour_code AS label_coloure,user.first_name AS ownerf_name,
-        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name,deal_stage_master.stage_name AS status
+        user.last_name AS ownerl_name,stage_master.display_name AS stage_name,stage_master.stage_name AS status
         FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
-        LEFT JOIN deal_stage_master ON deal.stage_id = deal_stage_master.id
+        LEFT JOIN stage_master ON deal.stage_id = stage_master.id
         WHERE deal.owner = ${userId} AND deal.is_deleted = 0`;
 
         db.query(query, (error, result) => {
@@ -344,11 +344,11 @@ exports.getAll = async (req, res) => {
         const owner = loggedInUser.id;
 
         const query = `SELECT deal.*,label.name AS label_name,label.colour_code AS label_coloure,user.first_name AS ownerf_name,
-        user.last_name AS ownerl_name,deal_stage_master.display_name AS stage_name,deal_stage_master.stage_name AS status
+        user.last_name AS ownerl_name,stage_master.display_name AS stage_name,stage_master.stage_name AS status
         FROM deal
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
-        LEFT JOIN deal_stage_master ON deal.stage_id = deal_stage_master.id`;
+        LEFT JOIN stage_master ON deal.stage_id = stage_master.id`;
 
         db.query(query, (error, result) => {
             if (error) {
@@ -699,7 +699,7 @@ exports.getUploadedDocs = async (req, res) => {
     })
 }
 
-exports.getAllDealStages = async (req, res) => {
+exports.getAllStagesDealLead = async (req, res) => {
     const loggedInUser = req.decoded
     if (!loggedInUser) {
         return res.json({
@@ -708,7 +708,9 @@ exports.getAllDealStages = async (req, res) => {
         })
     }
 
-    await SQL.get('deal_stage_master', ``, ``, (error, result) => {
+    const { type } = req.params
+
+    await SQL.get('stage_master', ``, `stage_type='${type}'`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -719,6 +721,125 @@ exports.getAllDealStages = async (req, res) => {
             status: 1,
             message: 'deal stages.',
             message: result
+        })
+    })
+}
+
+exports.updateStage = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { stage_id } = req.params
+    const update_data = req.body
+
+    if (update_data.creation_date || update_data.update_date || update_data.id) {
+        return res.json({
+            status: 0,
+            message: "creation_date,update_date and id cant be edited",
+        })
+    }
+
+    SQL.update('stage_master', update_data, `id=${stage_id}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: 'stage master updated successfully'
+        })
+    })
+}
+
+exports.addStagesForDealLead = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { display_name, stage_type, stage_name } = req.body
+
+    if (!display_name || !stage_type || !stage_name) {
+        return res.json({
+            status: 0,
+            message: 'display_name,stage_type,stage_name are required fields'
+        })
+    }
+
+    await SQL.insert('stage_master', req.body, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: 'stage added.',
+            message: result
+        })
+    })
+}
+
+exports.removeDealLeadStage = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { stage_id } = req.params
+
+    await SQL.get('lead', ``, `stage_id = ${stage_id}`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        if (result.length > 0) {
+            return res.json({
+                status: 0,
+                message: "cant delete this stage because already assigned to lead"
+            })
+        }
+        SQL.get('deal', ``, `stage_id = ${stage_id}`, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (result.length > 0) {
+                return res.json({
+                    status: 0,
+                    message: "cant delete this stage because already assigned to deal"
+                })
+            }
+            SQL.delete('stage_master', `id=${stage_id}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                return res.json({
+                    status: 1,
+                    message: 'stage deleted successfully.'
+                })
+            })
         })
     })
 }

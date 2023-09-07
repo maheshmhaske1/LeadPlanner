@@ -19,7 +19,8 @@ router.post('/uplaoddoc', verifyToken, uploadDealLeadDoc, dealController.uploadD
 router.get('/getuplaoddoc/:dealId', verifyToken, dealController.getUploadedDocs)
 
 // ====== workflow ====== //
-router.get('/getAllStages', verifyToken, dealController.getAllDealStages)
+router.get('/getAllStages/:type', verifyToken, dealController.getAllStagesDealLead)
+router.put('/stages/update/:stage_id', verifyToken, dealController.updateStage)
 router.put('/workflow/updatestagerequirnment', verifyToken, dealController.updateStagesRequirement)
 
 module.exports = router;
