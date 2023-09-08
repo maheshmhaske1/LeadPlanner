@@ -649,3 +649,75 @@ exports.exportLeadsInCsv = async (req, res) => {
     })
 }
 
+exports.renameLeadDealField = async (req, res) => {
+    const loggedInUser = req.decoded;
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        });
+    }
+
+    const { oldFieldName, newFieldName, tableName } = req.body;
+    if (!oldFieldName || !newFieldName || !tableName) {
+        return res.json({
+            status: 0,
+            message: "oldFieldName, newFieldName, and tableName are required fields",
+        });
+    }
+
+    const query = `ALTER TABLE \`${tableName}\` RENAME COLUMN \`${oldFieldName}\` TO \`${newFieldName}\``;
+    // Modify the data type and attributes as needed for the new column.
+
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: "something went wrong",
+                error,
+            });
+        }
+        return res.json({
+            status: 1,
+            message: "Field is Changed",
+        });
+    });
+};
+
+
+
+
+exports.getLeadDealColumnNames = async (req, res) => {
+    const loggedInUser = req.decoded;
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        });
+    }
+
+    const { tableName } = req.params;
+
+    if (!tableName) {
+        return res.json({
+            status: 0,
+            message: "tableName is a required field"
+        });
+    }
+
+    const query = `DESCRIBE \`${tableName}\``; // Use backticks to escape the table name
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: "something went wrong",
+                error
+            });
+        }
+        return res.json({
+            status: 1,
+            message: `Table ${tableName} info.`,
+            data: result
+        });
+    });
+};

@@ -18,6 +18,9 @@ router.post('/restorefromtrash', verifyToken, leadController.restoreLeadFromTras
 router.get('/getallfromtrash', verifyToken, leadController.getAllLeadFromTrash)
 router.delete('/deletefromtrash', verifyToken, leadController.deleteLeadFromTrash)
 router.get('/exporttocsv', verifyToken, leadController.exportLeadsInCsv)
+router.get('/gettablestructure/:tableName', verifyToken, leadController.getLeadDealColumnNames)
+router.post('/changecoloumns', verifyToken, leadController.renameLeadDealField)
+
 
 
 module.exports = router;
