@@ -16,7 +16,7 @@ router.post('/restorefromtrash', verifyToken, dealController.restoreDealFromTras
 router.get('/getallfromtrash', verifyToken, dealController.getAllDealFromTrash)
 router.delete('/deletefromtrash', verifyToken, dealController.deleteDealFromTrash)
 router.post('/uplaoddoc', verifyToken, uploadDealLeadDoc, dealController.uploadDealDocuments)
-router.get('/getuplaoddoc/:dealId', verifyToken, dealController.getUploadedDocs)
+router.get('/getuplaoddoc/:source_type/:source_id', verifyToken, dealController.getUploadedDocs)
 
 // ====== workflow ====== //
 router.get('/getAllStages/:type', verifyToken, dealController.getAllStagesDealLead)

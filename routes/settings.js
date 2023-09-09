@@ -17,7 +17,7 @@ router.get('/label/getbyentity/:entity', verifyToken, settingController.getAllLa
 router.put('/audit/edit/:id', verifyToken, settingController.updateAudit)
 router.get('/audit/getAll', verifyToken, settingController.getAllAudits)
 
-router.get('/requireddocs', verifyToken, settingController.getAllRequiredDocForDeal)
+router.get('/requireddocs/:source_type', verifyToken, settingController.getAllRequiredDocForDeal)
 router.post('/adddocindocumentmaster', verifyToken, settingController.addDocumentInDocMaster)
 router.put('/updatedocmaster', verifyToken, settingController.updateMasterDoc)
 

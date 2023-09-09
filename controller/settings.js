@@ -444,7 +444,9 @@ exports.getAllRequiredDocForDeal = async (req, res) => {
         })
     }
 
-    SQL.get('document_master', ``, ``, (error, results) => {
+    const { source_type } = req.params
+
+    SQL.get('document_master', ``, `source_type='${source_type}' AND is_required=1`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -468,12 +470,12 @@ exports.addDocumentInDocMaster = async (req, res) => {
         })
     }
 
-    const { document_name, is_required } = req.body
+    const { source_type, document_name, is_required } = req.body
 
-    if (!document_name || !is_required) {
+    if (!document_name || !is_required || !source_type) {
         return res.json({
             status: 0,
-            message: "document_name, is_required  are required fields"
+            message: "document_name, is_required, source_type  are required fields"
         })
     }
 

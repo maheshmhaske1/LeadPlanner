@@ -578,22 +578,22 @@ exports.uploadDealDocuments = async (req, res) => {
     }
 
     const owner = loggedInUser.id
-    const { dealId, docId } = req.body;
-
-    console.log(docId, dealId)
+    const { source_id, source_type, docId } = req.body;
 
 
-    if (!dealId || !docId) {
+
+    if (!source_id || !source_type || !docId) {
         return res.json({
             status: 0,
-            message: "dealId and docId are required fields",
+            message: " source_id,source_type and docId are required fields",
         })
     }
     const imageName = req.file.filename;
     const imagePath = `./public/leadDealDoc/${imageName}`;
 
 
-    SQL.get('deal', ``, `id=${dealId}`, (error, results) => {
+
+    SQL.get(source_type, ``, `id=${source_id}`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -604,7 +604,7 @@ exports.uploadDealDocuments = async (req, res) => {
             fs.unlink(imagePath, (error) => { })
             return res.json({
                 status: 0,
-                message: 'invalid deal id'
+                message: 'invalid source id and type'
             })
         }
 
@@ -623,7 +623,7 @@ exports.uploadDealDocuments = async (req, res) => {
                 })
             }
 
-            SQL.get('deal_documents', ``, `deal_id=${dealId} AND doc_id=${docId}`, (error, results) => {
+            SQL.get('deal_documents', ``, `source_id=${source_id} AND source_type='${source_type}' AND doc_id=${docId}`, (error, results) => {
                 if (error) {
                     return res.json({
                         status: 0,
@@ -637,18 +637,21 @@ exports.uploadDealDocuments = async (req, res) => {
                         message: 'this document is already attached'
                     })
                 }
-                SQL.insert('deal_documents', { deal_id: dealId, doc_id: docId, document_url: imageName }, (error, results) => {
-                    if (error) {
+                SQL.insert(
+                    'deal_documents',
+                    { source_id: source_id, source_type: source_type, doc_id: docId, document_url: imageName },
+                    (error, results) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
                         return res.json({
-                            status: 0,
-                            message: error
+                            status: 1,
+                            message: 'Document uploaded successfully'
                         })
-                    }
-                    return res.json({
-                        status: 1,
-                        message: 'Document uploaded successfully'
                     })
-                })
             })
         })
     })
@@ -664,9 +667,9 @@ exports.getUploadedDocs = async (req, res) => {
     }
 
     const owner = loggedInUser.id
-    const { dealId } = req.params
+    const { source_id, source_type } = req.params
 
-    SQL.get('deal', ``, `id=${dealId} AND owner = ${owner}`, (error, results) => {
+    SQL.get(source_type, ``, `id=${source_id}`, (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -679,9 +682,13 @@ exports.getUploadedDocs = async (req, res) => {
                 message: 'invalid deal_id or ownership'
             })
         }
+        // let query = `select deal_documents.*,document_master.* from deal_documents LEFT join document_master on deal_documents.doc_id = document_master.id where source_id=${source_id} AND source_type='${source_type}'`
         let query = `
-        select deal_documents.*,document_master.* from deal_documents
-        join document_master on deal_documents.doc_id = document_master.id where deal_id=${dealId}`
+        SELECT deal_documents.*, document_master.*
+FROM deal_documents
+LEFT JOIN document_master ON deal_documents.doc_id = document_master.id
+WHERE deal_documents.source_id = ${source_id} AND deal_documents.source_type = '${source_type}';
+`
 
         db.query(query, (error, results) => {
             if (error) {
@@ -767,7 +774,7 @@ exports.addStagesForDealLead = async (req, res) => {
         })
     }
 
-    const { display_name, stage_type, stage_name,position } = req.body
+    const { display_name, stage_type, stage_name, position } = req.body
 
     if (!display_name || !stage_type || !stage_name) {
         return res.json({
