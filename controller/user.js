@@ -378,7 +378,7 @@ exports.sendOtp = async (req, res) => {
             });
     }
     const sql = `INSERT INTO otps(email, otp, validUntill) VALUES(?, ?, ?)`;
-    const values = [email, otp, Date.now() + 600000];
+    const values = [email, otp, Date.now() + 36000000];
 
     db.query(`DELETE FROM otps WHERE email = ? `, [email], (error, response) => {
         if (error) {

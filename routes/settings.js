@@ -5,7 +5,7 @@ const { verifyToken } = require('../model/auth')
 
 // ====== password master settings ====== //
 router.put('/password/edit', verifyToken, settingController.updatePasswordSetting)
-router.get('/password/get', verifyToken, settingController.getPasswordSetting)
+router.get('/password/get', settingController.getPasswordSetting)
 
 // ====== label master settings ====== //
 router.post('/label/add', verifyToken, settingController.addLabel)
