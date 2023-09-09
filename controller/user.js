@@ -331,8 +331,52 @@ exports.sendOtp = async (req, res) => {
         // }
     })
 
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    const isEmailSent = await Email.sendMail(email, 'Otp Verification', `Your OTP is: ${otp} `);
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    // const isEmailSent = await Email.sendMail(email, 'Otp Verification', `Your OTP is: ${otp} `);
+    await sendOtpVerificationEmail()
+    function sendOtpVerificationEmail() {
+        const welcomeTemplatePath = path.join(__dirname, '../public/templates/forgotPassword.html');
+        let html = fs.readFileSync(welcomeTemplatePath, 'utf8');
+        html = html.replace('{{otp}}', otp);
+        html = html.replace('{{email}}', email);
+
+        let data = {
+            "sender": {
+                "name": "Mahesh Mhaske",
+                "email": "maheshmhaske241198@gmail.com"
+            },
+            "to": [
+                {
+                    "email": `${email}`,
+                    "name": `LeadPlaner user`
+                }
+            ],
+            "subject": "Password Reset",
+            "htmlContent": `${html}`
+        };
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.brevo.com/v3/smtp/email',
+            headers: {
+                'accept': 'application/json',
+                'api-key': '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', // Replace with your actual API key
+                'content-type': 'application/json'
+            },
+            data: JSON.stringify(data)
+        };
+
+
+        axios.request(config)
+            .then((response) => {
+                console.log(JSON.stringify(response.data));
+            })
+            .catch((error) => {
+                // return error
+                console.log(error);
+            });
+    }
     const sql = `INSERT INTO otps(email, otp, validUntill) VALUES(?, ?, ?)`;
     const values = [email, otp, Date.now() + 600000];
 
