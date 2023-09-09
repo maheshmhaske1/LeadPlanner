@@ -332,6 +332,7 @@ exports.sendOtp = async (req, res) => {
     })
 
     const otp = Math.floor(1000 + Math.random() * 9000);
+    console.log(otp)
     // const isEmailSent = await Email.sendMail(email, 'Otp Verification', `Your OTP is: ${otp} `);
     await sendOtpVerificationEmail()
     function sendOtpVerificationEmail() {
