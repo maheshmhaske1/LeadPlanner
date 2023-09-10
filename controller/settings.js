@@ -110,16 +110,16 @@ exports.updatePasswordSetting = async (req, res) => {
 
 exports.getPasswordSetting = async (req, res) => {
     try {
-        const loggedInUser = req.decoded
-        if (!loggedInUser) {
-            return res.json({
-                status: 0,
-                message: "Not Authorized",
-            })
-        }
-        console.log(loggedInUser)
-        let condition = loggedInUser.role == 1 ? `` : ``;
-        SQL.get('password_settings', ``, condition, (error, result) => {
+        // const loggedInUser = req.decoded
+        // if (!loggedInUser) {
+        //     return res.json({
+        //         status: 0,
+        //         message: "Not Authorized",
+        //     })
+        // }
+        // console.log(loggedInUser)
+        // let condition = loggedInUser.role == 1 ? `` : ``;
+        SQL.get('password_settings', ``, ``, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
