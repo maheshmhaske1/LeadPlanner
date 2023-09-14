@@ -5,6 +5,7 @@ const csv = require('csv-parser');
 const validator = require("validator");
 const XLSX = require('xlsx');
 const fs = require('fs');
+const axios = require('axios')
 const multer = require('multer');
 
 const storage = multer.memoryStorage();
@@ -768,15 +769,15 @@ exports.activateDeactivateTableField = async (req, res) => {
         });
     }
 
-    const { tableName,fieldName,is_active } = req.params
-    if (!tableName ||!fieldName||!is_active) {
+    const { tableName, fieldName, is_active } = req.params
+    if (!tableName || !fieldName || !is_active) {
         return res.json({
             status: 0,
             message: "tableName,fieldName,is_active are required fields"
         })
     }
 
-    SQL.update('field_management', {is_active}, `source='${tableName}' AND field_name='${fieldName}'`, (error, result) => {
+    SQL.update('field_management', { is_active }, `source='${tableName}' AND field_name='${fieldName}'`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -790,5 +791,145 @@ exports.activateDeactivateTableField = async (req, res) => {
         });
 
     })
+}
+
+
+exports.sendEmailToLeadDeal = async (req, res) => {
+    const loggedInUser = req.decoded;
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        });
+    }
+
+    let { html, to, cc, subject, source, source_id } = req.body
+
+    if (!html || !to || !cc || !subject || !source || !source_id) {
+        return res.json({
+            status: 0,
+            message: " html, to, cc, subject,source,source_id are required fields"
+        })
+    }
+
+    SQL.get(`${source}`, ``, `id=${source_id} AND is_deleted=0`, async (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'invalid source or source id'
+            })
+        }
+        await sendEmail()
+        function saveEmail() {
+            SQL.insert('sentemail_history', { recipient: JSON.stringify(to), html, subject, cc: JSON.stringify(cc), source, source_id }, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                else {
+                    return res.json({
+                        status: 1,
+                        message: "email sent successfully."
+                    })
+                }
+            })
+        }
+
+        function sendEmail() {
+
+            let data = {
+                "sender": {
+                    "name": "Mahesh Mhaske",
+                    "email": "maheshmhaske241198@gmail.com"
+                },
+                "to": to,
+                "cc": cc,
+                attachments: [
+                    {
+                        filename: "attachment-file.pdf", // Replace with the actual file name
+                        path: "https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?projector=1", // Replace with the actual file path
+                    }
+                ],
+                "subject": subject,
+                "htmlContent": `${html}`
+            };
+
+            let config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: 'https://api.brevo.com/v3/smtp/email',
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': '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', // Replace with your actual API key
+                    'content-type': 'application/json'
+                },
+                data: JSON.stringify(data)
+            };
+
+
+            axios.request(config)
+                .then((response) => {
+                    saveEmail()
+                })
+                .catch((error) => {
+                    return res.json({
+                        status: 0,
+                        message: "something went wrong", error
+                    })
+                });
+        }
+
+    })
+
+}
+
+
+exports.getLeadDealsentEmail = async (req, res) => {
+    const loggedInUser = req.decoded;
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        });
+    }
+
+    let { source, source_id } = req.body
+
+    if (!source || !source_id) {
+        return res.json({
+            status: 0,
+            message: " source,source_id are required fields"
+        })
+    }
+
+    SQL.get(`sentemail_history`, ``, `source_id=${source_id} AND source='${source}'`, async (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        if (result.length == 0) {
+            return res.json({
+                status: 0,
+                message: 'invalid source or source id'
+            })
+        }
+        return res.json({
+            status: 1,
+            message: `sent emails`,
+            data: result,
+        });
+
+    })
+
 }
 

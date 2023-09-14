@@ -22,6 +22,8 @@ router.get('/gettablestructure/:tableName', verifyToken, leadController.getLeadD
 router.post('/changecoloumns', verifyToken, leadController.renameLeadDealField)
 router.get('/getleaddealactivefields/:tableName', verifyToken, leadController.getAllEnabledFieldsFromLeadDeal)
 router.post('/activatedeactivateleaddealfield/:tableName/:fieldName/:is_active', verifyToken, leadController.activateDeactivateTableField)
+router.post('/sendleaddealemail', verifyToken, leadController.sendEmailToLeadDeal)
+router.post('/getleaddealsentemail', verifyToken, leadController.getLeadDealsentEmail)
 
 
 
