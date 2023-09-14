@@ -667,7 +667,6 @@ exports.renameLeadDealField = async (req, res) => {
     }
 
     const query = `ALTER TABLE \`${tableName}\` RENAME COLUMN \`${oldFieldName}\` TO \`${newFieldName}\``;
-    // Modify the data type and attributes as needed for the new column.
 
     db.query(query, (error, result) => {
         if (error) {
@@ -677,14 +676,17 @@ exports.renameLeadDealField = async (req, res) => {
                 error,
             });
         }
+
+        let query = `update field_management set field_name='${newFieldName}' where source='${tableName}' AND field_name='${oldFieldName}'`
+       console.log(query)
+        db.query(query, (error, result) => { })
+
         return res.json({
             status: 1,
             message: "Field is Changed",
         });
     });
 };
-
-
 
 
 exports.getLeadDealColumnNames = async (req, res) => {
@@ -721,3 +723,37 @@ exports.getLeadDealColumnNames = async (req, res) => {
         });
     });
 };
+
+exports.getAllEnabledFieldsFromLeadDeal = async (req, res) => {
+    const loggedInUser = req.decoded;
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        });
+    }
+
+    const { tableName } = req.params
+    if (!tableName) {
+        return res.json({
+            status: 0,
+            message: "tableName is required fields"
+        })
+    }
+
+    SQL.get('field_management', ``, `source='${tableName}'`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: "something went wrong", error,
+            });
+        }
+        return res.json({
+            status: 1,
+            message: `all fields for ${tableName}`,
+            data:result,
+        });
+
+    })
+}
+
