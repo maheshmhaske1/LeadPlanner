@@ -1,0 +1,425 @@
+const SQL = require('../model/sqlhandler')
+
+exports.createContact = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+
+        const { name, orgid, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry } = req.body;
+
+        if (!name || !orgid || !address1 || !city || !country || !postcode || !email || !phone || !valuation || !valuation_in || !domain || !industry) {
+            return res.status(400).json({
+                status: 0,
+                message: "name, orgid, address1, city, country, postcode, email, phone, valuation, valuation_in, domain, industry fields are required."
+            });
+        }
+
+        SQL.insert('xx_company', req.body, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.affectedRows > 0) {
+                return res.status(200).json({
+                    status: 1,
+                    message: 'Company added successfully',
+                    data: results
+                });
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+// Update a Company
+exports.update = async (req, res) => {
+    try {
+        const { companyId } = req.params;
+        const update_data = req.body;
+
+        if (Object.keys(update_data).length === 0) {
+            return res.status(400).json({
+                status: 0,
+                message: "No fields to update."
+            });
+        }
+
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.status(400).json({
+                status: 0,
+                message: "id, creation_date, and update_date cannot be edited"
+            });
+        }
+
+        SQL.get('xx_company', ``, `id=${companyId}`, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.length == 0) {
+                return res.status(500).json({
+                    status: 0,
+                    message: "invalid companyId"
+                });
+            }
+
+            SQL.update('xx_company', update_data, `id=${companyId}`, (error, results) => {
+                if (error) {
+                    return res.status(500).json({
+                        status: 0,
+                        error: error
+                    });
+                }
+                if (results.affectedRows > 0) {
+                    return res.status(200).json({
+                        status: 1,
+                        message: 'Company details updated successfully'
+                    });
+                }
+            });
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+}
+
+// Get All Companies
+exports.getAllCompanies = async (req, res) => {
+    try {
+        SQL.get('xx_company', '', '', (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: "Company details",
+                data: results
+            });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+}
+
+// Delete a Company
+exports.delete = async (req, res) => {
+    try {
+        const { companyId } = req.params;
+
+        SQL.get('xx_company', ``, `id=${companyId}`, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.length == 0) {
+                return res.status(500).json({
+                    status: 0,
+                    message: "invalid companyId"
+                });
+            }
+
+            SQL.delete('xx_company', `id=${companyId}`, (error, results) => {
+                if (error) {
+                    return res.status(500).json({
+                        status: 0,
+                        error: error
+                    });
+                }
+                if (results.affectedRows === 0) {
+                    return res.status(404).json({
+                        status: 0,
+                        message: "Company not found"
+                    });
+                }
+                return res.status(200).json({
+                    status: 1,
+                    message: "Company deleted successfully"
+                });
+            });
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+}
+
+
+
+// ============ PERSON APIS ============ //
+exports.createContactPerson = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser) {
+            return res.status(401).json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+        const { name, organization, phone, email, city, state, postal_code } = req.body;
+
+        if (!name || !organization || !phone || !email || !city || !state || !postal_code) {
+            return res.status(400).json({
+                status: 0,
+                message: "Required fields are missing."
+            });
+        }
+
+        const contactPersonData = {
+            name,
+            organization,
+            phone,
+            email,
+            city,
+            state,
+            postal_code
+        };
+
+        SQL.insert('xx_contact_person', contactPersonData, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.affectedRows > 0) {
+                return res.status(201).json({
+                    status: 1,
+                    message: 'Contact person added successfully',
+                    data: results
+                });
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+};
+
+exports.updateContactPerson = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser) {
+            return res.status(401).json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+
+        const { contactPersonId } = req.params;
+        const update_data = req.body;
+
+        if (Object.keys(update_data).length === 0) {
+            return res.status(400).json({
+                status: 0,
+                message: "No fields to update."
+            });
+        }
+
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.status(400).json({
+                status: 0,
+                message: "id, creation_date, and update_date cannot be edited."
+            });
+        }
+
+        SQL.get('xx_contact_person', '', `id=${contactPersonId}`, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({
+                    status: 0,
+                    message: "Contact person not found."
+                });
+            }
+
+            SQL.update('xx_contact_person', update_data, `id=${contactPersonId}`, (error, results) => {
+                if (error) {
+                    return res.status(500).json({
+                        status: 0,
+                        error: error
+                    });
+                }
+                if (results.affectedRows > 0) {
+                    return res.status(200).json({
+                        status: 1,
+                        message: 'Contact person details updated successfully'
+                    });
+                }
+            });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+};
+
+exports.getContactPersonById = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser) {
+            return res.status(401).json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+        const { contactPersonId } = req.params;
+
+        SQL.get('xx_contact_person', '', `id=${contactPersonId}`, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({
+                    status: 0,
+                    message: "Contact person not found."
+                });
+            }
+
+            return res.status(200).json({
+                status: 1,
+                message: "Contact person details",
+                data: results[0]
+            });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+};
+
+exports.getAllContactPersons = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser) {
+            return res.status(401).json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+        SQL.get('xx_contact_person', '', '', (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: "Contact person details",
+                data: results
+            });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+};
+
+exports.deleteContactPerson = async (req, res) => {
+    try {
+
+        const loggedInUser = req.decoded;
+        if (!loggedInUser) {
+            return res.status(401).json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+        const { contactPersonId } = req.params;
+
+        SQL.get('xx_contact_person', '', `id=${contactPersonId}`, (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    error: error
+                });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({
+                    status: 0,
+                    message: "Contact person not found."
+                });
+            }
+
+            SQL.delete('xx_contact_person', `id=${contactPersonId}`, (error, results) => {
+                if (error) {
+                    return res.status(500).json({
+                        status: 0,
+                        error: error
+                    });
+                }
+                if (results.affectedRows === 0) {
+                    return res.status(404).json({
+                        status: 0,
+                        message: "Contact person not found."
+                    });
+                }
+                return res.status(200).json({
+                    status: 1,
+                    message: "Contact person deleted successfully"
+                });
+            });
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong",
+            error: error
+        });
+    }
+};

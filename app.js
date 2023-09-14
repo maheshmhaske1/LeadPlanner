@@ -20,6 +20,7 @@ var productRouter = require("./routes/product");
 var settingRouter = require('./routes/settings')
 var thirdPartyApiRouter = require('./routes/thirdpartyapis')
 var leaddealactivityRouter = require('./routes/leaddealactivity')
+var contactRouter = require('./routes/contact')
 
 var app = express();
 var corsOptions = {
@@ -58,6 +59,7 @@ app.use("/api/site", siteRouter);
 app.use("/api/product", productRouter);
 app.use("/api/pipeline", pipelineRouter);
 app.use('/api/setting', settingRouter)
+app.use('/api/contact', contactRouter)
 app.use('/api/thirdPartyApiRouter', thirdPartyApiRouter)
 app.use('/api/leaddeal/activity', leaddealactivityRouter)
 
