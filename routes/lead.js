@@ -21,6 +21,7 @@ router.get('/exporttocsv', verifyToken, leadController.exportLeadsInCsv)
 router.get('/gettablestructure/:tableName', verifyToken, leadController.getLeadDealColumnNames)
 router.post('/changecoloumns', verifyToken, leadController.renameLeadDealField)
 router.get('/getleaddealactivefields/:tableName', verifyToken, leadController.getAllEnabledFieldsFromLeadDeal)
+router.post('/activatedeactivateleaddealfield/:tableName/:fieldName/:is_active', verifyToken, leadController.activateDeactivateTableField)
 
 
 

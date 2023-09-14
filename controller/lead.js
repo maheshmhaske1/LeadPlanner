@@ -657,12 +657,13 @@ exports.renameLeadDealField = async (req, res) => {
             message: "Not Authorized",
         });
     }
+    console.log(req.body)
 
-    const { oldFieldName, newFieldName, tableName } = req.body;
-    if (!oldFieldName || !newFieldName || !tableName) {
+    const { oldFieldName, newFieldName, tableName, isActive } = req.body;
+    if (!oldFieldName || !newFieldName || !tableName || isActive === undefined) {
         return res.json({
             status: 0,
-            message: "oldFieldName, newFieldName, and tableName are required fields",
+            message: "oldFieldName, newFieldName,isActive and tableName are required fields",
         });
     }
 
@@ -677,8 +678,8 @@ exports.renameLeadDealField = async (req, res) => {
             });
         }
 
-        let query = `update field_management set field_name='${newFieldName}' where source='${tableName}' AND field_name='${oldFieldName}'`
-       console.log(query)
+        let query = `update field_management set field_name='${newFieldName}',is_active=${isActive} where source='${tableName}' AND field_name='${oldFieldName}'`
+        console.log(query)
         db.query(query, (error, result) => { })
 
         return res.json({
@@ -751,7 +752,41 @@ exports.getAllEnabledFieldsFromLeadDeal = async (req, res) => {
         return res.json({
             status: 1,
             message: `all fields for ${tableName}`,
-            data:result,
+            data: result,
+        });
+
+    })
+}
+
+
+exports.activateDeactivateTableField = async (req, res) => {
+    const loggedInUser = req.decoded;
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        });
+    }
+
+    const { tableName,fieldName,is_active } = req.params
+    if (!tableName ||!fieldName||!is_active) {
+        return res.json({
+            status: 0,
+            message: "tableName,fieldName,is_active are required fields"
+        })
+    }
+
+    SQL.update('field_management', {is_active}, `source='${tableName}' AND field_name='${fieldName}'`, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: "something went wrong", error,
+            });
+        }
+        return res.json({
+            status: 1,
+            message: `field status changed`,
+            data: result,
         });
 
     })
