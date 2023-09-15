@@ -349,7 +349,7 @@ exports.getAll = async (req, res) => {
         LEFT JOIN user ON user.id = deal.owner
         LEFT JOIN label ON label.id = deal.label_id
         LEFT JOIN stage_master ON deal.stage_id = stage_master.id 
-        where deal.owner = ${owner}`;
+        where deal.owner = ${owner} AND deal.is_deleted = 0`;
 
         db.query(query, (error, result) => {
             if (error) {
