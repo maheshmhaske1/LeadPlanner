@@ -16,6 +16,7 @@ exports.createLeaddealActivity = async (req, res) => {
         }
 
         const {
+            assigned_to,
             activity_name,
             activity_description,
             activity_for,
