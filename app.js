@@ -26,7 +26,11 @@ var app = express();
 var corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:80',
+    'http://localhost',
     'http://core.leadplaner.com:3000',
+    'http://core.leadplaner.com:80',
+    'http://core.leadplaner.com',
   ],
   credentials: true,
 };
