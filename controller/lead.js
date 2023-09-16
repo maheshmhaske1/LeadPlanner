@@ -87,49 +87,72 @@ exports.importLead = async (req, res) => {
         })
     }
 
+    let data = req.body.data
     const owner = loggedInUser.id
- 
 
-    const result = [];
+
+    const result = data
+    console.log(result.data)
+    let query=``
     for (let i = 0; i < result.length; i++) {
         if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
-            !result[i].employees || !result[i].email || !result[i].value || !result[i].status) {
+            !result[i].employees || !result[i].email || !result[i].value) {
             return res.json({
                 status: 0,
-                message: `value, status, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
+                message: `value, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
             });
         }
 
         query += `
-              INSERT INTO \`lead\` (\`owner\`,\`source\`,\`lead_name\`, \`position\`,\`status\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`, \`priority\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
-              VALUES (${owner},'${!result[i].source ? null : result[i].source}', '${!result[i].lead_name ? '' : result[i].lead_name}','${!result[i].position ? '' : result[i].position}','${result[i].status}', '${result[i].company_name}', '${result[i].registration_no}', '${!result[i].employees ? '' : result[i].employees}','${result[i].first_name}', '${result[i].last_name}', '${result[i].priority}', '${!result[i].type ? '' : result[i].type}', ${result[i].value},'${!result[i].address1 ? '' : result[i].address1}', '${!result[i].address2 ? '' : result[i].address2}', '${!result[i].city ? '' : result[i].city}', '${!result[i].state ? '' : result[i].state}','${!result[i].country ? '' : result[i].country}', '${!result[i].pin ? '' : result[i].pin}', '${!result[i].phone ? '' : result[i].phone}','${result[i].email}', '${!result[i].website ? '' : result[i].website}');`
+              INSERT INTO \`lead\` (\`owner\`,\`source\`,\`lead_name\`, \`position\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
+              VALUES (
+                  ${owner},
+                 '${!result[i].source ? null : result[i].source}',
+                 '${!result[i].lead_name ? '' : result[i].lead_name}',
+                 '${!result[i].position ? '' : result[i].position}',
+                 '${result[i].company_name}',
+                 '${result[i].registration_no}',
+                 '${!result[i].employees ? '' : result[i].employees}',
+                 '${result[i].first_name}',
+                 '${result[i].last_name}',
+                 '${!result[i].type ? '' : result[i].type}',
+                  ${result[i].value},
+                 '${!result[i].address1 ? '' : result[i].address1}',
+                 '${!result[i].address2 ? '' : result[i].address2}',
+                 '${!result[i].city ? '' : result[i].city}',
+                 '${!result[i].state ? '' : result[i].state}',
+                 '${!result[i].country ? '' : result[i].country}',
+                 '${!result[i].pin ? '' : result[i].pin}', 
+                 '${!result[i].phone ? '' : result[i].phone}',
+                 '${result[i].email}', 
+                 '${!result[i].website ? '' : result[i].website}');`
     }
     console.log(query)
-    db.query(query, (err, result) => {
-        if (err) {
-            return res.json({
-                status: 0,
-                message: err
-            })
-        }
-        if (results.affectedRows > 0) {
-            SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
-                if (error) {
-                    return res.json({
-                        status: 0,
-                        message: error
-                    })
-                }
-                if (results.length > 0)
-                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
+    // db.query(query, (err, result) => {
+    //     if (err) {
+    //         return res.json({
+    //             status: 0,
+    //             message: err
+    //         })
+    //     }
+    //     if (results.affectedRows > 0) {
+    //         SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+    //             if (error) {
+    //                 return res.json({
+    //                     status: 0,
+    //                     message: error
+    //                 })
+    //             }
+    //             if (results.length > 0)
+    //                 SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
 
-            })
-            return res.json({
-                status: 1,
-                message: "data imported successfully"
-            })
-        }
-    })
+    //         })
+    //         return res.json({
+    //             status: 1,
+    //             message: "data imported successfully"
+    //         })
+    //     }
+    // })
 }
 
 exports.updateLead = async (req, res) => {

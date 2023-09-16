@@ -126,68 +126,71 @@ exports.updateDeal = async (req, res) => {
                 });
             }
 
-            const stage_id = result[0].stage_id
-            if (!update_data.stage_id)
-                updateDeal()
+            // ============== condition check start ============== //
+            // const stage_id = result[0].stage_id
+            // if (!update_data.stage_id)
+            //     updateDeal()
 
-            // checking if updating stage 
-            if (update_data.stage_id) {
-                SQL.get(`workflow`, ``, `deal_stage = ${stage_id}`, async (error, result) => {
-                    if (error) {
-                        return res.json({
-                            status: 0,
-                            message: "something went wrong", error,
-                        });
-                    }
-                    if (result.length == 0) {
-                        checkNextStage()
-                    }
-                    else {
-                        let currentStagePassed = true;
+            // // checking if updating stage 
+            // if (update_data.stage_id) {
+            //     SQL.get(`workflow`, ``, `deal_stage = ${stage_id}`, async (error, result) => {
+            //         if (error) {
+            //             return res.json({
+            //                 status: 0,
+            //                 message: "something went wrong", error,
+            //             });
+            //         }
+            //         if (result.length == 0) {
+            //             checkNextStage()
+            //         }
+            //         else {
+            //             let currentStagePassed = true;
 
-                        for (const condition of result) {
-                            if (condition.validator === 'doc_verification') {
-                                const docResult = await new Promise((resolve) => {
-                                    SQL.get('deal', '', `id=${dealIds} AND document_verified=1`, (error, result) => {
-                                        console.log('result00000', result);
-                                        resolve(result);
-                                    });
-                                });
-                                if (docResult.length === 0) {
-                                    currentStagePassed = false;
-                                    return res.json({
-                                        status: 0,
-                                        message: 'documents not verified for this deal'
-                                    });
-                                }
-                            }
-                        }
-                    }
+            //             for (const condition of result) {
+            //                 if (condition.validator === 'doc_verification') {
+            //                     const docResult = await new Promise((resolve) => {
+            //                         SQL.get('deal', '', `id=${dealIds} AND document_verified=1`, (error, result) => {
+            //                             console.log('result00000', result);
+            //                             resolve(result);
+            //                         });
+            //                     });
+            //                     if (docResult.length === 0) {
+            //                         currentStagePassed = false;
+            //                         return res.json({
+            //                             status: 0,
+            //                             message: 'documents not verified for this deal'
+            //                         });
+            //                     }
+            //                 }
+            //             }
+            //         }
 
-                    checkNextStage()
-                })
-            }
+            //         checkNextStage()
+            //     })
+            // }
 
-            async function checkNextStage() {
-                console.log('==')
-                let sql = `SELECT * FROM workflow WHERE deal_stage > ${stage_id} AND deal_stage < ${update_data.stage_id}`
-                db.query(sql, (error, result) => {
-                    if (error) {
-                        return res.json({
-                            status: 0,
-                            message: "something went wrong", error,
-                        });
-                    }
-                    console.log(result)
-                    if (result.length > 0) {
-                        return res.json({
-                            status: 0,
-                            message: "you cant change this status. please check workflow"
-                        });
-                    }
-                    else updateDeal()
-                })
-            }
+            // async function checkNextStage() {
+            //     console.log('==')
+            //     let sql = `SELECT * FROM workflow WHERE deal_stage > ${stage_id} AND deal_stage < ${update_data.stage_id}`
+            //     db.query(sql, (error, result) => {
+            //         if (error) {
+            //             return res.json({
+            //                 status: 0,
+            //                 message: "something went wrong", error,
+            //             });
+            //         }
+            //         console.log(result)
+            //         if (result.length > 0) {
+            //             return res.json({
+            //                 status: 0,
+            //                 message: "you cant change this status. please check workflow"
+            //             });
+            //         }
+            //         else updateDeal()
+            //     })
+            // }
+            // ============== condition check end ============== //
+updateDeal()
 
             async function updateDeal() {
                 SQL.update('deal', update_data, `id = ${dealIds} AND owner = ${owner}`, (error, results) => {
