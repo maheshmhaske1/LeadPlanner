@@ -128,31 +128,32 @@ exports.importLead = async (req, res) => {
                  '${!result[i].website ? '' : result[i].website}');`
     }
     console.log(query)
-    // db.query(query, (err, result) => {
-    //     if (err) {
-    //         return res.json({
-    //             status: 0,
-    //             message: err
-    //         })
-    //     }
-    //     if (results.affectedRows > 0) {
-    //         SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
-    //             if (error) {
-    //                 return res.json({
-    //                     status: 0,
-    //                     message: error
-    //                 })
-    //             }
-    //             if (results.length > 0)
-    //                 SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.json({
+                status: 0,
+                message: err
+            })
+        }
+        console.log(results)
+        if (results.length > 0) {
+            SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
 
-    //         })
-    //         return res.json({
-    //             status: 1,
-    //             message: "data imported successfully"
-    //         })
-    //     }
-    // })
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "data imported successfully"
+        })
+    })
 }
 
 exports.updateLead = async (req, res) => {
