@@ -14,7 +14,6 @@ exports.createLeaddealActivity = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-        console.log('-------')
 
         const {
             activity_name,
@@ -25,10 +24,10 @@ exports.createLeaddealActivity = async (req, res) => {
             scheduled_time,
         } = req.body;
 
-        if (!activity_name || !activity_description || !activity_for || !source_id || !scheduled_date || !scheduled_time) {
+        if (!activity_name || !assigned_to || !activity_description || !activity_for || !source_id || !scheduled_date || !scheduled_time) {
             return res.json({
                 status: 0,
-                message: 'activity_name, activity_description, activity_for, source_id, scheduled_date, and scheduled_time are required fields',
+                message: 'activity_name,assigned_to, activity_description, activity_for, source_id, scheduled_date, and scheduled_time are required fields',
             });
         }
 
@@ -141,20 +140,37 @@ exports.getLeaddealActivity = async (req, res) => {
             });
         }
 
-        SQL.get('leaddeal_activity', ``, `activity_for = '${activity_for}' AND source_id=${source_id}`, (error, results) => {
+        const query = `select leaddeal_activity.*,user.first_name AS assigned_user_fname ,user.last_name AS assigned_user_lname from leaddeal_activity
+        LEFT JOIN user ON leaddeal_activity.assigned_to = user.id
+        where activity_for = '${activity_for}' AND source_id=${source_id}`
+        db.query(query, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
                     error: error
                 })
             }
-                return res.json({
-                    status: 1,
-                    message: 'activity details',
-                    data: results
-                })
-            
+            return res.json({
+                status: 1,
+                message: 'activity details',
+                data: results
+            })
+
         })
+        // SQL.get('leaddeal_activity', ``, `activity_for = '${activity_for}' AND source_id=${source_id}`, (error, results) => {
+        //     if (error) {
+        //         return res.json({
+        //             status: 0,
+        //             error: error
+        //         })
+        //     }
+        //     return res.json({
+        //         status: 1,
+        //         message: 'activity details',
+        //         data: results
+        //     })
+
+        // })
 
     } catch (error) {
         return res.json({

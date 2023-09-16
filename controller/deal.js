@@ -190,7 +190,9 @@ exports.updateDeal = async (req, res) => {
             //     })
             // }
             // ============== condition check end ============== //
-updateDeal()
+
+
+            updateDeal()
 
             async function updateDeal() {
                 SQL.update('deal', update_data, `id = ${dealIds} AND owner = ${owner}`, (error, results) => {
