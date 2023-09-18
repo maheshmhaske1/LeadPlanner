@@ -14,8 +14,8 @@ router.get('/label/getAll', verifyToken, settingController.getAllLabels)
 router.delete('/label/delete', verifyToken, settingController.deleteLabel)
 router.get('/label/getbyentity/:entity', verifyToken, settingController.getAllLabelsForEntity)
 
-router.put('/audit/edit/:id', verifyToken, settingController.updateAudit)
-router.get('/audit/getAll', verifyToken, settingController.getAllAudits)
+router.put('/edit/:id', verifyToken, settingController.updateAudit)
+router.get('/getAll', verifyToken, settingController.getAllAudits)
 
 router.get('/requireddocs/:source_type', verifyToken, settingController.getAllRequiredDocForDeal)
 router.post('/adddocindocumentmaster', verifyToken, settingController.addDocumentInDocMaster)
