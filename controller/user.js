@@ -180,11 +180,9 @@ exports.login = async (req, res) => {
     GROUP BY
       u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;`
     const values = [username, username];
-    console.log(query)
 
     db.query(query, values, (error, results) => {
         const userDetails = results
-        console.log(results)
         if (error) {
             return res.json({
                 status: 0,
@@ -199,25 +197,29 @@ exports.login = async (req, res) => {
                 });
             } else {
                 const storedPassword = results[0].password;
-                console.log("userDetails[0].id => 124", userDetails[0].id)
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
                         SQL.get('roles_users', '', `user_id = ${results[0].id}`, async (error, results) => {
-                            console.log(results)
-
                             let role = ``
                             results.length == 0 ? role = `` : role = results[0].role_id
                             const token = await jwt.sign({ id: userDetails[0].id, role: role }, JWT_TOKEN, { expiresIn: '10d' });
                             userDetails.role = role
-                            console.log(role)
-                            return res.json({
-                                status: 1,
-                                message: 'Logged in',
-                                role: role,
-                                landingurl: role == 1 ? `/lp/home` : '/lp/admin',
-                                user: userDetails,
-                                token: token
-                            });
+                            let is_twoFactorEnabled = 0
+                            
+                            SQL.get('company_settings', ``, `setting_name="two_factor_auth" AND is_enabled=1`, (error, result) => {
+                                if (result.length > 0) {
+                                    is_twoFactorEnabled = 1
+                                }
+                                return res.json({
+                                    status: 1,
+                                    message: 'Logged in',
+                                    role: role,
+                                    is_twoFactorEnabled:is_twoFactorEnabled,
+                                    landingurl: role == 1 ? `/lp/home` : '/lp/admin',
+                                    user: userDetails,
+                                    token: token
+                                });
+                            })                          
                         })
 
                     } else {
@@ -1299,7 +1301,6 @@ exports.getAllEligibilityFilters = async (req, res) => {
         })
     })
 }
-
 
 exports.AddHelpQuestions = async (req, res) => {
     const loggedInUser = req.decoded
