@@ -243,13 +243,17 @@ exports.get = async (req, res) => {
 
         const owner = loggedInUser.id
         const dealId = req.params.dealId;
+        const role = loggedInUser.role
+        let condition = role === 1 ? `deal.id=${dealId}` : `id=${leadId} AND owner=${owner}`
+
 
         const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
             user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
             LEFT JOIN user ON user.id = deal.owner
             LEFT JOIN label ON label.id = deal.label_id
-            WHERE deal.id =${dealId} AND deal.owner = ${owner} AND deal.is_deleted = 0`;
+            WHERE ${condition} AND deal.is_deleted = 0`;
 
+            // console.log(query)
         db.query(query, (error, result) => {
             if (error) {
                 return res.json({
