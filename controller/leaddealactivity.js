@@ -8,7 +8,7 @@ exports.createLeaddealActivity = async (req, res) => {
     try {
         // Validate user authorization here if needed
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -66,7 +66,7 @@ exports.updateLeaddealActivity = async (req, res) => {
     try {
 
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -126,7 +126,7 @@ exports.updateLeaddealActivity = async (req, res) => {
 exports.getLeaddealActivity = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -187,7 +187,7 @@ exports.deleteLeaddealActivityFromTrash = async (req, res) => {
 
         const loggedInUser = req.decoded
 
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",

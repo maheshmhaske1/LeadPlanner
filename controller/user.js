@@ -205,7 +205,7 @@ exports.login = async (req, res) => {
                             const token = await jwt.sign({ id: userDetails[0].id, role: role }, JWT_TOKEN, { expiresIn: '10d' });
                             userDetails.role = role
                             let is_twoFactorEnabled = 0
-                            
+
                             SQL.get('company_settings', ``, `setting_name="two_factor_auth" AND is_enabled=1`, (error, result) => {
                                 if (result.length > 0) {
                                     is_twoFactorEnabled = 1
@@ -214,12 +214,12 @@ exports.login = async (req, res) => {
                                     status: 1,
                                     message: 'Logged in',
                                     role: role,
-                                    is_twoFactorEnabled:is_twoFactorEnabled,
+                                    is_twoFactorEnabled: is_twoFactorEnabled,
                                     landingurl: role == 1 ? `/lp/home` : '/lp/admin',
                                     user: userDetails,
                                     token: token
                                 });
-                            })                          
+                            })
                         })
 
                     } else {

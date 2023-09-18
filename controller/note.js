@@ -6,7 +6,7 @@ const validator = require("validator");
 exports.createNote = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -71,7 +71,7 @@ exports.createNote = async (req, res) => {
 exports.updateNote = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -131,7 +131,7 @@ exports.updateNote = async (req, res) => {
 exports.get = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -296,7 +296,7 @@ exports.moveNoteToTrash = async (req, res) => {
 exports.getAllTrashedNotes = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -330,7 +330,7 @@ exports.getAllTrashedNotes = async (req, res) => {
 exports.moveFromTrash = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -363,7 +363,7 @@ exports.moveFromTrash = async (req, res) => {
 exports.deleteFromTrash = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
