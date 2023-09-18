@@ -93,7 +93,7 @@ exports.importLead = async (req, res) => {
 
     const result = data
     console.log(result.data)
-    let query=``
+    let query = ``
     for (let i = 0; i < result.length; i++) {
         if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
             !result[i].employees || !result[i].email || !result[i].value) {
@@ -230,25 +230,30 @@ exports.get = async (req, res) => {
 
         const owner = loggedInUser.id
         const leadId = req.params.leadId;
+        const role = loggedInUser.role
         console.log(leadId)
 
-        SQL.get('lead', ``, `id=${leadId} AND owner=${owner} AND is_deleted=0`, (error, result) => {
+        let condition = role === 1 ? `id=${leadId} AND is_deleted=0` : `id=${leadId} AND owner=${owner} AND is_deleted=0`
+        console.log(condition)
+        SQL.get('lead', ``, condition, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     message: error
                 })
             }
-            if (result.length == 0 || result[0].owner !== owner) {
+            if (result.length == 0) {
                 return res.json({
                     status: 0,
                     message: 'Not permitted or Invalid Lead'
                 })
             }
+
+            let Secondcondition = role === 1 ? `l.id = ${leadId}` : `l.owner = ${owner} AND l.id = ${leadId}`
             const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
             INNER JOIN user u ON l.owner = u.id
             INNER JOIN label lb ON l.label_id = lb.id
-            WHERE l.owner = ${owner} AND l.id = ${leadId} AND l.is_deleted = 0`;
+            WHERE ${Secondcondition} AND l.is_deleted = 0`;
 
             db.query(query, (error, result) => {
                 if (error) {
@@ -351,6 +356,8 @@ exports.getAll = async (req, res) => {
             });
         }
         const leadOwner = loggedInUser.id;
+        // const role = loggedInUser.role
+
         const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure,
                         u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
                         u.email AS owner_email, u.phone AS owner_phone, 

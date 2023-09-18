@@ -167,7 +167,7 @@ exports.getAllBySource = async (req, res) => {
         const { source, source_id } = req.params
         console.log("req.params == ", req.params)
         const loggedInUser = req.decoded
-        if (loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
