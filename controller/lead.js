@@ -184,7 +184,7 @@ exports.updateLead = async (req, res) => {
             });
         }
 
-        SQL.update('lead', update_data, `id IN (${leads}) AND owner = ${owner}`, (error, results) => {
+        SQL.update('lead', update_data, `id IN (${leads})`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
