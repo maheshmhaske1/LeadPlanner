@@ -652,21 +652,21 @@ exports.getTeamMembers = async (req, res) => {
         })
     }
 
-    await SQL.get('user', ``, `id = ${loggedInUser.id} `, async (error, result) => {
-        if (error) {
-            return res.json({
-                status: 0,
-                message: 'something went wrong',
-                error: error
-            })
-        }
-        if (result.length == 0) {
-            return res.json({
-                status: 0,
-                message: 'please provide valid source id'
-            })
-        }
-        await SQL.get('user', ``, `manager_id = ${loggedInUser.id} AND is_deleted = 0`, async (error, result) => {
+    // await SQL.get('user', ``, `id = ${loggedInUser.id} `, async (error, result) => {
+    //     if (error) {
+    //         return res.json({
+    //             status: 0,
+    //             message: 'something went wrong',
+    //             error: error
+    //         })
+    //     }
+    //     if (result.length == 0) {
+    //         return res.json({
+    //             status: 0,
+    //             message: 'please provide valid source id'
+    //         })
+    //     }
+        await SQL.get('user', ``, `is_deleted = 0`, async (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -681,7 +681,7 @@ exports.getTeamMembers = async (req, res) => {
             })
         })
 
-    })
+    // })
 }
 
 exports.updateTeamMembers = async (req, res) => {
