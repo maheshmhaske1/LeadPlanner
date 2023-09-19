@@ -104,9 +104,10 @@ exports.importLead = async (req, res) => {
         }
 
         query += `
-              INSERT INTO \`lead\` (\`owner\`,\`source\`,\`lead_name\`, \`position\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
+              INSERT INTO \`lead\` (\`owner\`,\`stage_id\`,\`source\`,\`lead_name\`, \`position\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
               VALUES (
                   ${owner},
+                 '${!result[i].stage_id ? null : result[i].stage_id}',
                  '${!result[i].source ? null : result[i].source}',
                  '${!result[i].lead_name ? '' : result[i].lead_name}',
                  '${!result[i].position ? '' : result[i].position}',
