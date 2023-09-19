@@ -6,7 +6,7 @@ const { uploadDealLeadDoc } = require('../model/upload')
 
 
 router.post('/add', verifyToken, dealController.createDeal)
-router.put('/edit/:dealIds', verifyToken, dealController.updateDeal)
+router.put('/edit', verifyToken, dealController.updateDeal)
 router.get('/get/:dealId', verifyToken, dealController.get)
 router.get('/getall', verifyToken, dealController.getAll)
 router.get('/getbyowner/:userId', verifyToken, dealController.getDealByOwner)
