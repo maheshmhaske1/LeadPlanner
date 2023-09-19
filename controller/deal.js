@@ -336,7 +336,7 @@ exports.get = async (req, res) => {
             user.first_name AS ownerf_name, user.last_name AS ownerl_name from deal
             LEFT JOIN user ON user.id = deal.owner
             LEFT JOIN label ON label.id = deal.label_id
-            WHERE ${condition} AND deal.is_deleted = 0`;
+            WHERE deal.id=${dealId} AND deal.is_deleted = 0`;
 
         // console.log(query)
         db.query(query, (error, result) => {

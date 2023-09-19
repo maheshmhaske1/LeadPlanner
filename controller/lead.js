@@ -98,7 +98,7 @@ exports.importLead = async (req, res) => {
         if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
             !result[i].employees || !result[i].email || !result[i].value) {
             return res.json({
-                status: 0,
+            status: 0,
                 message: `value, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
             });
         }
@@ -234,52 +234,35 @@ exports.get = async (req, res) => {
         const role = loggedInUser.role
         console.log(leadId)
 
-        let condition = role === 1 ? `id=${leadId} AND is_deleted=0` : `id=${leadId} AND owner=${owner} AND is_deleted=0`
-        console.log(condition)
-        SQL.get('lead', ``, condition, (error, result) => {
+        const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
+        LEFT JOIN user u ON l.owner = u.id
+        LEFT JOIN label lb ON l.label_id = lb.id
+        WHERE l.id = ${leadId} AND l.is_deleted = 0`;
+        console.log(query)
+
+        db.query(query, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
                     message: error
                 })
             }
-            if (result.length == 0) {
-                return res.json({
-                    status: 0,
-                    message: 'Not permitted or Invalid Lead'
-                })
-            }
-
-            let Secondcondition = role === 1 ? `l.id = ${leadId}` : `l.owner = ${owner} AND l.id = ${leadId}`
-            const query = `SELECT l.*,lb.name as label_name,lb.colour_code as label_coloure, u.first_name AS ownerf_name, u.last_name AS ownerl_name, u.email AS owner_email, u.phone AS owner_phone FROM \`lead\` l
-            INNER JOIN user u ON l.owner = u.id
-            INNER JOIN label lb ON l.label_id = lb.id
-            WHERE ${Secondcondition} AND l.is_deleted = 0`;
-
-            db.query(query, (error, result) => {
+            SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
                 if (error) {
                     return res.json({
                         status: 0,
                         message: error
                     })
                 }
-                SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
-                    if (error) {
-                        return res.json({
-                            status: 0,
-                            message: error
-                        })
-                    }
-                    if (results.length > 0)
-                        SQL.insert('xx_log', { attr1: `lead:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.log(error) })
-                })
-                return res.json({
-                    status: 1,
-                    message: "lead details",
-                    data: result
-                })
-            });
-        })
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `lead:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.log(error) })
+            })
+            return res.json({
+                status: 1,
+                message: "lead details",
+                data: result
+            })
+        });
 
 
     }
