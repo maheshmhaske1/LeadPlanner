@@ -1,4 +1,5 @@
 const SQL = require('../model/sqlhandler')
+const { db } = require('../model/db')
 
 exports.createContact = async (req, res) => {
     try {
@@ -40,6 +41,65 @@ exports.createContact = async (req, res) => {
             message: "Something went wrong", error
         });
     }
+}
+
+exports.importContact = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { data } = req.body
+
+    if (!data || data.length == 0) {
+        return res.json({
+            status: 0,
+            message: "no contact data provided or empty data",
+        })
+    }
+
+    let query = ``
+
+    for (let i = 0; i < data.length; i++) {
+
+        query += `
+            INSERT INTO xx_company (name, orgid, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry) 
+            VALUES (
+                '${!data[i].name ? '' : data[i].name}',
+                '${!data[i].orgid ? '' : data[i].orgid}',
+                '${!data[i].address1 ? '' : data[i].address1}',
+                '${!data[i].address2 ? '' : data[i].address2}',
+                '${!data[i].city ? '' : data[i].city}',
+                '${!data[i].country ? '' : data[i].country}',
+                '${!data[i].postcode ? '' : data[i].postcode}',
+                '${!data[i].email ? '' : data[i].email}',
+                '${!data[i].phone ? '' : data[i].phone}',
+                '${!data[i].valuation ? '' : data[i].valuation}',
+                '${!data[i].valuation_in ? '' : data[i].valuation_in}',
+                '${!data[i].domain ? '' : data[i].domain}',
+                '${!data[i].industry ? '' : data[i].industry}');`;
+    }
+
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: "invalid companyId"
+            });
+        }
+        return res.json({
+            status: 1,
+            message: "contact imported successfully.",
+            data: result
+        });
+
+    })
+
+
+    console.log(query)
 }
 
 // Update a Company
@@ -423,3 +483,59 @@ exports.deleteContactPerson = async (req, res) => {
         });
     }
 };
+
+
+
+exports.importPerson = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { data } = req.body
+
+    if (!data || data.length == 0) {
+        return res.json({
+            status: 0,
+            message: "no contact data provided or empty data",
+        })
+    }
+
+    let query = ``
+
+    for (let i = 0; i < data.length; i++) {
+        query += `
+        INSERT INTO xx_contact_person (name, organization, phone, email, city, state, postal_code) 
+        VALUES (
+            '${!data[i].name ? '' : data[i].name}',
+            '${!data[i].organization ? '' : data[i].organization}',
+            '${!data[i].phone ? '' : data[i].phone}',
+            '${!data[i].email ? '' : data[i].email}',
+            '${!data[i].city ? '' : data[i].city}',
+            '${!data[i].state ? '' : data[i].state}',
+            '${!data[i].postal_code ? '' : data[i].postal_code}');`;
+    }
+
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: "invalid companyId"
+            });
+        }
+        return res.json({
+            status: 1,
+            message: "person contact imported successfully.",
+            data: result
+        });
+
+    })
+
+
+    console.log(query)
+}
+
+

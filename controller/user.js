@@ -202,7 +202,8 @@ exports.login = async (req, res) => {
                         SQL.get('roles_users', '', `user_id = ${results[0].id}`, async (error, results) => {
                             let role = ``
                             results.length == 0 ? role = `` : role = results[0].role_id
-                            const token = await jwt.sign({ id: userDetails[0].id, role: role }, JWT_TOKEN, { expiresIn: '10d' });
+                            console.log(userDetails.first_name)
+                            const token = await jwt.sign({ id: userDetails[0].id, role: role, user_name: userDetails[0].first_name }, JWT_TOKEN, { expiresIn: '10d' });
                             userDetails.role = role
                             let is_twoFactorEnabled = 0
 
@@ -666,20 +667,20 @@ exports.getTeamMembers = async (req, res) => {
     //             message: 'please provide valid source id'
     //         })
     //     }
-        await SQL.get('user', ``, `is_deleted = 0`, async (error, result) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: 'something went wrong',
-                    error: error
-                })
-            }
+    await SQL.get('user', ``, `is_deleted = 0`, async (error, result) => {
+        if (error) {
             return res.json({
                 status: 0,
-                message: 'team member details',
-                data: result
+                message: 'something went wrong',
+                error: error
             })
+        }
+        return res.json({
+            status: 0,
+            message: 'team member details',
+            data: result
         })
+    })
 
     // })
 }

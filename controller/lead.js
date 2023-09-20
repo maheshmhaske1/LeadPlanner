@@ -98,7 +98,7 @@ exports.importLead = async (req, res) => {
         if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
             !result[i].employees || !result[i].email || !result[i].value) {
             return res.json({
-            status: 0,
+                status: 0,
                 message: `value, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
             });
         }
@@ -201,6 +201,21 @@ exports.updateLead = async (req, res) => {
                 }
                 if (results.length > 0)
                     SQL.insert('xx_log', { attr1: `lead:update`, attr2: loggedInUser.id, attr3: `updated ${leads} with ${JSON.stringify(update_data)}`, attr5: 'D' }, (error, results) => { console.log(error) })
+
+                // if (update_data.owner) {
+                //     let leads = ``
+                //     SQL.get(`lead`, ``, `id IN (${leads})`, async (error, result) => {
+                //         await result.map(result => {
+                //             leads += result.lead_name + ` `
+                //         })
+                //         const data = {
+                //             user_id: update_data.owner,
+                //             description: `${leads} assigned to you by ${loggedInUser.user_name}`,
+                //             title: "lead Assigned to you"
+                //         }
+                //         SQL.insert('xx_notifications',data,(error,result)=>{})
+                //     })
+                // }
             })
             return res.json({
                 status: 1,
@@ -341,6 +356,7 @@ exports.getAll = async (req, res) => {
         }
         const leadOwner = loggedInUser.id;
         // const role = loggedInUser.role
+        console.log(loggedInUser)
 
         const query = `SELECT l.*, lb.name as label_name, lb.colour_code as label_coloure,
                         u.first_name AS ownerf_name, u.last_name AS ownerl_name, 
