@@ -990,3 +990,131 @@ exports.updateStagesRequirement = async (req, res) => {
     })
 
 }
+
+exports.importDeal = async (req, res) => {
+
+    const loggedInUser = req.decoded
+    if (!loggedInUser || loggedInUser.role != 1) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    let data = req.body.data
+    const owner = loggedInUser.id
+
+    const requiredFields = [
+        "deal_name",
+        "email",
+        "mobile",
+        "probability",
+        "value",
+        "closure_date",
+        "currency",
+        "organization",
+        "value",
+        "contact",
+        "mobile",
+        "security_value",
+        "loan_amount",
+        "deposit"
+    ];
+
+    const missingFields = [];
+
+    if (!Array.isArray(req.body.data)) {
+        return res.status(400).json({
+            status: 0,
+            message: 'The "data" field must be an array.'
+        });
+    }
+
+    req.body.data.forEach((item, index) => {
+        const missingInItem = requiredFields.filter(field => !(field in item));
+        if (missingInItem.length > 0) {
+            missingFields.push({
+                row_number: index + 1,
+                missing_fields: missingInItem,
+            });
+        }
+    });
+
+    if (missingFields.length > 0) {
+        return res.status(400).json({
+            status: 0,
+            message: `${missingFields.map(item => `Row ${item.row_number}: ${item.missing_fields.join(", ")}`).join(". ")} are required values.`
+        });
+    }
+
+    const result = data
+    let query = ``
+
+    for (let i = 0; i < data.length; i++) {
+        query += `
+            INSERT INTO deal (lead_id, owner,stage_id, deal_name, currency, organization, probability, closure_date, value, email, contact, pipeline_id, mobile, introducer_name, introducer_firm_name, data_enquiry_receive, borrower_entry, security_value, loan_amount, deposit, type_of_security, loan_type, lender, lead_source, engagement_fee, engagement_fee_paid, broker_fee, broker_fee_paid, procuration_fee, procuration_fee_paid, deal_commission, completion_date) 
+            VALUES (
+                '${!data[i].lead_id ? null : data[i].lead_id}',
+                ${owner},
+                 1,
+                '${!data[i].deal_name ? '' : data[i].deal_name}',
+                '${!data[i].currency ? '' : data[i].currency}',
+                '${!data[i].organization ? '' : data[i].organization}',
+                '${!data[i].probability ? '' : data[i].probability}',
+                '${!data[i].closure_date ? '' : data[i].closure_date}',
+                '${!data[i].value ? '' : data[i].value}',
+                '${!data[i].email ? '' : data[i].email}',
+                '${!data[i].contact ? '' : data[i].contact}',
+                '${!data[i].pipeline_id ? '' : data[i].pipeline_id}',
+                '${!data[i].mobile ? '' : data[i].mobile}',
+                '${!data[i].introducer_name ? '' : data[i].introducer_name}',
+                '${!data[i].introducer_firm_name ? '' : data[i].introducer_firm_name}',
+                '${!data[i].data_enquiry_receive ? '' : data[i].data_enquiry_receive}',
+                '${!data[i].borrower_entry ? '' : data[i].borrower_entry}',
+                '${!data[i].security_value ? '' : data[i].security_value}',
+                '${!data[i].loan_amount ? '' : data[i].loan_amount}',
+                '${!data[i].deposit ? '' : data[i].deposit}',
+                '${!data[i].type_of_security ? '' : data[i].type_of_security}',
+                '${!data[i].loan_type ? '' : data[i].loan_type}',
+                '${!data[i].lender ? '' : data[i].lender}',
+                '${!data[i].lead_source ? '' : data[i].lead_source}',
+                '${!data[i].engagement_fee ? '' : data[i].engagement_fee}',
+                '${!data[i].engagement_fee_paid ? '' : data[i].engagement_fee_paid}',
+                '${!data[i].broker_fee ? '' : data[i].broker_fee}',
+                '${!data[i].broker_fee_paid ? '' : data[i].broker_fee_paid}',
+                '${!data[i].procuration_fee ? '' : data[i].procuration_fee}',
+                '${!data[i].procuration_fee_paid ? '' : data[i].procuration_fee_paid}',
+                '${!data[i].deal_commission ? '' : data[i].deal_commission}',
+                '${!data[i].completion_date ? '' : data[i].completion_date}');`;
+    }
+
+    console.log(query)
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.json({
+                status: 0,
+                message: err
+            })
+        }
+        console.log(results)
+        if (results.length > 0) {
+            SQL.get('company_settings', ``, `setting_name='audit_deal' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `deal:imported`, attr2: loggedInUser.id, attr4: `deal imported.`, attr5: 'D' }, (error, results) => { })
+
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "deal imported successfully"
+        })
+    })
+
+}
+
