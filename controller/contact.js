@@ -164,7 +164,7 @@ exports.update = async (req, res) => {
 // Get All Companies
 exports.getAllCompanies = async (req, res) => {
     try {
-        SQL.get('xx_company', '', '', (error, results) => {
+        SQL.get('xx_company', '', 'is_deleted=0', (error, results) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -407,7 +407,7 @@ exports.getAllContactPersons = async (req, res) => {
             });
         }
 
-        SQL.get('xx_contact_person', '', '', (error, results) => {
+        SQL.get('xx_contact_person', '', `is_deleted= 0 `, (error, results) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -538,4 +538,107 @@ exports.importPerson = async (req, res) => {
     console.log(query)
 }
 
+
+exports.moveContactToTrash = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    const { contactType, contactIds } = req.body
+
+    if (!contactType || contactIds.length == 0) {
+        return res.json({
+            status: 0,
+            message: "contactType is missing or contactIds length is not greater than 0"
+        })
+    }
+
+    SQL.update(contactType, { is_deleted: 1 }, `id IN (${contactIds})`, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: error
+            });
+        }
+        return res.status(200).json({
+            status: 1,
+            message: "Contact moved towards trash",
+            data: result
+        });
+    })
+}
+
+exports.removeContactFromTrash = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    const { contactType, contactIds } = req.body
+
+    if (!contactType || contactIds.length == 0) {
+        return res.json({
+            status: 0,
+            message: "contactType is missing or contactIds length is not greater than 0"
+        })
+    }
+
+    SQL.update(contactType, { is_deleted: 0 }, `id IN (${contactIds})`, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: error
+            });
+        }
+        return res.status(200).json({
+            status: 1,
+            message: "Contact removed from trash",
+            data: result
+        });
+    })
+}
+
+exports.getContactFromTrash = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    const { contactType } = req.body
+
+
+    if (!contactType) {
+        return res.json({
+            status: 0,
+            message: "contactType is missing "
+        })
+    }
+
+    SQL.get(contactType, ``, `is_deleted= 1`, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: error
+            });
+        }
+        return res.status(200).json({
+            status: 1,
+            message: "Contact present in trash",
+            data: result
+        });
+    })
+}
 

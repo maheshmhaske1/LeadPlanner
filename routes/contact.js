@@ -16,6 +16,11 @@ router.get('/person/get', verifyToken, contactController.getAllContactPersons)
 router.delete('/person/delete/:contactPersonId', verifyToken, contactController.deleteContactPerson)
 router.post('/person/import', verifyToken, contactController.importPerson)
 
+// recycle bin
+router.post('/movetotrash', verifyToken, contactController.moveContactToTrash)
+router.post('/removefromtrash', verifyToken, contactController.removeContactFromTrash)
+router.post('/getfromtrash', verifyToken, contactController.getContactFromTrash)
+
 
 
 module.exports = router;
