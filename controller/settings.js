@@ -497,7 +497,7 @@ exports.addDocumentInDocMaster = async (req, res) => {
 exports.updateMasterDoc = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
