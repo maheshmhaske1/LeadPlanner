@@ -4,7 +4,7 @@ const validator = require("validator");
 exports.createTask = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -104,7 +104,7 @@ exports.updateTask = async (req, res) => {
 exports.get = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -137,7 +137,7 @@ exports.getAllBySource = async (req, res) => {
     try {
         const { source, source_id } = req.params
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",

@@ -15,7 +15,7 @@ exports.createLead = async (req, res) => {
     console.log(req.decoded)
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -80,7 +80,7 @@ exports.createLead = async (req, res) => {
 
 exports.importLead = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -503,7 +503,7 @@ exports.moveLeadToTrash = async (req, res) => {
 exports.getAllLeadFromTrash = async (req, res) => {
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -540,7 +540,7 @@ exports.restoreLeadFromTrash = async (req, res) => {
 
     const { leadIds } = req.body
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -577,7 +577,7 @@ exports.deleteLeadFromTrash = async (req, res) => {
 
     const { leadIds } = req.body
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",

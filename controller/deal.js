@@ -515,7 +515,7 @@ exports.moveDealToTrash = async (req, res) => {
 exports.getAllDealFromTrash = async (req, res) => {
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -552,7 +552,7 @@ exports.restoreDealFromTrash = async (req, res) => {
 
     const { dealIds } = req.body
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -590,7 +590,7 @@ exports.deleteDealFromTrash = async (req, res) => {
 
     const { dealIds } = req.body
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -948,7 +948,7 @@ exports.removeDealLeadStage = async (req, res) => {
 
 exports.updateStagesRequirement = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -994,7 +994,7 @@ exports.updateStagesRequirement = async (req, res) => {
 exports.importDeal = async (req, res) => {
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",

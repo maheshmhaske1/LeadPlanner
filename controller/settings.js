@@ -4,7 +4,7 @@ const SQL = require('../model/sqlhandler')
 // exports.addPasswordTerm = async (req, res) => {
 //     try {
 //         const loggedInUser = req.decoded
-//         if (!loggedInUser || loggedInUser.role != 1) {
+//         if (!loggedInUser) {
 //             return res.json({
 //                 status: 0,
 //                 message: "Not Authorized",
@@ -60,7 +60,7 @@ const SQL = require('../model/sqlhandler')
 exports.updatePasswordSetting = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -145,7 +145,7 @@ exports.getPasswordSetting = async (req, res) => {
 exports.addLabel = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -188,7 +188,7 @@ exports.addLabel = async (req, res) => {
 exports.updateLabel = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -246,7 +246,7 @@ exports.updateLabel = async (req, res) => {
 exports.deleteLabel = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -290,7 +290,7 @@ exports.getAllLabels = async (req, res) => {
     try {
         const loggedInUser = req.decoded
         console.log(loggedInUser)
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -360,7 +360,7 @@ exports.updateAudit = async (req, res) => {
     try {
         const loggedInUser = req.decoded
         console.log(loggedInUser)
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -405,7 +405,7 @@ exports.getAllAudits = async (req, res) => {
     try {
         const loggedInUser = req.decoded
         console.log(loggedInUser)
-        if (!loggedInUser || loggedInUser.role != 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",

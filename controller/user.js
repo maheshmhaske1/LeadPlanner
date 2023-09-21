@@ -195,7 +195,7 @@ exports.login = async (req, res) => {
                                     status: 1,
                                     message: 'Logged in',
                                     role: role,
-                                    role_name:results[0].display_name,
+                                    role_name: results[0].display_name,
                                     is_twoFactorEnabled: is_twoFactorEnabled,
                                     landingurl: role == 1 ? `/lp/home` : '/lp/home',
                                     user: userDetails,
@@ -248,7 +248,7 @@ exports.getUserInfo = async (req, res) => {
 exports.updateUserInfo = async (req, res) => {
     const { first_name, last_name, phone, address1, company, employee, city, state, postcode } = req.body
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -509,7 +509,7 @@ exports.addTeamMember = async (req, res) => {
     const { first_name, last_name, phone, password, email } = req.body
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -627,7 +627,7 @@ exports.addTeamMember = async (req, res) => {
 exports.getTeamMembers = async (req, res) => {
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -671,7 +671,7 @@ exports.updateTeamMembers = async (req, res) => {
     let update_data = req.body
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -738,7 +738,7 @@ exports.moveMemberToTrash = async (req, res) => {
 
     const { member_id } = req.body
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -777,7 +777,7 @@ exports.moveMemberToTrash = async (req, res) => {
 
 exports.getAllTeamMemberFromTrash = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -801,7 +801,7 @@ exports.getAllTeamMemberFromTrash = async (req, res) => {
 
 exports.getUserRolesByUser = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -832,7 +832,7 @@ exports.getUserRolesByUser = async (req, res) => {
 exports.restoreTeamMemberFromTrash = async (req, res) => {
     const { teamMemberId } = req.params
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -871,7 +871,7 @@ exports.restoreTeamMemberFromTrash = async (req, res) => {
 
 exports.restoreAllTeamMemberFromTrash = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -912,7 +912,7 @@ exports.deleteTeamMemberFromTrash = async (req, res) => {
 
     const { teamMemberId } = req.params
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -952,7 +952,7 @@ exports.deleteTeamMemberFromTrash = async (req, res) => {
 exports.deleteAllTeamMemberFromTrash = async (req, res) => {
 
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -1051,7 +1051,7 @@ exports.addTicket = async (req, res) => {
 
 exports.updateTickets = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -1110,7 +1110,7 @@ exports.getTickets = async (req, res) => {
 
 exports.getAllTickets = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
@@ -1137,7 +1137,7 @@ exports.getAllTickets = async (req, res) => {
 
 exports.getAllRoles = async (req, res) => {
     const loggedInUser = req.decoded
-    if (!loggedInUser || loggedInUser.role != 1) {
+    if (!loggedInUser) {
         return res.json({
             status: 0,
             message: "Not Authorized",
