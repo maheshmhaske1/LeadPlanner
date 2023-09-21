@@ -123,36 +123,6 @@ exports.login = async (req, res) => {
     const { username, password } = req.body;
     await validator.checkMandatoryFields(req, { username, password });
 
-    //     const query = `
-    //     SELECT
-    //     u.id,
-    //     u.first_name,
-    //     u.last_name,
-    //     u.email,
-    //     MAX(u.password) AS password,
-    //     u.phone,
-    //     u.address1,
-    //     u.city,
-    //     u.state,
-    //     u.country,
-    //     u.postcode,
-    //     MAX(u.creation_date) AS creation_date,
-    //     MAX(u.update_date) AS update_date,
-    //     r.name AS role_name,
-    //     GROUP_CONCAT(p.name) AS permissions
-    // FROM
-    //     user AS u
-    //     LEFT JOIN roles_users AS ru ON u.id = ru.user_id
-    //     LEFT JOIN roles AS r ON ru.role_id = r.id
-    //     LEFT JOIN permission_roles AS pr ON r.id = pr.role_id
-    //     LEFT JOIN permissions AS p ON pr.permission_id = p.id
-    // WHERE
-    //     u.email = 'client' OR u.phone = 'client'
-    // GROUP BY
-    //     u.id, u.first_name, u.last_name, u.email, u.phone, u.address1, u.city, u.state, u.country, u.postcode, r.id, r.name;
-    //     `;
-
-
     const query = `
     SELECT
       u.id,
@@ -181,8 +151,12 @@ exports.login = async (req, res) => {
       u.id, u.first_name, u.last_name, u.email, u.password, u.phone, u.address1,u.city, u.state, u.country, u.postcode, u.creation_date, u.update_date;`
     const values = [username, username];
 
+
+
     db.query(query, values, (error, results) => {
         const userDetails = results
+        console.log("results =====>", results)
+
         if (error) {
             return res.json({
                 status: 0,
@@ -199,10 +173,16 @@ exports.login = async (req, res) => {
                 const storedPassword = results[0].password;
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
-                        SQL.get('roles_users', '', `user_id = ${results[0].id}`, async (error, results) => {
+                        let query = `SELECT roles_users.*, roles.* FROM roles_users
+                        LEFT JOIN roles ON roles_users.role_id = roles.id
+                        WHERE roles_users.user_id = ${results[0].id} LIMIT 0, 25;
+                    `
+
+                        // SQL.get('roles_users', '', `user_id = ${results[0].id}`, async (error, results) => {
+                        db.query(query, async (error, results) => {
+                            // console.log(results)
                             let role = ``
                             results.length == 0 ? role = `` : role = results[0].role_id
-                            console.log(userDetails.first_name)
                             const token = await jwt.sign({ id: userDetails[0].id, role: role, user_name: userDetails[0].first_name }, JWT_TOKEN, { expiresIn: '10d' });
                             userDetails.role = role
                             let is_twoFactorEnabled = 0
@@ -215,8 +195,9 @@ exports.login = async (req, res) => {
                                     status: 1,
                                     message: 'Logged in',
                                     role: role,
+                                    role_name:results[0].display_name,
                                     is_twoFactorEnabled: is_twoFactorEnabled,
-                                    landingurl: role == 1 ? `/lp/home` : '/lp/admin',
+                                    landingurl: role == 1 ? `/lp/home` : '/lp/home',
                                     user: userDetails,
                                     token: token
                                 });
