@@ -85,7 +85,7 @@ exports.createDeal = async (req, res) => {
 // exports.updateDeal = async (req, res) => {
 //     try {
 //         const loggedInUser = req.decoded;
-//         if (!loggedInUser || loggedInUser.role !== 1) {
+//         if (!loggedInUser) {
 //             return res.json({
 //                 status: 0,
 //                 message: "Not Authorized",
@@ -234,7 +234,7 @@ exports.createDeal = async (req, res) => {
 exports.updateDeal = async (req, res) => {
     try {
         const loggedInUser = req.decoded;
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
@@ -376,7 +376,7 @@ exports.get = async (req, res) => {
 exports.getDealByOwner = async (req, res) => {
     try {
         const loggedInUser = req.decoded
-        if (!loggedInUser || loggedInUser.role !== 1) {
+        if (!loggedInUser) {
             return res.json({
                 status: 0,
                 message: "Not Authorized",
