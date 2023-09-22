@@ -32,7 +32,7 @@ exports.addBlog = async (req, res) => {
         message: "id ,creation_date ,update_date cannot be add",
       });
 
-    SQL.insert('xx_blog', { title, url, site, description, route, image, tag, date }, (error, results) => {
+    SQL.insert('xx_blog',req.body, (error, results) => {
       if (error) {
         return res.json({
           status: 0,
