@@ -642,3 +642,41 @@ exports.getContactFromTrash = async (req, res) => {
     })
 }
 
+
+
+exports.deleteContactFromTrash = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    const { contactType,contactIds } = req.body
+
+
+    if (!contactType) {
+        return res.json({
+            status: 0,
+            message: "contactType is missing "
+        })
+    }
+
+    SQL.delete(contactType,`id IN (${contactIds}) AND is_deleted= 1`, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: error
+            });
+        }
+        return res.status(200).json({
+            status: 1,
+            message: "Contact deleted permanently from trash",
+            data: result
+        });
+    })
+}
+
+
