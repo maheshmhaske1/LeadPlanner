@@ -21,6 +21,7 @@ router.post('/movetotrash', verifyToken, contactController.moveContactToTrash)
 router.post('/removefromtrash', verifyToken, contactController.removeContactFromTrash)
 router.post('/getfromtrash', verifyToken, contactController.getContactFromTrash)
 router.delete('/deletefromtrash', verifyToken, contactController.deleteContactFromTrash)
+router.post('/getById', verifyToken, contactController.getContactById)
 
 
 

@@ -654,7 +654,7 @@ exports.deleteContactFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    const { contactType,contactIds } = req.body
+    const { contactType, contactIds } = req.body
 
 
     if (!contactType) {
@@ -664,7 +664,7 @@ exports.deleteContactFromTrash = async (req, res) => {
         })
     }
 
-    SQL.delete(contactType,`id IN (${contactIds}) AND is_deleted= 1`, (error, result) => {
+    SQL.delete(contactType, `id IN (${contactIds}) AND is_deleted= 1`, (error, result) => {
         if (error) {
             return res.status(500).json({
                 status: 0,
@@ -679,4 +679,38 @@ exports.deleteContactFromTrash = async (req, res) => {
     })
 }
 
+
+exports.getContactById = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+    const owner = loggedInUser.id
+
+    const { contactType,contactId } = req.body
+
+    if (!contactType || !contactId) {
+        return res.json({
+            status: 0,
+            message: "contactType or contactId missing "
+        })
+    }
+
+    SQL.get(contactType, ``, `is_deleted= 0 AND id=${contactId}`, (error, result) => {
+        if (error) {
+            return res.status(500).json({
+                status: 0,
+                message: error
+            });
+        }
+        return res.status(200).json({
+            status: 1,
+            message: "Contact present in trash",
+            data: result
+        });
+    })
+}
 
