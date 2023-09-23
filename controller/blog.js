@@ -167,8 +167,10 @@ exports.editBlog = async (req, res) => {
       });
     }
 
+    const update_sections = sections
+    delete req.body.sections
     let new_section = [];
-    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date }, `id=${blogId}`, async (error, response) => {
+    SQL.update("xx_blog", req.body, `id=${blogId}`, async (error, response) => {
       if (error) {
         return res.json({
           status: 0,
