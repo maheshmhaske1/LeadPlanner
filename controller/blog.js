@@ -49,10 +49,9 @@ exports.addBlog = async (req, res) => {
         let query = ``
         for (let i = 0; i < data.length; i++) {
           query += `
-            INSERT INTO xx_blog_details (site, date, blogid, heading, section, image, alt, sort)
+            INSERT INTO xx_blog_details (site, blogid, heading, section, image, alt, sort)
             VALUES (
                     '${!data[i].site ? '' : data[i].site}',
-                    '${!data[i].date ? date.now() : data[i].date}',
                      ${blogId},
                     '${!data[i].heading ? '' : data[i].heading}',
                     '${!data[i].section ? '' : data[i].section}',
