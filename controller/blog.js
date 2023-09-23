@@ -4,7 +4,7 @@ const fs = require("fs");
 const { uploadBlogImg } = require("../model/upload");
 const { checkMandatoryFields } = require("../model/validators");
 const SQL = require('../model/sqlhandler');
-const { json } = require("express");
+const { json, query } = require("express");
 
 exports.addBlog = async (req, res) => {
   try {
@@ -17,12 +17,12 @@ exports.addBlog = async (req, res) => {
       })
     }
 
-    const { title, url, description, route, image, site, tag, date, sections,meta_description, keywords } = req.body;
+    const { title, url, description, route, image, site, tag, date, sections } = req.body;
 
-    if (!title || !url || !description || !tag || !date) {
+    if (!title || !url || !description || !tag || !date || !sections) {
       return res.json({
         status: 0,
-        message: " title, url, description, image, tag, date are required fields"
+        message: " title, url, description, image, tag, date, sections are required fields"
       })
     }
 
@@ -32,26 +32,41 @@ exports.addBlog = async (req, res) => {
         message: "id ,creation_date ,update_date cannot be add",
       });
 
-    SQL.insert('xx_blog', { title, url, site, description, route, image, tag, date, meta_description, keywords }, (error, results) => {
+    const data = sections
+    delete req.body.sections
+
+    SQL.insert('xx_blog', req.body, async (error, results) => {
       if (error) {
         return res.json({
           status: 0,
-          error: error
+          message: error
         })
       }
 
       if (results.affectedRows > 0) {
         const blogId = results.insertId
-        sections.forEach(async (section) => {
-          section["blogid"] = results.insertId
-          await SQL.insert('xx_blog_details', section, (error, results) => {
-            if (error) {
-              return res.json({
-                status: 0,
-                error: error
-              })
-            }
-          })
+
+        let query = ``
+        for (let i = 0; i < data.length; i++) {
+          query += `
+            INSERT INTO xx_blog_details (site, date, blogid, heading, section, image, alt, sort)
+            VALUES (
+                    '${!data[i].site ? '' : data[i].site}',
+                    '${!data[i].date ? date.now() : data[i].date}',
+                     ${blogId},
+                    '${!data[i].heading ? '' : data[i].heading}',
+                    '${!data[i].section ? '' : data[i].section}',
+                    '${!data[i].image ? '' : data[i].image}',
+                    '${!data[i].alt ? '' : data[i].alt}',
+                    '${!data[i].sort ? '' : data[i].sort}');`;
+        }
+        await dbB.query(query, (error, result) => {
+          if (error) {
+            return res.json({
+              status: 0,
+              message: error
+            })
+          }
         })
         return res.json({
           status: 1,
@@ -62,6 +77,8 @@ exports.addBlog = async (req, res) => {
     });
   }
   catch (error) {
+    console.error(error); // Log any unexpected errors for debugging
+
     return res.json({
       status: 0,
       message: "something went wrong",
