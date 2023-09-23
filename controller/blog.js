@@ -17,7 +17,7 @@ exports.addBlog = async (req, res) => {
       })
     }
 
-    const { title, url, description, route, image, site, tag, date, sections } = req.body;
+    const { title, url, description, route, image, site, tag, date, sections,meta_description, keywords } = req.body;
 
     if (!title || !url || !description || !tag || !date) {
       return res.json({
@@ -32,7 +32,7 @@ exports.addBlog = async (req, res) => {
         message: "id ,creation_date ,update_date cannot be add",
       });
 
-    SQL.insert('xx_blog', { title, url, site, description, route, image, tag, date }, (error, results) => {
+    SQL.insert('xx_blog', { title, url, site, description, route, image, tag, date, meta_description, keywords }, (error, results) => {
       if (error) {
         return res.json({
           status: 0,
