@@ -11,5 +11,6 @@ router.post('/movetotrash', verifyToken, noteController.moveNoteToTrash)
 router.post('/restorefromtrash', verifyToken, noteController.moveFromTrash)
 router.post('/deletefromtrash', verifyToken, noteController.deleteFromTrash)
 router.get('/getnotesfromtrash', verifyToken, noteController.getAllTrashedNotes)
+router.post('/movecontactnotetotrash', verifyToken, noteController.moveContactNoteToTrash)
 
 module.exports = router;

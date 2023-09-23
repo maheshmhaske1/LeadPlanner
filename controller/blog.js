@@ -151,7 +151,7 @@ exports.editBlog = async (req, res) => {
       })
     }
     const { blogId } = req.params;
-    const { title, url, description, site, route, image, tag, date, sections,meta_description,keywords } = req.body;
+    const { title, url, description, site, route, image, tag, date, sections, meta_description, keywords } = req.body;
 
     if (!blogId) {
       return res.json({
@@ -168,7 +168,7 @@ exports.editBlog = async (req, res) => {
     }
 
     let new_section = [];
-    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date,meta_description,keywords }, `id=${blogId}`, async (error, response) => {
+    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date, meta_description, keywords }, `id=${blogId}`, async (error, response) => {
       if (error) {
         return res.json({
           status: 0,
@@ -428,4 +428,38 @@ exports.getSectionByBlog = async (req, res) => {
     })
   }
 };
+
+
+// exports.deleteSectionById = async (req, res) => {
+//   try {
+//     const loggedInUser = req.decoded
+//     if (!loggedInUser) {
+//       return res.json({
+//         status: 0,
+//         message: "Not Authorized",
+//       })
+//     }
+//     const { sectionId } = req.params;
+//     SQL.delete('xx_blog_details', '', `id=${sectionId}`, (error, results) => {
+//       if (error) {
+//         return res.json({
+//           status: 0,
+//           message: error
+//         })
+//       }
+//       return res.json({
+//         status: 1,
+//         message: "section deleted successfully",
+//         data: results
+//       })
+//     });
+//   }
+//   catch (error) {
+//     return res.json({
+//       status: 0,
+//       message: "something went wrong",
+//       error: error
+//     })
+//   }
+// };
 

@@ -29,8 +29,8 @@ exports.createNote = async (req, res) => {
                 message: "id ,creation_date ,update_date cannot be add",
             });
 
-        let tblName = type === 'lead' ? 'lead' : 'deal'
-        SQL.get(`${tblName}`, ``, `owner=${loggedInUser.id} AND id=${source_id}`, (error, results) => {
+        // let tblName = type === 'lead' ? 'lead' : 'deal'
+        SQL.get(`${type}`, ``, `id=${source_id}`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -61,6 +61,7 @@ exports.createNote = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error)
         return res.json({
             status: 0,
             message: "something went wrong", error,
@@ -181,8 +182,8 @@ exports.getAllBySource = async (req, res) => {
             })
         }
 
-        let tblName = source === 'lead' ? 'lead' : 'deal'
-        SQL.get(tblName, ``, `id=${source_id} AND is_deleted=0`, (error, results) => {
+        // let tblName = source === 'lead' ? 'lead' : 'deal'
+        SQL.get(`${source}`, ``, `id=${source_id} AND is_deleted=0`, (error, results) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -215,6 +216,7 @@ exports.getAllBySource = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error)
         return res.json({
             status: 0,
             message: "something went wrong", error,
@@ -393,4 +395,36 @@ exports.deleteFromTrash = async (req, res) => {
     }
 }
 
+exports.moveContactNoteToTrash = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
 
+    const {noteIds} = req.body
+
+    if(!noteIds){
+        return res.json({
+            status: 0,
+            message: "noteIds missing",
+        }) 
+    }
+
+    SQL.update(`notes`,{is_deleted:1},`id IN (${noteIds})`,(error,result)=>{
+        if (error) {
+            return res.json({
+                status: 0,
+                error: error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: 'notes for contact moved to trash',
+            data: result
+        })
+        
+    })
+}
