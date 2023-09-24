@@ -58,15 +58,23 @@ exports.addBlog = async (req, res) => {
                     '${!data[i].image ? '' : data[i].image}',
                     '${!data[i].alt ? '' : data[i].alt}',
                     '${!data[i].sort ? '' : data[i].sort}');`;
-        }
-        await dbB.query(query, (error, result) => {
-          if (error) {
-            return res.json({
-              status: 0,
-              message: error
-            })
+          if (data.length === i + 1) {
+            addBlogSections()
           }
-        })
+        }
+
+        async function addBlogSections() {
+          console.log(query)
+          await dbB.query(query, (error, result) => {
+            if (error) {
+              return res.json({
+                status: 0,
+                message: error
+              })
+            }
+          })
+        }
+
         return res.json({
           status: 1,
           message: 'blog added',
