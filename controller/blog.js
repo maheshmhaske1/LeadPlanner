@@ -7,7 +7,9 @@ const SQL = require('../model/sqlhandler');
 const { json, query } = require("express");
 
 exports.addBlog = async (req, res) => {
+
   try {
+
 
     const loggedInUser = req.decoded
     if (!loggedInUser) {
@@ -51,20 +53,20 @@ exports.addBlog = async (req, res) => {
           query += `
             INSERT INTO xx_blog_details (site, blogid, heading, section, image, alt, sort)
             VALUES (
-                    '${!data[i].site ? '' : data[i].site}',
-                     ${blogId},
-                    '${!data[i].heading ? '' : data[i].heading}',
-                    '${!data[i].section ? '' : data[i].section}',
-                    '${!data[i].image ? '' : data[i].image}',
-                    '${!data[i].alt ? '' : data[i].alt}',
-                    '${!data[i].sort ? '' : data[i].sort}');`;
+                    "${!data[i].site ? "" : data[i].site}",
+                    ${blogId},
+                    "${!data[i].heading ? "" : data[i].heading}",
+                    "${!data[i].section ? "" : data[i].section}",
+                    "${!data[i].image ? "" : data[i].image}",
+                    "${!data[i].alt ? "" : data[i].alt}",
+                     ${!data[i].sort ? "" : data[i].sort});`;
           if (data.length === i + 1) {
             addBlogSections()
           }
         }
 
         async function addBlogSections() {
-          console.log(query)
+          // console.log(query)
           await dbB.query(query, (error, result) => {
             if (error) {
               return res.json({
