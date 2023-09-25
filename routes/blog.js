@@ -21,7 +21,7 @@ router.post("/tag/add", verifyToken, blogController.addBlogTag);
 
 // ============================== section api ============================== //
 router.put("/section/update/:sectionId", verifyToken, blogController.editSection);
-// router.delete("/section/delete/:sectionId", verifyToken, blogController.deleteSectionById);
+router.post("/section/add/:blogId", verifyToken, blogController.addSection);
 router.get("/section/getbyblog/:blogId", verifyToken, blogController.getSectionByBlog);
 
 module.exports = router;

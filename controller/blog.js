@@ -405,6 +405,64 @@ exports.editSection = async (req, res) => {
   }
 };
 
+exports.addSection = async (req, res) => {
+  try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
+    const { blogId } = req.params;
+    let { heading, sort, image, section, date } = req.body
+
+    if (!heading || !sort || !section) {
+      return res.json({
+        status: 0,
+        message: "heading,sort and section are required fields",
+      })
+    }
+
+
+    SQL.get('xx_blog', ``, `id=${blogId}`, (error, results) => {
+      if (error) {
+        return res.json({
+          status: 0,
+          message: error
+        })
+      }
+      if (results.length === 0) {
+        return res.json({
+          status: 1,
+          message: 'invalid blogId'
+        })
+      }
+      req.body.blogId = blogId
+      SQL.insert('xx_blog_details', req.body, (error, result) => {
+        if (error) {
+          return res.json({
+            status: 0,
+            message: error
+          })
+        }
+        return res.json({
+          status: 1,
+          message: "section Added successfully.",
+          data: result
+        })
+      })
+    })
+  }
+  catch (error) {
+    return res.json({
+      status: 0,
+      message: "something went wrong",
+      error: error
+    })
+  }
+};
+
 exports.getSectionByBlog = async (req, res) => {
   try {
     const loggedInUser = req.decoded
@@ -438,38 +496,4 @@ exports.getSectionByBlog = async (req, res) => {
     })
   }
 };
-
-
-// exports.deleteSectionById = async (req, res) => {
-//   try {
-//     const loggedInUser = req.decoded
-//     if (!loggedInUser) {
-//       return res.json({
-//         status: 0,
-//         message: "Not Authorized",
-//       })
-//     }
-//     const { sectionId } = req.params;
-//     SQL.delete('xx_blog_details', '', `id=${sectionId}`, (error, results) => {
-//       if (error) {
-//         return res.json({
-//           status: 0,
-//           message: error
-//         })
-//       }
-//       return res.json({
-//         status: 1,
-//         message: "section deleted successfully",
-//         data: results
-//       })
-//     });
-//   }
-//   catch (error) {
-//     return res.json({
-//       status: 0,
-//       message: "something went wrong",
-//       error: error
-//     })
-//   }
-// };
 
