@@ -183,7 +183,7 @@ exports.login = async (req, res) => {
                             // console.log(results)
                             let role = ``
                             results.length == 0 ? role = `` : role = results[0].role_id
-                            const token = await jwt.sign({ id: userDetails[0].id, role: role, user_name: userDetails[0].first_name }, JWT_TOKEN, { expiresIn: '10d' });
+                            const token = await jwt.sign({ id: userDetails[0].id, role: role, role_name: results[0].display_name }, JWT_TOKEN, { expiresIn: '10d' });
                             userDetails.role = role
                             let is_twoFactorEnabled = 0
                             const role_name = results[0].display_name

@@ -10,12 +10,18 @@ exports.addBlog = async (req, res) => {
 
   try {
 
-
     const loggedInUser = req.decoded
     if (!loggedInUser) {
       return res.json({
         status: 0,
         message: "Not Authorized",
+      })
+    }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
       })
     }
 
@@ -107,6 +113,13 @@ exports.getBlogs = async (req, res) => {
       })
     }
 
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     let query = `
     SELECT b.*,COUNT(d.blogid) AS section_count
     FROM xx_blog AS b
@@ -160,6 +173,14 @@ exports.editBlog = async (req, res) => {
         message: "Not Authorized",
       })
     }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     const { blogId } = req.params;
     const { title, url, description, site, route, image, tag, date, sections, meta_description, keywords } = req.body;
 
@@ -229,6 +250,14 @@ exports.getBlog = async (req, res) => {
         message: "Not Authorized",
       })
     }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     const blogId = req.params.blogId;
     SQL.get('xx_blog', '', `id=${blogId}`, (error, results) => {
       if (error) {
@@ -262,6 +291,14 @@ exports.getAllBlogTags = async (req, res) => {
         message: "Not Authorized",
       })
     }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     SQL.get('xx_blog_tag', '', ``, (error, results) => {
       if (error) {
         return res.json({
@@ -294,6 +331,14 @@ exports.addBlogTag = async (req, res) => {
         message: "Not Authorized",
       })
     }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     const { site, tag, url, title } = req.body;
     await checkMandatoryFields(res, { site, tag, url, title });
 
@@ -332,6 +377,13 @@ exports.addBlogImage = async (req, res) => {
         error: error,
       });
     }
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     const imageName = req.file.filename;
     return res.json({
       status: 1,
@@ -371,6 +423,14 @@ exports.editSection = async (req, res) => {
         message: "Not Authorized",
       })
     }
+
+      if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
     const { sectionId } = req.params;
     const update_data = req.body
 
@@ -412,6 +472,13 @@ exports.addSection = async (req, res) => {
       return res.json({
         status: 0,
         message: "Not Authorized",
+      })
+    }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
       })
     }
     const { blogId } = req.params;
@@ -472,6 +539,13 @@ exports.getSectionByBlog = async (req, res) => {
         message: "Not Authorized",
       })
     }
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+    
     const { blogId } = req.params;
     await checkMandatoryFields({ blogId });
     SQL.get('xx_blog_details', '', `blogid=${blogId}`, (error, results) => {
