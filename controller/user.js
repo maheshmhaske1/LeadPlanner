@@ -692,7 +692,7 @@ exports.updateTeamMembers = async (req, res) => {
         })
     }
 
-    await SQL.get('user', ``, `id = ${member_id} AND manager_id = ${loggedInUser.id} `, async (error, result) => {
+    await SQL.get('user', ``, `id = ${member_id}`, async (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
