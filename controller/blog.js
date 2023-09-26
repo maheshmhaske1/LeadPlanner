@@ -17,7 +17,6 @@ exports.addBlog = async (req, res) => {
         message: "Not Authorized",
       })
     }
-
     if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
       return res.json({
         status: 0,
@@ -25,7 +24,7 @@ exports.addBlog = async (req, res) => {
       })
     }
 
-    const { title, url, description, route, image, site, tag, date, sections } = req.body;
+    let { title, url, description, route, image, site, tag, date, sections } = req.body;
 
     if (!title || !url || !description || !tag || !date || !sections) {
       return res.json({
@@ -43,7 +42,7 @@ exports.addBlog = async (req, res) => {
     const data = sections
     delete req.body.sections
 
-    SQL.insert('xx_blog', req.body, async (error, results) => {
+    SQL.get('user', ``, `id=${loggedInUser.id}`, (error, result) => {
       if (error) {
         return res.json({
           status: 0,
@@ -51,48 +50,67 @@ exports.addBlog = async (req, res) => {
         })
       }
 
-      if (results.affectedRows > 0) {
-        const blogId = results.insertId
+      if (result.length == 0) {
+        return res.json({
+          status: 0,
+          message: "user not present"
+        })
+      }
 
-        let query = ``
-        for (let i = 0; i < data.length; i++) {
-          query += `
-            INSERT INTO xx_blog_details (site, blogid, heading, section, image, alt, sort)
-            VALUES (
-                    "${!data[i].site ? "" : data[i].site}",
-                    ${blogId},
-                    "${!data[i].heading ? "" : data[i].heading}",
-                    "${!data[i].section ? "" : data[i].section}",
-                    "${!data[i].image ? "" : data[i].image}",
-                    "${!data[i].alt ? "" : data[i].alt}",
-                     ${!data[i].sort ? "" : data[i].sort});`;
-          if (data.length === i + 1) {
-            addBlogSections()
-          }
-        }
-
-        async function addBlogSections() {
-          // console.log(query)
-          await dbB.query(query, (error, result) => {
-            if (error) {
-              return res.json({
-                status: 0,
-                message: error
-              })
-            }
+      const userEmail = result[0].email
+      req.body.created_by = userEmail
+      console.table(req.body)
+      SQL.insert('xx_blog', req.body, async (error, results) => {
+        if (error) {
+          return res.json({
+            status: 0,
+            message: error
           })
         }
 
-        return res.json({
-          status: 1,
-          message: 'blog added',
-          data: { blogId: blogId }
-        })
-      }
-    });
+        if (results.affectedRows > 0) {
+          const blogId = results.insertId
+
+          let query = ``
+          for (let i = 0; i < data.length; i++) {
+            query += `
+              INSERT INTO xx_blog_details (site, blogid, heading, section, image, alt, sort)
+              VALUES (
+                      "${!data[i].site ? "" : data[i].site}",
+                      ${blogId},
+                      "${!data[i].heading ? "" : data[i].heading}",
+                      "${!data[i].section ? "" : data[i].section}",
+                      "${!data[i].image ? "" : data[i].image}",
+                      "${!data[i].alt ? "" : data[i].alt}",
+                       ${!data[i].sort ? "" : data[i].sort});`;
+            if (data.length === i + 1) {
+              addBlogSections()
+            }
+          }
+
+          async function addBlogSections() {
+            // console.log(query)
+            await dbB.query(query, (error, result) => {
+              if (error) {
+                return res.json({
+                  status: 0,
+                  message: error
+                })
+              }
+            })
+          }
+
+          return res.json({
+            status: 1,
+            message: 'blog added',
+            data: { blogId: blogId }
+          })
+        }
+      });
+    })
+
   }
   catch (error) {
-    console.error(error); // Log any unexpected errors for debugging
 
     return res.json({
       status: 0,
