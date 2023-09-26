@@ -318,6 +318,7 @@ exports.updateDeal = async (req, res) => {
 
 exports.get = async (req, res) => {
     try {
+        console.log(req.params.dealId)
         const loggedInUser = req.decoded
         if (!loggedInUser) {
             return res.json({
@@ -325,11 +326,7 @@ exports.get = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-
-        const owner = loggedInUser.id
         const dealId = req.params.dealId;
-        const role = loggedInUser.role
-        let condition = role === 1 ? `deal.id=${dealId}` : `id=${leadId} AND owner=${owner}`
 
 
         const query = `SELECT deal.*,label.name as label_name, label.colour_code as label_coloure,
@@ -338,8 +335,9 @@ exports.get = async (req, res) => {
             LEFT JOIN label ON label.id = deal.label_id
             WHERE deal.id=${dealId} AND deal.is_deleted = 0`;
 
-        // console.log(query)
+        console.log("query ==>",query)
         db.query(query, (error, result) => {
+            console.error(error)
             if (error) {
                 return res.json({
                     status: 0,
@@ -347,6 +345,8 @@ exports.get = async (req, res) => {
                 })
             }
             SQL.get('company_settings', ``, `setting_name='audit_lead' AND is_enabled=1`, (error, results) => {
+                console.error(error)
+                console.error(error)
                 if (error) {
                     return res.json({
                         status: 0,
@@ -354,7 +354,7 @@ exports.get = async (req, res) => {
                     })
                 }
                 if (results.length > 0)
-                    SQL.insert('xx_log', { attr1: `deal:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.log(error) })
+                    SQL.insert('xx_log', { attr1: `deal:get`, attr2: loggedInUser.id, attr3: `get leads`, attr5: 'D' }, (error, results) => { console.error(error) })
             })
             return res.json({
                 status: 1,

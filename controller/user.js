@@ -255,8 +255,10 @@ exports.updateUserInfo = async (req, res) => {
         })
     }
 
+    if(req.body.password) delete req.body.password
+
     SQL.update(`user`,
-        { first_name: first_name, last_name: last_name, phone: phone, address1: address1, company: company, employee: employee, city: city, state: state, postcode: postcode },
+       req.body,
         `id = ${loggedInUser.id} `,
         (error, result) => {
             if (error) {

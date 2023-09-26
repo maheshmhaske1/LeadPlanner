@@ -424,7 +424,7 @@ exports.editSection = async (req, res) => {
       })
     }
 
-      if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
       return res.json({
         status: 0,
         message: "you need to login ad blogger or admin",
@@ -545,7 +545,7 @@ exports.getSectionByBlog = async (req, res) => {
         message: "you need to login ad blogger or admin",
       })
     }
-    
+
     const { blogId } = req.params;
     await checkMandatoryFields({ blogId });
     SQL.get('xx_blog_details', '', `blogid=${blogId}`, (error, results) => {
