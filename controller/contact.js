@@ -297,7 +297,6 @@ exports.delete = async (req, res) => {
 }
 
 
-
 // ============ PERSON APIS ============ //
 exports.createContactPerson = async (req, res) => {
     try {

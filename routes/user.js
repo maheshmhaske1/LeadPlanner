@@ -5,6 +5,7 @@ const session = require('../model/session')
 const { verifyToken } = require('../model/auth')
 
 router.post("/createaccount", userController.createAccount);
+router.post("/createlog",verifyToken, userController.createLogs);
 router.put("/update", verifyToken, userController.updateUserInfo);
 router.post("/login", userController.login);
 router.post("/send-otp", userController.sendOtp);

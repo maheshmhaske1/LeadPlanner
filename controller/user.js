@@ -255,10 +255,10 @@ exports.updateUserInfo = async (req, res) => {
         })
     }
 
-    if(req.body.password) delete req.body.password
+    if (req.body.password) delete req.body.password
 
     SQL.update(`user`,
-       req.body,
+        req.body,
         `id = ${loggedInUser.id} `,
         (error, result) => {
             if (error) {
@@ -1314,6 +1314,43 @@ exports.AddHelpQuestions = async (req, res) => {
         return res.json({
             status: 1,
             message: "help question Added",
+            data: result
+        })
+    })
+}
+
+exports.createLogs = async (req, res) => {
+    const loggedInUser = req.decoded
+    console.log(loggedInUser)
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    let { attr1, attr4 } = req.body
+
+    if (!attr1 || !attr4 ) {
+        return res.json({
+            status: 0,
+            message: "attr1,attr4 are required fields"
+        })
+    }
+
+    req.body.attr2 = loggedInUser.id
+    req.body.attr5 = "D"
+
+    await SQL.insert('xx_log', req.body, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: `something went wrong`, error
+            })
+        }
+        return res.json({
+            status: 1,
+            message: "log added",
             data: result
         })
     })
