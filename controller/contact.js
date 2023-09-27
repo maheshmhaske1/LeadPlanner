@@ -28,6 +28,16 @@ exports.createContact = async (req, res) => {
                 });
             }
             if (results.affectedRows > 0) {
+                SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    if (results.length > 0)
+                        SQL.insert('xx_log', { attr1: `contact:added`, attr2: loggedInUser.id, attr4: `contact created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+                })
                 return res.status(200).json({
                     status: 1,
                     message: 'Company added successfully',
@@ -90,6 +100,16 @@ exports.importContact = async (req, res) => {
                 message: "invalid companyId"
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:imported`, attr2: loggedInUser.id, attr4: `contact imported`, attr5: 'D' }, (error, results) => { })
+        })
         return res.json({
             status: 1,
             message: "contact imported successfully.",
@@ -97,14 +117,19 @@ exports.importContact = async (req, res) => {
         });
 
     })
-
-
-    console.log(query)
 }
 
 // Update a Company
 exports.update = async (req, res) => {
     try {
+
+        const loggedInUser = req.decoded
+        if (!loggedInUser) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
         const { companyId } = req.params;
         const update_data = req.body;
 
@@ -144,6 +169,16 @@ exports.update = async (req, res) => {
                     });
                 }
                 if (results.affectedRows > 0) {
+                    SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
+                        if (results.length > 0)
+                            SQL.insert('xx_log', { attr1: `contact:updated`, attr2: loggedInUser.id, attr4: `contact updated with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+                    })
                     return res.status(200).json({
                         status: 1,
                         message: 'Company details updated successfully'
@@ -164,6 +199,13 @@ exports.update = async (req, res) => {
 // Get All Companies
 exports.getAllCompanies = async (req, res) => {
     try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
         SQL.get('xx_company', '', 'is_deleted=0', (error, results) => {
             if (error) {
                 return res.status(500).json({
@@ -171,6 +213,16 @@ exports.getAllCompanies = async (req, res) => {
                     error: error
                 });
             }
+            SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `contact:get all`, attr2: loggedInUser.id, attr4: `get records of all company contact`, attr5: 'D' }, (error, results) => { })
+            })
             return res.status(200).json({
                 status: 1,
                 message: "Company details",
@@ -218,6 +270,16 @@ exports.delete = async (req, res) => {
                         message: "Company not found"
                     });
                 }
+                SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    if (results.length > 0)
+                        SQL.insert('xx_log', { attr1: `contact:deleted`, attr2: loggedInUser.id, attr4: `company deleted id=${companyId}`, attr5: 'D' }, (error, results) => { })
+                })
                 return res.status(200).json({
                     status: 1,
                     message: "Company deleted successfully"
@@ -274,6 +336,16 @@ exports.createContactPerson = async (req, res) => {
                 });
             }
             if (results.affectedRows > 0) {
+                SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    if (results.length > 0)
+                        SQL.insert('xx_log', { attr1: `contact:added`, attr2: loggedInUser.id, attr4: `contact created with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+                })
                 return res.status(201).json({
                     status: 1,
                     message: 'Contact person added successfully',
@@ -340,6 +412,16 @@ exports.updateContactPerson = async (req, res) => {
                     });
                 }
                 if (results.affectedRows > 0) {
+                    SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
+                        if (results.length > 0)
+                            SQL.insert('xx_log', { attr1: `contact:updated`, attr2: loggedInUser.id, attr4: `contact updated with ${JSON.stringify(req.body)} parameter`, attr5: 'D' }, (error, results) => { })
+                    })
                     return res.status(200).json({
                         status: 1,
                         message: 'Contact person details updated successfully'
@@ -381,7 +463,16 @@ exports.getContactPersonById = async (req, res) => {
                     message: "Contact person not found."
                 });
             }
-
+            SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `contact:get`, attr2: loggedInUser.id, attr4: `get contact id = ${contactPersonId}`, attr5: 'D' }, (error, results) => { })
+            })
             return res.status(200).json({
                 status: 1,
                 message: "Contact person details",
@@ -414,6 +505,16 @@ exports.getAllContactPersons = async (req, res) => {
                     error: error
                 });
             }
+            SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (results.length > 0)
+                    SQL.insert('xx_log', { attr1: `contact:get`, attr2: loggedInUser.id, attr4: `get contacts`, attr5: 'D' }, (error, results) => { })
+            })
             return res.status(200).json({
                 status: 1,
                 message: "Contact person details",
@@ -484,8 +585,6 @@ exports.deleteContactPerson = async (req, res) => {
     }
 };
 
-
-
 exports.importPerson = async (req, res) => {
     const loggedInUser = req.decoded
     if (!loggedInUser) {
@@ -526,6 +625,16 @@ exports.importPerson = async (req, res) => {
                 message: "invalid companyId"
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:import`, attr2: loggedInUser.id, attr4: `(${contactIds}) these leads removed from trash`, attr5: 'D' }, (error, results) => { })
+        })
         return res.json({
             status: 1,
             message: "person contact imported successfully.",
@@ -537,7 +646,6 @@ exports.importPerson = async (req, res) => {
 
     console.log(query)
 }
-
 
 exports.moveContactToTrash = async (req, res) => {
     const loggedInUser = req.decoded
@@ -565,6 +673,16 @@ exports.moveContactToTrash = async (req, res) => {
                 message: error
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:move to trash`, attr2: loggedInUser.id, attr4: `(${contactIds}) these leads removed to trash`, attr5: 'D' }, (error, results) => { })
+        })
         return res.status(200).json({
             status: 1,
             message: "Contact moved towards trash",
@@ -599,6 +717,16 @@ exports.removeContactFromTrash = async (req, res) => {
                 message: error
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:move from trash`, attr2: loggedInUser.id, attr4: `(${contactIds}) these leads removed from trash`, attr5: 'D' }, (error, results) => { })
+        })
         return res.status(200).json({
             status: 1,
             message: "Contact removed from trash",
@@ -634,6 +762,16 @@ exports.getContactFromTrash = async (req, res) => {
                 message: error
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:get from trash`, attr2: loggedInUser.id, attr4: `get contact from trash`, attr5: 'D' }, (error, results) => { })
+        })
         return res.status(200).json({
             status: 1,
             message: "Contact present in trash",
@@ -641,8 +779,6 @@ exports.getContactFromTrash = async (req, res) => {
         });
     })
 }
-
-
 
 exports.deleteContactFromTrash = async (req, res) => {
     const loggedInUser = req.decoded
@@ -671,6 +807,16 @@ exports.deleteContactFromTrash = async (req, res) => {
                 message: error
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:delete`, attr2: loggedInUser.id, attr4: `deleted contact with ids (${contactIds})`, attr5: 'D' }, (error, results) => { })
+        })
         return res.status(200).json({
             status: 1,
             message: "Contact deleted permanently from trash",
@@ -678,7 +824,6 @@ exports.deleteContactFromTrash = async (req, res) => {
         });
     })
 }
-
 
 exports.getContactById = async (req, res) => {
     const loggedInUser = req.decoded
@@ -690,7 +835,7 @@ exports.getContactById = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    const { contactType,contactId } = req.body
+    const { contactType, contactId } = req.body
 
     if (!contactType || !contactId) {
         return res.json({
@@ -706,6 +851,16 @@ exports.getContactById = async (req, res) => {
                 message: error
             });
         }
+        SQL.get('company_settings', ``, `setting_name='audit_contact' AND is_enabled=1`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0)
+                SQL.insert('xx_log', { attr1: `contact:get by id`, attr2: loggedInUser.id, attr4: `get contact of id ${contactId}`, attr5: 'D' }, (error, results) => { })
+        })
         return res.status(200).json({
             status: 1,
             message: "Contact present in trash",
