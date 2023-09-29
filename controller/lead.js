@@ -92,7 +92,6 @@ exports.importLead = async (req, res) => {
 
 
     const result = data
-    console.log(result.data)
     let query = ``
     for (let i = 0; i < result.length; i++) {
         if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
@@ -146,7 +145,7 @@ exports.importLead = async (req, res) => {
                     })
                 }
                 if (results.length > 0)
-                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `lead imported.`, attr5: 'D' }, (error, results) => { })
+                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `${result.length}||0`, attr5: 'D' }, (error, results) => {console.log(error) })
 
             })
         }

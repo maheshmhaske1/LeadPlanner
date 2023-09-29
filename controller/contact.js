@@ -108,7 +108,7 @@ exports.importContact = async (req, res) => {
                 })
             }
             if (results.length > 0)
-                SQL.insert('xx_log', { attr1: `contact:imported`, attr2: loggedInUser.id, attr4: `contact imported`, attr5: 'D' }, (error, results) => { })
+                SQL.insert('xx_log', { attr1: `contact:imported`, attr2: loggedInUser.id, attr4: `${data.length}||0`, attr5: 'D' }, (error, results) => { })
         })
         return res.json({
             status: 1,
@@ -632,7 +632,7 @@ exports.importPerson = async (req, res) => {
                 })
             }
             if (results.length > 0)
-                SQL.insert('xx_log', { attr1: `contact:import`, attr2: loggedInUser.id, attr4: `(${contactIds}) these leads removed from trash`, attr5: 'D' }, (error, results) => { })
+                SQL.insert('xx_log', { attr1: `contact:import`, attr2: loggedInUser.id, attr4: `${data.length}||0`, attr5: 'D' }, (error, results) => { })
         })
         return res.json({
             status: 1,

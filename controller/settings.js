@@ -1,4 +1,5 @@
 // const db = require("../db");
+const { db } = require('../model/db')
 const SQL = require('../model/sqlhandler')
 
 // exports.addPasswordTerm = async (req, res) => {
@@ -544,3 +545,61 @@ exports.updateMasterDoc = async (req, res) => {
     }
 }
 
+exports.getLogs = async (req, res) => {
+    try {
+        const loggedInUser = req.decoded;
+        if (!loggedInUser) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            });
+        }
+
+        const { logName } = req.params;
+
+        if (!logName) {
+            return res.json({
+                status: 0,
+                message: "logName is required field",
+            });
+        }
+
+        const query = `SELECT xx_log.*,user.first_name as created_userfname,user.last_name as created_userlname 
+        FROM xx_log 
+        LEFT JOIN user ON user.id = xx_log.attr2
+        WHERE attr1="${logName}" ORDER BY id DESC`
+        db.query(query, (error, result) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            return res.json({
+                status: 1,
+                message: "All logs",
+                data: result
+            })
+        })
+        // SQL.get('xx_log', ``, `attr1="${logName}"`, (error, result) => {
+        //     if (error) {
+        //         return res.json({
+        //             status: 0,
+        //             message: error
+        //         })
+        //     }
+        //     return res.json({
+        //         status: 1,
+        //         message: "All logs",
+        //         data: result
+        //     })
+        // })
+    }
+    catch (error) {
+        console.error("Catch block error:", error);
+        return res.json({
+            status: 0,
+            message: "Something went wrong",
+        });
+    }
+}

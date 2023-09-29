@@ -7,7 +7,6 @@ const SQL = require('../model/sqlhandler');
 const { json, query } = require("express");
 
 exports.addBlog = async (req, res) => {
-
   try {
 
     const loggedInUser = req.decoded

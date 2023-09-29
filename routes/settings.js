@@ -21,5 +21,8 @@ router.get('/requireddocs/:source_type', verifyToken, settingController.getAllRe
 router.post('/adddocindocumentmaster', verifyToken, settingController.addDocumentInDocMaster)
 router.put('/updatedocmaster', verifyToken, settingController.updateMasterDoc)
 
+// ====== get logs ======= //
+router.get('/getlogs/:logName', verifyToken, settingController.getLogs)
+
 
 module.exports = router;

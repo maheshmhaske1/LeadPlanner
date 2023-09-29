@@ -1106,7 +1106,7 @@ exports.importDeal = async (req, res) => {
                     })
                 }
                 if (results.length > 0)
-                    SQL.insert('xx_log', { attr1: `deal:imported`, attr2: loggedInUser.id, attr4: `deal imported.`, attr5: 'D' }, (error, results) => { })
+                    SQL.insert('xx_log', { attr1: `deal:imported`, attr2: loggedInUser.id, attr4: `${data.length}||0`, attr5: 'D' }, (error, results) => { })
 
             })
         }
