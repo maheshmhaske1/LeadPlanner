@@ -125,19 +125,7 @@ exports.login = async (req, res) => {
 
     const query = `
     SELECT
-      u.id,
-      u.first_name,
-      u.last_name,
-      u.email,
-      u.password,
-      u.phone,
-      u.address1,
-      u.city,
-      u.state,
-      u.country,
-      u.postcode,
-      u.creation_date,
-      u.update_date,
+      u.*,
       GROUP_CONCAT(p.name) AS permissions
     FROM
       user AS u
@@ -163,13 +151,22 @@ exports.login = async (req, res) => {
                 message: 'Something went wrong --1',
                 error: error
             });
+
         } else {
             if (results.length === 0) {
                 return res.json({
                     status: 0,
                     message: 'Account does not exist'
                 });
-            } else {
+            }
+
+            if (results[0].is_deactivated == 1) {
+                return res.json({
+                    status: 0,
+                    message: 'Account not active.'
+                });
+            }
+            else {
                 const storedPassword = results[0].password;
                 bcrypt.compare(password, storedPassword, async (err, passwordMatch) => {
                     if (passwordMatch) {
@@ -635,22 +632,15 @@ exports.getTeamMembers = async (req, res) => {
             message: "Not Authorized",
         })
     }
+    const { user } = req.params
 
-    // await SQL.get('user', ``, `id = ${loggedInUser.id} `, async (error, result) => {
-    //     if (error) {
-    //         return res.json({
-    //             status: 0,
-    //             message: 'something went wrong',
-    //             error: error
-    //         })
-    //     }
-    //     if (result.length == 0) {
-    //         return res.json({
-    //             status: 0,
-    //             message: 'please provide valid source id'
-    //         })
-    //     }
-    await SQL.get('user', ``, `is_deleted = 0`, async (error, result) => {
+    let condition =
+        user == "all" ? `is_deleted = 0 AND company="fiduciagroup"` :
+            user == "active" ? `is_deleted = 0 AND company="fiduciagroup" AND is_deactivated=0` :
+                user == "deactive" ? `is_deleted = 0 AND company="fiduciagroup" AND is_deactivated=1` :
+                    `is_deleted = 0`
+
+    await SQL.get('user', ``, condition, async (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -1331,7 +1321,7 @@ exports.createLogs = async (req, res) => {
 
     let { attr1, attr4 } = req.body
 
-    if (!attr1 || !attr4 ) {
+    if (!attr1 || !attr4) {
         return res.json({
             status: 0,
             message: "attr1,attr4 are required fields"
