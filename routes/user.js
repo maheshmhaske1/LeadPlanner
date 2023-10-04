@@ -5,7 +5,7 @@ const session = require('../model/session')
 const { verifyToken } = require('../model/auth')
 
 router.post("/createaccount", userController.createAccount);
-router.post("/createlog",verifyToken, userController.createLogs);
+router.post("/createlog", verifyToken, userController.createLogs);
 router.put("/update", verifyToken, userController.updateUserInfo);
 router.post("/login", userController.login);
 router.post("/send-otp", userController.sendOtp);
@@ -34,6 +34,7 @@ router.get('/help/getbyid/:helpQuestionId', verifyToken, userController.getHelpQ
 router.put('/help/update/:helpQuestionId', verifyToken, userController.updateHeplQuetions)
 router.post('/help/addquation', verifyToken, userController.AddHelpQuestions)
 router.get('/geteligibilitycriteria', verifyToken, userController.getAllEligibilityFilters)
+router.post('/getleaddealbymember', verifyToken, userController.getLeadOrDealByUser)
 
 
 module.exports = router;

@@ -252,8 +252,6 @@ exports.updateUserInfo = async (req, res) => {
         })
     }
 
-    if (req.body.password) delete req.body.password
-
     SQL.update(`user`,
         req.body,
         `id = ${loggedInUser.id} `,
@@ -273,6 +271,60 @@ exports.updateUserInfo = async (req, res) => {
                 })
             }
         })
+}
+
+exports.getLeadOrDealByUser = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { member_id } = req.body
+
+    if (!member_id) {
+        return res.json({
+            status: 0,
+            message: "member_id is required field",
+        })
+    }
+
+    SQL.get(`lead`, ``, `owner=${member_id}`, (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+        if (results.length > 0) {
+            return res.json({
+                status: 0,
+                message: "leads available for this member",
+                data: results
+            })
+        }
+        SQL.get(`deal`, ``, `owner=${member_id}`, (error, results) => {
+            if (error) {
+                return res.json({
+                    status: 0,
+                    message: error
+                })
+            }
+            if (results.length > 0) {
+                return res.json({
+                    status: 0,
+                    message: "deal available for this member",
+                    data: results
+                })
+            }
+        })
+        return res.json({
+            status: 0,
+            message: "not lead or deal associated with this member"
+        })
+    })
 }
 
 exports.logOut = async (req, res) => {
