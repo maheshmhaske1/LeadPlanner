@@ -339,6 +339,55 @@ exports.getAllBlogTags = async (req, res) => {
   }
 };
 
+exports.getBlogTagsBySite = async (req, res) => {
+  try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
+
+    const { siteName } = req.params
+
+    if (!siteName) {
+      return res.json({
+        status: 0,
+        message: "siteName is required field",
+      })
+    }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
+    SQL.get('xx_blog_tag', '', `site="${siteName}"`, (error, results) => {
+      if (error) {
+        return res.json({
+          status: 0,
+          error: error
+        })
+      }
+      return res.json({
+        status: 1,
+        message: "blog tags details",
+        data: results
+      })
+    });
+  }
+  catch (error) {
+    return res.json({
+      status: 0,
+      message: "something went wrong",
+      error: error
+    })
+  }
+};
+
 exports.addBlogTag = async (req, res) => {
   try {
     const loggedInUser = req.decoded
