@@ -291,6 +291,8 @@ exports.getLeadOrDealByUser = async (req, res) => {
         })
     }
 
+    let lead = []
+    let deal = []
     SQL.get(`lead`, ``, `owner=${member_id}`, (error, results) => {
         if (error) {
             return res.json({
@@ -299,11 +301,7 @@ exports.getLeadOrDealByUser = async (req, res) => {
             })
         }
         if (results.length > 0) {
-            return res.json({
-                status: 0,
-                message: "leads available for this member",
-                data: results
-            })
+            lead = results
         }
         SQL.get(`deal`, ``, `owner=${member_id}`, (error, results) => {
             if (error) {
@@ -313,17 +311,30 @@ exports.getLeadOrDealByUser = async (req, res) => {
                 })
             }
             if (results.length > 0) {
-                return res.json({
-                    status: 0,
-                    message: "deal available for this member",
-                    data: results
-                })
+                deal = results
+                result()
+            }
+            else{
+                result()
             }
         })
-        return res.json({
-            status: 0,
-            message: "not lead or deal associated with this member"
-        })
+
+        function result() {
+            if (deal.length > 0 || lead.length > 0) {
+                return res.json({
+                    status: 0,
+                    message: "lead or deal already available for this member",
+                    leads: lead,
+                    deals: deal
+                })
+            } else {
+                return res.json({
+                    status: 0,
+                    message: "not lead or deal associated with this member"
+                })
+            }
+        }
+
     })
 }
 
