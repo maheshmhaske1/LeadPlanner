@@ -17,6 +17,7 @@ router.put("/edit/:blogId", verifyToken, blogController.editBlog);
 router.post("/addImg", verifyToken, blogController.addBlogImage);
 router.delete("/deleteImg/:blogImage", verifyToken, blogController.deleteBlogImage);
 router.get("/tag/getall", verifyToken, blogController.getAllBlogTags);
+router.post("/tag/getbyids", verifyToken, blogController.getTagsByIds);
 router.get("/tag/getbysite/:siteName", verifyToken, blogController.getBlogTagsBySite);
 router.post("/tag/add", verifyToken, blogController.addBlogTag);
 

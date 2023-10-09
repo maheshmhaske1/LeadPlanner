@@ -314,7 +314,7 @@ exports.getLeadOrDealByUser = async (req, res) => {
                 deal = results
                 result()
             }
-            else{
+            else {
                 result()
             }
         })

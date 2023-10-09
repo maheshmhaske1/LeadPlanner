@@ -137,11 +137,21 @@ exports.getBlogs = async (req, res) => {
       })
     }
 
+    const { siteName } = req.body
+
+    if (!siteName) {
+      return res.json({
+        status: 0,
+        message: "site name is required field"
+      })
+    }
+
     let query = `
     SELECT b.*,COUNT(d.blogid) AS section_count
     FROM xx_blog AS b
     LEFT JOIN xx_blog_details AS d
     ON b.id = d.blogid
+    WHERE b.site="${siteName}"
     GROUP BY b.id
     ORDER BY b.id DESC;`
 
@@ -338,6 +348,25 @@ exports.getAllBlogTags = async (req, res) => {
     })
   }
 };
+
+exports.getTagsByIds = async (req, res) => {
+  const { ids } = req.body
+  const query = `select * from xx_blog_tag where id in (${ids})`
+
+  db.query(query, (error, result) => {
+    if (error) {
+      return res.json({
+        status: 0,
+        error: error
+      })
+    }
+    return res.json({
+      status: 1,
+      message: "tags",
+      data: result
+    })
+  })
+}
 
 exports.getBlogTagsBySite = async (req, res) => {
   try {
