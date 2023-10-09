@@ -309,6 +309,47 @@ exports.getBlog = async (req, res) => {
   }
 };
 
+exports.getTagCategory = async (req, res) => {
+  try {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+      return res.json({
+        status: 0,
+        message: "Not Authorized",
+      })
+    }
+
+    if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+      return res.json({
+        status: 0,
+        message: "you need to login ad blogger or admin",
+      })
+    }
+
+    const query = "SELECT DISTINCT category FROM xx_blog_tag WHERE category IS NOT NULL"
+    dbB.query(query, (error, result) => {
+      if (error) {
+        return res.json({
+          status: 0,
+          error: error
+        })
+      }
+      return res.json({
+        status: 1,
+        message: "tag Categories",
+        data: result
+      })
+    })
+  }
+  catch (error) {
+    return res.json({
+      status: 0,
+      message: "something went wrong",
+      error: error
+    })
+  }
+};
+
 exports.getAllBlogTags = async (req, res) => {
   try {
     const loggedInUser = req.decoded
@@ -326,7 +367,15 @@ exports.getAllBlogTags = async (req, res) => {
       })
     }
 
-    SQL.get('xx_blog_tag', '', ``, (error, results) => {
+    const { category } = req.body
+    if (!category) {
+      return res.json({
+        status: 0,
+        message: "category is required field"
+      })
+    }
+
+    SQL.get('xx_blog_tag', '', `category="${category}"`, (error, results) => {
       if (error) {
         return res.json({
           status: 0,
