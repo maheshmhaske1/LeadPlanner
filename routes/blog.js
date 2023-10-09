@@ -11,7 +11,7 @@ const { verifyToken } = require('../model/auth')
 
 // ============================== blog api ============================== //
 router.post("/add", verifyToken, blogController.addBlog);
-router.get("/get", verifyToken, blogController.getBlogs);
+router.post("/get", verifyToken, blogController.getBlogs);
 router.get("/get/:blogId", verifyToken, blogController.getBlog);
 router.put("/edit/:blogId", verifyToken, blogController.editBlog);
 router.post("/addImg", verifyToken, blogController.addBlogImage);
