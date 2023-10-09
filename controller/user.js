@@ -242,6 +242,36 @@ exports.getUserInfo = async (req, res) => {
     })
 }
 
+exports.getOrgInfoById = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const { orgId } = req.params
+
+    const query = `select  * from organization where org_id = ${orgId}`
+
+    db.query(query, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+
+        delete result[0].password
+        return res.json({
+            status: 1,
+            message: "Organization details",
+            data: result
+        })
+    })
+}
+
 exports.updateUserInfo = async (req, res) => {
     const { first_name, last_name, phone, address1, company, employee, city, state, postcode } = req.body
     const loggedInUser = req.decoded
