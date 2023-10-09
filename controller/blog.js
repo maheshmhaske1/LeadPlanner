@@ -367,15 +367,21 @@ exports.getAllBlogTags = async (req, res) => {
       })
     }
 
-    const { category } = req.body
-    if (!category) {
-      return res.json({
-        status: 0,
-        message: "category is required field"
-      })
+    let { category, condition } = req.body
+    let queryCondition = ``
+
+    if (condition === "category") {
+      if (!category) {
+        return res.json({
+          status: 0,
+          message: "category is required field"
+        })
+      }
+      queryCondition = `category="${category}"`
     }
 
-    SQL.get('xx_blog_tag', '', `category="${category}"`, (error, results) => {
+
+    SQL.get('xx_blog_tag', '', queryCondition, (error, results) => {
       if (error) {
         return res.json({
           status: 0,
