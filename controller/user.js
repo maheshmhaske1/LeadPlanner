@@ -726,11 +726,19 @@ exports.getTeamMembers = async (req, res) => {
         })
     }
     const { user } = req.params
+    const {orgId} = req.body
+
+    if(!orgId){
+        return res.json({
+            status: 0,
+            message: "orgId is required field",
+        })
+    }
 
     let condition =
-        user == "all" ? `is_deleted = 0 AND company="fiduciagroup"` :
-            user == "active" ? `is_deleted = 0 AND company="fiduciagroup" AND is_deactivated=0` :
-                user == "deactive" ? `is_deleted = 0 AND company="fiduciagroup" AND is_deactivated=1` :
+        user == "all" ? `is_deleted = 0 AND org_id=${orgId}` :
+            user == "active" ? `is_deleted = 0 AND org_id=${orgId} AND is_deactivated=0` :
+                user == "deactive" ? `is_deleted = 0 AND org_id=${orgId} AND is_deactivated=1` :
                     `is_deleted = 0`
 
     await SQL.get('user', ``, condition, async (error, result) => {

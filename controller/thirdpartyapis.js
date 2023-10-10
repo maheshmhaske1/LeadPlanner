@@ -54,7 +54,7 @@ exports.sendEnvolap = async (req, res) => {
     axios.request(config)
         .then(async (response) => {
             console.log(response.data)
-            
+
             // const envolap = JSON.stringify(response.data)
             // await SQL.update('deal', { docusign_id: envolap.envelopeId }, `id=${dealId}`)
             // db.query(`update deal set docusign_id = '${response.data.envelopeId}' where id=${dealId}`, (error, result) => {console.log(error) })
@@ -76,12 +76,12 @@ exports.sendEnvolap = async (req, res) => {
 
 
 exports.getEnvolapDtails = async (req, res) => {
-    const { envelopId,bearerToken } = req.body
+    const { envelopId, bearerToken } = req.body
 
-    if(!envelopId||!bearerToken){
+    if (!envelopId || !bearerToken) {
         return res.json({
-            status:0,
-            message:"bearerToken and envelopIdare requred fields"
+            status: 0,
+            message: "bearerToken and envelopIdare requred fields"
         })
     }
 
@@ -99,7 +99,7 @@ exports.getEnvolapDtails = async (req, res) => {
             return res.json({
                 status: 1,
                 message: 'envolap details',
-                data: response.data 
+                data: response.data
             })
         })
         .catch((error) => {
@@ -111,37 +111,37 @@ exports.getEnvolapDtails = async (req, res) => {
         });
 }
 
-exports.getRefreshToken = async(req,res)=>{
+exports.getRefreshToken = async (req, res) => {
     const axios = require('axios');
-const qs = require('qs');
-let data = qs.stringify({
-  'refresh_token': 'eyJ0eXAiOiJNVCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiNjgxODVmZjEtNGU1MS00Y2U5LWFmMWMtNjg5ODEyMjAzMzE3In0.AQoAAAABAAgABwAAwVkCj8nbSAgAAEG--iHh20gCADYV3rL58-xDiLmUHeKwuXAVAAEAAAAYAAEAAAAFAAAADQAkAAAANzYwMTk4ZTktYzIzMS00MmNlLWEyODMtYWFmZWZiMzIxZTUzIgAkAAAANzYwMTk4ZTktYzIzMS00MmNlLWEyODMtYWFmZWZiMzIxZTUzMAAACjVUQ7PbSDcAgkiZkDF9NUmIa0Hhp06GBw.W5SicFZeEMi4sAWIOCkdK7JuT1w3s9CwHjP32OCwaGSejN-wlVR19cR-hOLJrRkdzA9vWdTSGIeDfgwCqNSWyE8tLunwRWMCjTk15yqotw_cGcX7bk-oM9mkhchLKdp0iJj2IwFUB9h1CymCPEdDJT16KlX5NtFB1TZOEhGT2oOaRzNFLxlP_Klf-lHsKEP41MwO-5IkU1Oi-0z3NA0GbGVhJ-7b-fOqmhUq4fp3HVPmltlusbfnUSjeuzUZdmHQEUxkY7igTtIbIt3_huPaM3jVU-Gg24o1N0AYNKHCOHkMnKGqLpHuMYr4OmOh5BEtj0pfl4JMNVZqPxtJH0g7nQ',
-  'grant_type': 'refresh_token' 
-});
+    const qs = require('qs');
+    let data = qs.stringify({
+        'refresh_token': 'eyJ0eXAiOiJNVCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiNjgxODVmZjEtNGU1MS00Y2U5LWFmMWMtNjg5ODEyMjAzMzE3In0.AQoAAAABAAgABwAAwVkCj8nbSAgAAEG--iHh20gCADYV3rL58-xDiLmUHeKwuXAVAAEAAAAYAAEAAAAFAAAADQAkAAAANzYwMTk4ZTktYzIzMS00MmNlLWEyODMtYWFmZWZiMzIxZTUzIgAkAAAANzYwMTk4ZTktYzIzMS00MmNlLWEyODMtYWFmZWZiMzIxZTUzMAAACjVUQ7PbSDcAgkiZkDF9NUmIa0Hhp06GBw.W5SicFZeEMi4sAWIOCkdK7JuT1w3s9CwHjP32OCwaGSejN-wlVR19cR-hOLJrRkdzA9vWdTSGIeDfgwCqNSWyE8tLunwRWMCjTk15yqotw_cGcX7bk-oM9mkhchLKdp0iJj2IwFUB9h1CymCPEdDJT16KlX5NtFB1TZOEhGT2oOaRzNFLxlP_Klf-lHsKEP41MwO-5IkU1Oi-0z3NA0GbGVhJ-7b-fOqmhUq4fp3HVPmltlusbfnUSjeuzUZdmHQEUxkY7igTtIbIt3_huPaM3jVU-Gg24o1N0AYNKHCOHkMnKGqLpHuMYr4OmOh5BEtj0pfl4JMNVZqPxtJH0g7nQ',
+        'grant_type': 'refresh_token'
+    });
 
-let config = {
-  method: 'post',
-  maxBodyLength: Infinity,
-  url: 'https://account-d.docusign.com/oauth/token',
-  headers: { 
-    'Authorization': 'Basic NzYwMTk4ZTktYzIzMS00MmNlLWEyODMtYWFmZWZiMzIxZTUzOmQ5MzMyZDliLTU2MDYtNDlhZi1iYWE1LWVjMjU5YjZlODEyMg==', 
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  data : data
-};
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://account-d.docusign.com/oauth/token',
+        headers: {
+            'Authorization': 'Basic NzYwMTk4ZTktYzIzMS00MmNlLWEyODMtYWFmZWZiMzIxZTUzOmQ5MzMyZDliLTU2MDYtNDlhZi1iYWE1LWVjMjU5YjZlODEyMg==',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: data
+    };
 
-axios.request(config)
-.then((response) => {
-    return res.json({
-        status: 1,
-        message: 'envolap details',
-        data: response.data 
-    })
-  console.log(JSON.stringify(response.data));
-})
-.catch((error) => {
-  console.log(error);
-});
+    axios.request(config)
+        .then((response) => {
+            return res.json({
+                status: 1,
+                message: 'envolap details',
+                data: response.data
+            })
+            console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 
 }
 

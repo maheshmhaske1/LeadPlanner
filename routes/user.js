@@ -15,7 +15,7 @@ router.post("/verify-otp", userController.verifyOTP);
 router.post("/forgot-password", userController.forgotPassword);
 router.post("/logout", userController.logOut);
 router.post("/addteammember", verifyToken, userController.addTeamMember);
-router.get("/getteammember/:user", verifyToken, userController.getTeamMembers);
+router.post("/getteammember/:user", verifyToken, userController.getTeamMembers);
 router.put("/updateteammember/:member_id", verifyToken, userController.updateTeamMembers);
 router.get("/getallteammemberfromtrash", verifyToken, userController.getAllTeamMemberFromTrash);
 router.post("/trashteammember", verifyToken, userController.moveMemberToTrash);
