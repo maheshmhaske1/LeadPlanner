@@ -598,7 +598,7 @@ exports.forgotPassword = async (req, res) => {
 }
 
 exports.addTeamMember = async (req, res) => {
-    const { first_name, last_name, phone, password, email } = req.body
+    const { first_name, last_name, phone, password, email,org_id } = req.body
 
     const loggedInUser = req.decoded
     if (!loggedInUser) {
@@ -609,10 +609,10 @@ exports.addTeamMember = async (req, res) => {
     }
 
     console.log(loggedInUser)
-    if (!first_name || !last_name || !phone || !password || !email) {
+    if (!first_name || !last_name || !phone || !password || !email||!org_id) {
         return res.json({
             status: 0,
-            message: 'first_name,last_name,phone,password and email are required fields'
+            message: 'first_name,last_name,phone,password,org_id and email are required fields'
         })
     }
 
@@ -697,7 +697,7 @@ exports.addTeamMember = async (req, res) => {
             })
         }
 
-        SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id }, (error, result) => {
+        SQL.insert('user', { first_name, last_name, email, password: encryptedPassword, phone, manager_id: loggedInUser.id,org_id }, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -726,9 +726,9 @@ exports.getTeamMembers = async (req, res) => {
         })
     }
     const { user } = req.params
-    const {orgId} = req.body
+    const { orgId } = req.body
 
-    if(!orgId){
+    if (!orgId) {
         return res.json({
             status: 0,
             message: "orgId is required field",
