@@ -223,7 +223,7 @@ exports.getUserInfo = async (req, res) => {
         })
     }
 
-    const { userId } = req.body
+    const userId = loggedInUser.id
 
     SQL.get('user', ``, `id = ${userId} `, (error, result) => {
         if (error) {
@@ -234,6 +234,39 @@ exports.getUserInfo = async (req, res) => {
         }
 
         delete result[0].password
+        return res.json({
+            status: 1,
+            message: "user details",
+            data: result
+        })
+    })
+}
+
+exports.getUserInfoById = async (req, res) => {
+    const loggedInUser = req.decoded
+    if (!loggedInUser) {
+        return res.json({
+            status: 0,
+            message: "Not Authorized",
+        })
+    }
+
+    const {userId} = req.body
+    if (!userId) {
+        return res.json({
+            status: 0,
+            message: "userId is required field"
+        })
+    }
+
+    SQL.get('user', ``, `id = ${userId} `, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        }
+
         return res.json({
             status: 1,
             message: "user details",
