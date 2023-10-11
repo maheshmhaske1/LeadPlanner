@@ -223,7 +223,7 @@ exports.getUserInfo = async (req, res) => {
         })
     }
 
-    const userId = loggedInUser.id
+    const { userId } = req.body
 
     SQL.get('user', ``, `id = ${userId} `, (error, result) => {
         if (error) {

@@ -10,7 +10,7 @@ router.put("/update", verifyToken, userController.updateUserInfo);
 router.post("/login", userController.login);
 router.get("/getorg/:orgId",verifyToken, userController.getOrgInfoById);
 router.post("/send-otp", userController.sendOtp);
-router.get("/getuserinfo", verifyToken, userController.getUserInfo);
+router.post("/getuserinfo", verifyToken, userController.getUserInfo);
 router.post("/verify-otp", userController.verifyOTP);
 router.post("/forgot-password", userController.forgotPassword);
 router.post("/logout", userController.logOut);
