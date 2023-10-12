@@ -293,11 +293,17 @@ exports.getBlog = async (req, res) => {
           error: error
         })
       }
-      return res.json({
-        status: 1,
-        message: "blog details",
-        data: results
+
+      dbB.query(`SELECT COUNT(*) AS MatchCount FROM xx_log WHERE attr2 =${blogId}`, (error, result) => {
+        return res.json({
+          status: 1,
+          message: "blog details",
+          data: results,
+          views: result[0].MatchCount
+        })
       })
+
+
     });
   }
   catch (error) {
