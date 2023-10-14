@@ -14,7 +14,7 @@ router.get('/getbyowner/:userId', verifyToken, dealController.getDealByOwner)
 
 router.delete('/movetotrash', verifyToken, dealController.moveDealToTrash)
 router.post('/restorefromtrash', verifyToken, dealController.restoreDealFromTrash)
-router.get('/getallfromtrash', verifyToken, dealController.getAllDealFromTrash)
+router.post('/getallfromtrash', verifyToken, dealController.getAllDealFromTrash)
 router.delete('/deletefromtrash', verifyToken, dealController.deleteDealFromTrash)
 router.post('/uplaoddoc', verifyToken, uploadDealLeadDoc, dealController.uploadDealDocuments)
 router.get('/getuplaoddoc/:source_type/:source_id', verifyToken, dealController.getUploadedDocs)

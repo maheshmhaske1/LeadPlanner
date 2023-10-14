@@ -251,7 +251,7 @@ exports.getUserInfoById = async (req, res) => {
         })
     }
 
-    const {userId} = req.body
+    const { userId } = req.body
     if (!userId) {
         return res.json({
             status: 0,
@@ -1150,13 +1150,13 @@ exports.addTicket = async (req, res) => {
     }
 
     const user_id = loggedInUser.id
-    let { mobile, title, description, email, category, priority } = req.body;
+    let { mobile, title, description, email, category, priority, org_Id } = req.body;
     req.body.user_id = user_id
 
-    if (!mobile || !title || !description || !email || !category) {
+    if (!mobile || !title || !description || !email || !category || !org_Id) {
         return res.json({
             status: 0,
-            message: ` mobile, title, description, email, category are required values`
+            message: ` mobile, title, description, email, category, org_Id are required values`
         })
     }
 
@@ -1244,7 +1244,15 @@ exports.getAllTickets = async (req, res) => {
     }
 
     let { status } = req.params
-    let condition = status == 'all' ? `` : `status='${status}'`
+    const { org_id } = req.body
+    if (!org_id) {
+        return res.json({
+            status: 0,
+            message: "org_id is required field"
+        })
+    }
+
+    let condition = status == 'all' ? `org_id=${org_id}` : `status='${status}' AND org_id=${org_id}`
 
     SQL.get('tickets', ``, condition, (error, result) => {
         if (error) {

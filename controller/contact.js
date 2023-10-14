@@ -11,12 +11,12 @@ exports.createContact = async (req, res) => {
             })
         }
 
-        const { name, orgid, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry } = req.body;
+        const { name, org_id, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry } = req.body;
 
-        if (!name || !orgid || !address1 || !city || !country || !postcode || !email || !phone || !valuation || !valuation_in || !domain || !industry) {
+        if (!name || !org_id || !address1 || !city || !country || !postcode || !email || !phone || !valuation || !valuation_in || !domain || !industry) {
             return res.status(400).json({
                 status: 0,
-                message: "name, orgid, address1, city, country, postcode, email, phone, valuation, valuation_in, domain, industry fields are required."
+                message: "name, org_id, address1, city, country, postcode, email, phone, valuation, valuation_in, domain, industry fields are required."
             });
         }
 
@@ -76,10 +76,10 @@ exports.importContact = async (req, res) => {
     for (let i = 0; i < data.length; i++) {
 
         query += `
-            INSERT INTO xx_company (name, orgid, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry) 
+            INSERT INTO xx_company (name, org_id, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry) 
             VALUES (
                 '${!data[i].name ? '' : data[i].name}',
-                '${!data[i].orgid ? '' : data[i].orgid}',
+                '${!data[i].org_id ? '' : data[i].org_id}',
                 '${!data[i].address1 ? '' : data[i].address1}',
                 '${!data[i].address2 ? '' : data[i].address2}',
                 '${!data[i].city ? '' : data[i].city}',
@@ -206,7 +206,16 @@ exports.getAllCompanies = async (req, res) => {
                 message: "Not Authorized",
             })
         }
-        SQL.get('xx_company', '', 'is_deleted=0', (error, results) => {
+
+        const { org_id } = req.body
+        if (!org_id) {
+            return res.json({
+                status: 0,
+                message: "org_id is required"
+            })
+        }
+
+        SQL.get('xx_company', '', `is_deleted=0 AND org_id=${org_id}`, (error, results) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -296,7 +305,6 @@ exports.delete = async (req, res) => {
     }
 }
 
-
 // ============ PERSON APIS ============ //
 exports.createContactPerson = async (req, res) => {
     try {
@@ -308,16 +316,17 @@ exports.createContactPerson = async (req, res) => {
             });
         }
 
-        const { name, organization, phone, email, city, state, postal_code } = req.body;
+        const { name, org_id, organization, phone, email, city, state, postal_code } = req.body;
 
-        if (!name || !organization || !phone || !email || !city || !state || !postal_code) {
+        if (!org_id || !name || !organization || !phone || !email || !city || !state || !postal_code) {
             return res.status(400).json({
                 status: 0,
-                message: "Required fields are missing."
+                message: "name, org_id, organization, phone, email, city, state, postal_code  these Required fields are missing."
             });
         }
 
         const contactPersonData = {
+            org_id,
             name,
             organization,
             phone,
@@ -497,7 +506,16 @@ exports.getAllContactPersons = async (req, res) => {
             });
         }
 
-        SQL.get('xx_contact_person', '', `is_deleted= 0 `, (error, results) => {
+        const { org_id } = req.body
+        if (!org_id) {
+            return res.json({
+                status: 0,
+                message: "org_id is required"
+            })
+        }
+
+
+        SQL.get('xx_contact_person', '', `is_deleted= 0 AND org_id=${org_id} `, (error, results) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -606,9 +624,10 @@ exports.importPerson = async (req, res) => {
 
     for (let i = 0; i < data.length; i++) {
         query += `
-        INSERT INTO xx_contact_person (name, organization, phone, email, city, state, postal_code) 
+        INSERT INTO xx_contact_person (name, org_id,organization, phone, email, city, state, postal_code) 
         VALUES (
             '${!data[i].name ? '' : data[i].name}',
+            ${!data[i].org_id},
             '${!data[i].organization ? '' : data[i].organization}',
             '${!data[i].phone ? '' : data[i].phone}',
             '${!data[i].email ? '' : data[i].email}',
@@ -744,17 +763,18 @@ exports.getContactFromTrash = async (req, res) => {
     }
     const owner = loggedInUser.id
 
-    const { contactType } = req.body
+    const { contactType, org_id } = req.body
 
 
-    if (!contactType) {
+    if (!contactType || !org_id) {
         return res.json({
             status: 0,
-            message: "contactType is missing "
+            message: "contactType or org_id is missing "
         })
     }
 
-    SQL.get(contactType, ``, `is_deleted= 1`, (error, result) => {
+
+    SQL.get(contactType, ``, `is_deleted= 1 AND org_id=${org_id}`, (error, result) => {
         if (error) {
             return res.status(500).json({
                 status: 0,

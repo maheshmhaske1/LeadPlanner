@@ -22,11 +22,11 @@ exports.createLead = async (req, res) => {
             })
         }
 
-        const { company_name, registration_no, employees, value, first_name, last_name, email, status, stage_id } = req.body;
-        if (!first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value || !stage_id) {
+        const { org_id, company_name, registration_no, employees, value, first_name, last_name, email, status, stage_id } = req.body;
+        if (!org_id || !first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value || !stage_id) {
             return res.json({
                 status: 0,
-                message: 'first_name, last_name, company_name, registration_no, value ,employees, ,status ,email ,stage_id these are required values'
+                message: 'org_id,company_name, registration_no, value ,employees, ,status ,email ,stage_id these are required values'
             })
         }
 
@@ -94,18 +94,19 @@ exports.importLead = async (req, res) => {
     const result = data
     let query = ``
     for (let i = 0; i < result.length; i++) {
-        if (!result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
+        if (!result[i].org_id || !result[i].first_name || !result[i].last_name || !result[i].company_name || !result[i].registration_no ||
             !result[i].employees || !result[i].email || !result[i].value) {
             return res.json({
                 status: 0,
-                message: `value, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
+                message: `org_id,value, first_name, last_name, company_name, registration_no, employees, email these are required values please check row number ${i + 1}.`
             });
         }
 
         query += `
-              INSERT INTO \`lead\` (\`owner\`,\`stage_id\`,\`source\`,\`lead_name\`, \`position\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
+              INSERT INTO \`lead\` (\`owner\`,\`org_id\`,\`stage_id\`,\`source\`,\`lead_name\`, \`position\`, \`company_name\`, \`registration_no\`, \`employees\`, \`first_name\`, \`last_name\`,\`type\`, \`value\`, \`address1\`, \`address2\`, \`city\`, \`state\`, \`country\`, \`pin\`, \`phone\`, \`email\`, \`website\`)
               VALUES (
                   ${owner},
+                  ${result[i].org_id},
                  '${!result[i].stage_id ? null : result[i].stage_id}',
                  '${!result[i].source ? null : result[i].source}',
                  '${!result[i].lead_name ? '' : result[i].lead_name}',
@@ -145,7 +146,7 @@ exports.importLead = async (req, res) => {
                     })
                 }
                 if (results.length > 0)
-                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `${result.length}||0`, attr5: 'D' }, (error, results) => {console.log(error) })
+                    SQL.insert('xx_log', { attr1: `lead:imported`, attr2: loggedInUser.id, attr4: `${result.length}||0`, attr5: 'D' }, (error, results) => { console.log(error) })
 
             })
         }
@@ -510,8 +511,16 @@ exports.getAllLeadFromTrash = async (req, res) => {
         })
     }
     const owner = loggedInUser.id
+    const { org_id } = req.body
 
-    SQL.get('lead', ``, `is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
+    if (!org_id) {
+        return res.json({
+            status: 0,
+            message: "org_id is required field"
+        })
+    }
+
+    SQL.get('lead', ``, `is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner})) AND org_id=${org_id}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,

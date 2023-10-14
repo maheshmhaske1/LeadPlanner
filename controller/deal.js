@@ -14,15 +14,15 @@ exports.createDeal = async (req, res) => {
         }
 
         const {
-            lead_id, deal_name, email, mobile, currency, status, label_id,
+            org_id, lead_id, deal_name, email, mobile, currency, status, label_id,
             organization, probability, closure_date, priority, contact, value, pipeline_id
         } = req.body;
 
 
-        if (!deal_name || !email || !mobile || !probability || !value || !closure_date || !label_id) {
+        if (!org_id || !deal_name || !email || !mobile || !probability || !value || !closure_date || !label_id) {
             return res.json({
                 status: 0,
-                message: 'deal_name, email, value, mobile , probability ,closure_date, label_id these are required values'
+                message: 'org_id,deal_name, email, value, mobile , probability ,closure_date, label_id these are required values'
             })
         }
 
@@ -335,7 +335,7 @@ exports.get = async (req, res) => {
             LEFT JOIN label ON label.id = deal.label_id
             WHERE deal.id=${dealId} AND deal.is_deleted = 0`;
 
-        console.log("query ==>",query)
+        console.log("query ==>", query)
         db.query(query, (error, result) => {
             console.error(error)
             if (error) {
@@ -522,8 +522,16 @@ exports.getAllDealFromTrash = async (req, res) => {
         })
     }
     const owner = loggedInUser.id
+    const { org_id } = req.body
 
-    SQL.get('deal', ``, `is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner}))`, (error, result) => {
+    if (!org_id) {
+        return res.json({
+            status: 0,
+            message: "org_id is required field"
+        })
+    }
+
+    SQL.get('deal', ``, `is_deleted = 1 AND (owner = ${owner} OR owner IN (SELECT id FROM user WHERE manager_id = ${owner})) AND org_id=${org_id}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -826,7 +834,7 @@ exports.getAllStagesDealLead = async (req, res) => {
         })
     })
 }
-
+``
 exports.updateStage = async (req, res) => {
     const loggedInUser = req.decoded
     if (!loggedInUser) {
@@ -1005,6 +1013,7 @@ exports.importDeal = async (req, res) => {
     const owner = loggedInUser.id
 
     const requiredFields = [
+        "org_id",
         "deal_name",
         "email",
         "mobile",
@@ -1052,8 +1061,9 @@ exports.importDeal = async (req, res) => {
 
     for (let i = 0; i < data.length; i++) {
         query += `
-            INSERT INTO deal (lead_id, owner,stage_id, deal_name, currency, organization, probability, closure_date, value, email, contact, pipeline_id, mobile, introducer_name, introducer_firm_name, data_enquiry_receive, borrower_entry, security_value, loan_amount, deposit, type_of_security, loan_type, lender, lead_source, engagement_fee, engagement_fee_paid, broker_fee, broker_fee_paid, procuration_fee, procuration_fee_paid, deal_commission, completion_date) 
+            INSERT INTO deal (org_id,lead_id, owner,stage_id, deal_name, currency, organization, probability, closure_date, value, email, contact, pipeline_id, mobile, introducer_name, introducer_firm_name, data_enquiry_receive, borrower_entry, security_value, loan_amount, deposit, type_of_security, loan_type, lender, lead_source, engagement_fee, engagement_fee_paid, broker_fee, broker_fee_paid, procuration_fee, procuration_fee_paid, deal_commission, completion_date) 
             VALUES (
+                ${data[i].org_id},
                 '${!data[i].lead_id ? null : data[i].lead_id}',
                 ${owner},
                  1,
