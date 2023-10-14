@@ -67,6 +67,7 @@ exports.updatePasswordSetting = async (req, res) => {
                 message: "Not Authorized",
             })
         }
+        const { org_id } = req.params
         let update_data = req.body
 
 
@@ -86,7 +87,7 @@ exports.updatePasswordSetting = async (req, res) => {
             let id = update_data.id
             delete update_data.id
             console.log(update_data)
-            await SQL.update('password_settings', update_data, `id=${id}`, (error, result) => {
+            await SQL.update('password_settings', update_data, `id=${id} AND org_id=${org_id}`, (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
@@ -111,16 +112,17 @@ exports.updatePasswordSetting = async (req, res) => {
 
 exports.getPasswordSetting = async (req, res) => {
     try {
-        // const loggedInUser = req.decoded
-        // if (!loggedInUser) {
-        //     return res.json({
-        //         status: 0,
-        //         message: "Not Authorized",
-        //     })
-        // }
-        // console.log(loggedInUser)
-        // let condition = loggedInUser.role == 1 ? `` : ``;
-        SQL.get('password_settings', ``, ``, (error, result) => {
+
+        const { org_id } = req.body
+        if (!org_id) {
+            return res.json({
+                status: 0,
+                message: "org_id is required"
+
+            })
+        }
+
+        SQL.get('password_settings', ``, `org_id=${org_id}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -153,17 +155,15 @@ exports.addLabel = async (req, res) => {
             })
         }
 
-        const { name, colour_code } = req.body
-        if (!colour_code || !name) {
+        const { name, colour_code, org_id } = req.body
+        if (!colour_code || !name || !org_id) {
             return res.json({
                 status: 0,
-                message: "name, colour_code are required fields",
+                message: "name, colour_code, org_id are required fields",
             })
         }
 
-
-
-        SQL.insert(`label`, { name, colour_code }, (error, result) => {
+        SQL.insert(`label`, { name, colour_code, org_id }, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -257,35 +257,75 @@ exports.deleteLabel = async (req, res) => {
         const { labelIds } = req.body
 
         if (!labelIds) {
-            return res, json({
+            return res.json({
                 status: 0,
-                message: "please provide labelid",
+                message: "Please provide labelid",
             })
         }
 
-        SQL.update('label', { is_deleted: 1 }, `id IN (${labelIds})`, (error, result) => {
-            if (error) {
+        const query1 = `SELECT * FROM \`lead\` where label_id IN (${labelIds})`;
+        const query2 = `SELECT * FROM \`deal\` where label_id IN (${labelIds})`;
+
+        const executeQueries = () => {
+            return Promise.all([
+                executeQuery(query1),
+                executeQuery(query2),
+            ]);
+        };
+
+        const executeQuery = (query) => {
+            return new Promise((resolve, reject) => {
+                db.query(query, (error, results) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(results);
+                    }
+                });
+            });
+        };
+
+        executeQueries()
+            .then(async ([result1, result2]) => {
+                if (result1.length > 0 || result2.length > 0) {
+                    return res.json({
+                        status: 0,
+                        message: `Can't delete label. Label assigned to ${result1.length} leads and ${result2.length} deals`
+                    })
+                }
+                else {
+                    await SQL.update('label', { is_deleted: 1 }, `id IN (${labelIds})`, (error, result) => {
+                        if (error) {
+                            return res.json({
+                                status: 0,
+                                message: error
+                            })
+                        }
+                        SQL.update('lead', { label_id: -1 }, `label_id IN (${labelIds})`, (error, result) => { })
+                        return res.json({
+                            status: 1,
+                            message: "Label deleted",
+                            data: result
+                        })
+                    })
+                }
+            })
+            .catch((error) => {
                 return res.json({
                     status: 0,
-                    message: error
+                    message: "Something went wrong"
                 })
-            }
-            SQL.update('lead', { label_id: -1 }, `label_id IN (${labelIds})`, (error, result) => { })
-            return res.json({
-                status: 1,
-                message: "label deleted",
-                data: result
-            })
-        })
+            });
     }
     catch (error) {
         return res.json({
             status: 0,
-            message: "something went wrong",
+            message: "Something went wrong",
             message: error
         })
     }
 }
+
 
 exports.getAllLabels = async (req, res) => {
     try {
@@ -298,7 +338,15 @@ exports.getAllLabels = async (req, res) => {
             })
         }
 
-        SQL.get('label', ``, `is_deleted=0`, (error, result) => {
+        const { org_id } = req.body
+        if (!org_id) {
+            return res.json({
+                status: 0,
+                message: "org_id is required"
+            })
+        }
+
+        SQL.get('label', ``, `is_deleted=0 AND org_id = ${org_id}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,
@@ -333,8 +381,15 @@ exports.getAllLabelsForEntity = async (req, res) => {
         }
 
         const { entity } = req.params
+        const { org_id } = req.body
+        if (!org_id) {
+            return res.json({
+                status: 0,
+                message: "org_id is required"
+            })
+        }
 
-        SQL.get('label', ``, `entity LIKE '%${entity}%' AND is_deleted=0`, (error, result) => {
+        SQL.get('label', ``, `entity LIKE '%${entity}%' AND is_deleted=0 AND org_id=${org_id}`, (error, result) => {
             if (error) {
                 return res.json({
                     status: 0,

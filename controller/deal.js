@@ -819,8 +819,16 @@ exports.getAllStagesDealLead = async (req, res) => {
     }
 
     const { type } = req.params
+    const { org_id } = req.body
 
-    await SQL.get('stage_master', ``, `stage_type='${type}'`, (error, result) => {
+    if (!req.body) {
+        return res.json({
+            status: 0,
+            message: "org_id is required"
+        })
+    }
+
+    await SQL.get('stage_master', ``, `stage_type='${type}' and org_id=${org_id}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -877,12 +885,12 @@ exports.addStagesForDealLead = async (req, res) => {
         })
     }
 
-    const { display_name, stage_type, stage_name, position } = req.body
+    const { display_name, stage_type, stage_name, position, org_id } = req.body
 
-    if (!display_name || !stage_type || !stage_name) {
+    if (!display_name || !stage_type || !stage_name || !org_id) {
         return res.json({
             status: 0,
-            message: 'display_name,stage_type,stage_name are required fields'
+            message: 'display_name,stage_type,stage_name,org_id are required fields'
         })
     }
 
@@ -911,6 +919,8 @@ exports.removeDealLeadStage = async (req, res) => {
     }
 
     const { stage_id } = req.params
+
+
 
     await SQL.get('lead', ``, `stage_id = ${stage_id}`, (error, result) => {
         if (error) {
