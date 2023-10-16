@@ -10,9 +10,9 @@ router.get('/password/get', settingController.getPasswordSetting)
 // ====== label master settings ====== //
 router.post('/label/add', verifyToken, settingController.addLabel)
 router.put('/label/edit/:labelId', verifyToken, settingController.updateLabel)
-router.get('/label/getAll', verifyToken, settingController.getAllLabels)
+router.post('/label/getAll', verifyToken, settingController.getAllLabels)
 router.delete('/label/delete', verifyToken, settingController.deleteLabel)
-router.get('/label/getbyentity/:entity', verifyToken, settingController.getAllLabelsForEntity)
+router.post('/label/getbyentity/:entity', verifyToken, settingController.getAllLabelsForEntity)
 
 router.put('/edit/:id', verifyToken, settingController.updateAudit)
 router.get('/getAll', verifyToken, settingController.getAllAudits)
