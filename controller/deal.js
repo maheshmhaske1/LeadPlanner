@@ -1024,6 +1024,7 @@ exports.importDeal = async (req, res) => {
 
     const requiredFields = [
         "org_id",
+        "stage_id",
         "deal_name",
         "email",
         "mobile",
@@ -1073,10 +1074,10 @@ exports.importDeal = async (req, res) => {
         query += `
             INSERT INTO deal (org_id,lead_id, owner,stage_id, deal_name, currency, organization, probability, closure_date, value, email, contact, pipeline_id, mobile, introducer_name, introducer_firm_name, data_enquiry_receive, borrower_entry, security_value, loan_amount, deposit, type_of_security, loan_type, lender, lead_source, engagement_fee, engagement_fee_paid, broker_fee, broker_fee_paid, procuration_fee, procuration_fee_paid, deal_commission, completion_date) 
             VALUES (
-                ${data[i].org_id},
+                 ${data[i].org_id},
                 '${!data[i].lead_id ? null : data[i].lead_id}',
-                ${owner},
-                 1,
+                 ${owner},
+                 ${stage_id},
                 '${!data[i].deal_name ? '' : data[i].deal_name}',
                 '${!data[i].currency ? '' : data[i].currency}',
                 '${!data[i].organization ? '' : data[i].organization}',
