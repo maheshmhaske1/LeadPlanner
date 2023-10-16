@@ -21,6 +21,7 @@ var settingRouter = require('./routes/settings')
 var thirdPartyApiRouter = require('./routes/thirdpartyapis')
 var leaddealactivityRouter = require('./routes/leaddealactivity')
 var contactRouter = require('./routes/contact')
+var bmpRouter = require('./routes/bmp')
 
 var app = express();
 var corsOptions = {
@@ -66,6 +67,7 @@ app.use('/api/setting', settingRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/thirdPartyApiRouter', thirdPartyApiRouter)
 app.use('/api/leaddeal/activity', leaddealactivityRouter)
+app.use('/api/bmp', bmpRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

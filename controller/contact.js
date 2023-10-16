@@ -627,7 +627,7 @@ exports.importPerson = async (req, res) => {
         INSERT INTO xx_contact_person (name, org_id,organization, phone, email, city, state, postal_code) 
         VALUES (
             '${!data[i].name ? '' : data[i].name}',
-            ${!data[i].org_id},
+             ${data[i].org_id},
             '${!data[i].organization ? '' : data[i].organization}',
             '${!data[i].phone ? '' : data[i].phone}',
             '${!data[i].email ? '' : data[i].email}',
