@@ -194,7 +194,7 @@ exports.login = async (req, res) => {
                                     role: role,
                                     role_name: role_name,
                                     is_twoFactorEnabled: is_twoFactorEnabled,
-                                    landingurl: role_name == "blogger" ? `/lp/admin` : '/lp/home',
+                                    landingurl: role_name == "blogger" ? `/lp/admin` : role_name == 'academy_manager' ? `/lp/bmp` : '/lp/home',
                                     user: userDetails,
                                     token: token
                                 });

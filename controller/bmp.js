@@ -23,7 +23,7 @@ exports.addAcademyDetails = async (req, res) => {
                 message: `Missing fields: ${missingFieldsString}`
             });
         }
-        
+
         SQL.insert('bmp_academy_details', req.body, (error, result) => {
             if (error) {
                 return res.status(500).json({
@@ -49,10 +49,10 @@ exports.addAcademyDetails = async (req, res) => {
 
 exports.getAcademyByOrg = async (req, res) => {
 
-    const { org_id } = req.params
+    const { user_id } = req.params
 
     try {
-        SQL.get('bmp_academy_details', ``, `org_id=${org_id}`, (error, result) => {
+        SQL.get('bmp_academy_details', ``, `id=${user_id}`, (error, result) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -134,11 +134,11 @@ exports.updateAcademy = async (req, res) => {
 // =========== Batches and Fees Apis ========== //
 exports.addAcademyBatchDetails = async (req, res) => {
     try {
-        const { academy_id, age_group, weekly_days, timing, fees } = req.body
+        const { academy_id, age_group, weekly_days, timing, fees, title } = req.body
 
         const missingFields = [];
 
-        ['academy_id', 'age_group', 'weekly_days', 'timing', 'fees'].forEach(fieldName => {
+        ['academy_id', 'age_group', 'weekly_days', 'timing', 'fees', 'title'].forEach(fieldName => {
             if (!req.body[fieldName]) {
                 missingFields.push(fieldName);
             }
