@@ -1077,7 +1077,7 @@ exports.importDeal = async (req, res) => {
                  ${data[i].org_id},
                 '${!data[i].lead_id ? null : data[i].lead_id}',
                  ${owner},
-                 ${stage_id},
+                 ${data[i].stage_id},
                 '${!data[i].deal_name ? '' : data[i].deal_name}',
                 '${!data[i].currency ? '' : data[i].currency}',
                 '${!data[i].organization ? '' : data[i].organization}',
