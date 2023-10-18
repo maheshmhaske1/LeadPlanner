@@ -172,7 +172,7 @@ exports.addAcademyBatchDetails = async (req, res) => {
                         message: error
                     });
                 }
-                return res.status(500).json({
+                return res.json({
                     status: 1,
                     message: "batch added successfully."
                 });
