@@ -50,7 +50,6 @@ exports.verifyBmpAdmin = (req, res, next) => {
         const decoded = jwt.verify(token, JWT_TOKEN);
         req.decoded = decoded;
 
-
         const currentTimestamp = Math.floor(Date.now() / 1000);
         if (decoded.exp < currentTimestamp) {
             return res.json({
@@ -59,7 +58,7 @@ exports.verifyBmpAdmin = (req, res, next) => {
             });
         }
 
-        if (req.decoded.role_name !== "admin" && req.decoded.role_name !== "academy_manager") {
+        if (req.decoded.role_name !== "admin" && req.decoded.type_id !== 1) {
             return res.json({
                 status: 0,
                 message: 'unauthorized user.'

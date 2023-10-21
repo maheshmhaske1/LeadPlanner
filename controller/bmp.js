@@ -14,7 +14,7 @@ exports.login = async (req, res) => {
         })
     }
 
-    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
+    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone','parent_id'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
@@ -36,12 +36,12 @@ exports.login = async (req, res) => {
             })
         }
 
-        const token = await jwt.sign({ id: results[0].id,phone: results[0].phone, type: results[0].type, type_id: results[0].type_id }, JWT_TOKEN, { expiresIn: '10d' });
+        const token = await jwt.sign({ id: results[0].id, phone: results[0].phone, type: results[0].type, type_id: results[0].type_id }, JWT_TOKEN, { expiresIn: '10d' });
         return res.json({
             status: 1,
             message: "Logged in",
             landingurl: "/lp/bmp",
-            permissions:"/lp/bmp/overview,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery",
+            permissions: "/lp/bmp/overview,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery",
             user: results[0],
             token: token
         })
