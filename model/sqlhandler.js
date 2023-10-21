@@ -34,6 +34,7 @@ exports.get = (tableName, columns, condition, callback) => {
 exports.update = (tableName, values, condition, callback) => {
     const connection = tableName == 'xx_blog_details' || tableName == 'xx_blog_tag' || tableName == 'xx_blog' ? dbB : db;
     let query = `UPDATE \`${tableName}\` SET ?`;
+    
     if (condition) {
         query += ` WHERE ${condition}`;
     }

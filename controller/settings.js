@@ -69,33 +69,36 @@ exports.updatePasswordSetting = async (req, res) => {
         }
         const { org_id } = req.params
         let update_data = req.body
+        update_data = update_data.data
 
+        if (update_data.length == 0) {
+            return res.json({
+                status: 0,
+                message: "please provide valid data"
+            })
+        }
+        console.log(update_data.length)
 
-        update_data.data.map(async (update_data) => {
+        for (let i = 0; i < update_data.length; i++) {
             if (update_data.creation_date || update_data.update_date) {
                 return res.json({
                     status: 0,
                     message: "creation_date ,update_date cannot be edit"
                 })
             }
-            if (!update_data.hasOwnProperty("active") || !update_data.hasOwnProperty("value")) {
-                return res.json({
-                    status: 0,
-                    message: "at least one field required from active and value"
-                });
-            }
             let id = update_data.id
             delete update_data.id
-            console.log(update_data)
-            await SQL.update('password_settings', update_data, `id=${id} AND org_id=${org_id}`, (error, result) => {
+
+            await SQL.update('password_settings', update_data, `id=${update_data[i].id} AND org_id=${org_id}`, (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
-                        message: "---->", error, result
+                        message: error
                     })
                 }
+                console.log(result)
             })
-        })
+        }
         return res.json({
             status: 1,
             message: 'password settings changed successfully.'
