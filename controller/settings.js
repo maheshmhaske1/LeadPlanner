@@ -672,19 +672,6 @@ exports.getLogs = async (req, res) => {
                 data: result
             })
         })
-        // SQL.get('xx_log', ``, `attr1="${logName}"`, (error, result) => {
-        //     if (error) {
-        //         return res.json({
-        //             status: 0,
-        //             message: error
-        //         })
-        //     }
-        //     return res.json({
-        //         status: 1,
-        //         message: "All logs",
-        //         data: result
-        //     })
-        // })
     }
     catch (error) {
         console.error("Catch block error:", error);

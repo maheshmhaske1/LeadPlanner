@@ -4,6 +4,8 @@ const auth = require('../model/auth')
 const { verifyBmpAdmin } = require('../model/auth')
 const bmp = require('../controller/bmp')
 
+router.post('/login', bmp.login)
+
 router.post('/academy/add', verifyBmpAdmin, bmp.addAcademyDetails)
 router.get('/academy/get/:user_id', verifyBmpAdmin, bmp.getAcademyByOrg)
 router.put('/academy/update/:academy_id', verifyBmpAdmin, bmp.updateAcademy)

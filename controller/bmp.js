@@ -1,4 +1,53 @@
 const SQL = require('../model/sqlhandlermaster')
+const jwt = require('jsonwebtoken')
+const dotenv = require("dotenv").config();
+const { JWT_TOKEN } = process.env;
+
+
+exports.login = async (req, res) => {
+
+    const { username, otp } = req.body;
+    if (!username || !otp) {
+        return res.json({
+            status: 0,
+            message: "username and password are required fields."
+        })
+    }
+
+    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: "Something went wrong",
+            })
+        }
+
+        if (results.length == 0) {
+            return res.json({
+                status: 0,
+                message: "user not found"
+            })
+        }
+
+        if (otp != 1111) {
+            return res.json({
+                status: 0,
+                message: "invalid otp"
+            })
+        }
+
+        const token = await jwt.sign({ id: results[0].id,phone: results[0].phone, type: results[0].type, type_id: results[0].type_id }, JWT_TOKEN, { expiresIn: '10d' });
+        return res.json({
+            status: 1,
+            message: "Logged in",
+            landingurl: "/lp/bmp",
+            user: results[0],
+            token: token
+        })
+
+    })
+
+};
 
 // =========== Academy Apis ========== //
 exports.addAcademyDetails = async (req, res) => {
