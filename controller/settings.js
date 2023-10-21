@@ -113,28 +113,56 @@ exports.updatePasswordSetting = async (req, res) => {
 exports.getPasswordSetting = async (req, res) => {
     try {
 
-        const { org_id } = req.body
-        if (!org_id) {
-            return res.json({
-                status: 0,
-                message: "org_id is required"
+        const { entity, isOrgId } = req.params
 
+
+        if (isOrgId == "true") {
+            SQL.get('password_settings', ``, `org_id=${entity}`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                return res.json({
+                    status: 1,
+                    message: 'password settings',
+                    data: result
+                })
+            })
+        }
+        else {
+            SQL.get('user', ``, `email="${entity}"`, (error, result) => {
+                if (error) {
+                    return res.json({
+                        status: 0,
+                        message: error
+                    })
+                }
+                if (result.length == 0) {
+                    return res.json({
+                        status: 0,
+                        message: "invalid user email"
+                    })
+                }
+
+                SQL.get('password_settings', ``, `org_id=${result[0].org_id}`, (error, result) => {
+                    if (error) {
+                        return res.json({
+                            status: 0,
+                            message: error
+                        })
+                    }
+                    return res.json({
+                        status: 1,
+                        message: 'password settings',
+                        data: result
+                    })
+                })
             })
         }
 
-        SQL.get('password_settings', ``, `org_id=${org_id}`, (error, result) => {
-            if (error) {
-                return res.json({
-                    status: 0,
-                    message: error
-                })
-            }
-            return res.json({
-                status: 1,
-                message: 'password settings',
-                data: result
-            })
-        })
+
     }
     catch (error) {
         return res.json({
