@@ -14,7 +14,7 @@ exports.login = async (req, res) => {
         })
     }
 
-    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone','parent_id'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
+    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone', 'parent_id'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
