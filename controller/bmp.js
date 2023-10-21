@@ -41,6 +41,7 @@ exports.login = async (req, res) => {
             status: 1,
             message: "Logged in",
             landingurl: "/lp/bmp",
+            permissions:"/lp/bmp/overview,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery",
             user: results[0],
             token: token
         })
