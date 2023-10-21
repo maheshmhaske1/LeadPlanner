@@ -79,24 +79,42 @@ exports.updatePasswordSetting = async (req, res) => {
         }
         console.log(update_data.length)
 
+        let sql = ``;
         for (let i = 0; i < update_data.length; i++) {
-            if (update_data.creation_date || update_data.update_date) {
+            if (update_data[i].creation_date || update_data[i].update_date) {
                 return res.json({
                     status: 0,
-                    message: "creation_date ,update_date cannot be edit"
-                })
+                    message: "creation_date, update_date cannot be edited"
+                });
             }
-            let id = update_data.id
-            delete update_data.id
+            if (!update_data[i].id || !update_data[i].active || !update_data[i].value) {
+                return res.json({
+                    status: 0,
+                    message: `id, active or value value missing in object - ${i}`
+                });
+            }
+            let id = update_data[i].id;
+            delete update_data[i].id;
 
-            await SQL.update('password_settings', update_data, `id=${update_data[i].id} AND org_id=${org_id}`, (error, result) => {
+            sql += `UPDATE password_settings SET active = ${update_data[i].active}, value = ${update_data[i].value} WHERE id = ${id} AND org_id = ${org_id};`;
+
+            if (i + 1 == update_data.length) {
+                update_query(sql)
+            }
+        }
+
+        function update_query(sql) {
+            db.query(sql, (error, result) => {
                 if (error) {
                     return res.json({
                         status: 0,
                         message: error
                     })
                 }
-                console.log(result)
+                return res.json({
+                    status: 1,
+                    message: 'password settings updated successfully.'
+                })
             })
         }
         return res.json({
