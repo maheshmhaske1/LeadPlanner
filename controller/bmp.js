@@ -1,7 +1,9 @@
 const SQL = require('../model/sqlhandlermaster')
 const jwt = require('jsonwebtoken')
+const cloudinary = require('cloudinary').v2;
 const dotenv = require("dotenv").config();
-const { JWT_TOKEN } = process.env;
+const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY } = process.env;
+
 
 
 exports.login = async (req, res) => {
@@ -318,4 +320,38 @@ exports.updateBatch = async (req, res) => {
             message: "Something went wrong", error
         });
     }
+}
+
+exports.createCloudinaryFolder = async (req, res) => {
+
+    cloudinary.config({
+        cloud_name: CLOUDINARY_CLOUD_NAME,
+        api_key: CLOUDINARY_API_KEY,
+        api_secret: CLOUDINARY_API_SECRET
+    });
+
+    const { folderPath } = req.body
+    if (!folderPath) {
+        return res.json({
+            status: 0,
+            message: "folderpath is required"
+        })
+    }
+    console.log(process.env)
+
+
+    cloudinary.api.create_folder(folderName, (error, result) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: error
+            })
+        } else {
+            return res.json({
+                status: 1,
+                message: "folder created successfully",
+                message: result
+            })
+        }
+    });
 }

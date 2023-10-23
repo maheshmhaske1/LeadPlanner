@@ -13,4 +13,6 @@ router.post('/academy/batch/add', verifyBmpAdmin, bmp.addAcademyBatchDetails)
 router.get('/academy/batch/get/:academy_id', verifyBmpAdmin, bmp.getAcademyBatchByAcademy)
 router.put('/academy/batch/update/:batchId', verifyBmpAdmin, bmp.updateBatch)
 
+router.post('/cloudinary/createFolder', verifyBmpAdmin, bmp.createCloudinaryFolder)
+
 module.exports = router;

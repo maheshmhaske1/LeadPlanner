@@ -87,12 +87,12 @@ exports.updatePasswordSetting = async (req, res) => {
                     message: "creation_date, update_date cannot be edited"
                 });
             }
-            if (!update_data[i].id || !update_data[i].active || !update_data[i].value) {
-                return res.json({
-                    status: 0,
-                    message: `id, active or value value missing in object - ${i}`
-                });
-            }
+            // if (!update_data[i].id || !update_data[i].active || !update_data[i].value) {
+            //     return res.json({
+            //         status: 0,
+            //         message: `id, active or value value missing in object - ${i}`
+            //     });
+            // }
             let id = update_data[i].id;
             delete update_data[i].id;
 
