@@ -4,7 +4,12 @@ const cloudinary = require('cloudinary').v2;
 const dotenv = require("dotenv").config();
 const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY } = process.env;
 
-
+// ======== CLOUDINARY CONFIG ======== //
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 exports.login = async (req, res) => {
 
@@ -324,12 +329,6 @@ exports.updateBatch = async (req, res) => {
 
 exports.createCloudinaryFolder = async (req, res) => {
 
-    cloudinary.config({
-        cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
-    });
-
     const { folderPath } = req.body
     if (!folderPath) {
         return res.json({
@@ -355,3 +354,4 @@ exports.createCloudinaryFolder = async (req, res) => {
         }
     });
 }
+
