@@ -57,6 +57,41 @@ exports.login = async (req, res) => {
 
 };
 
+exports.getUser = async (req, res) => {
+
+    const { userId } = req.body;
+    if (!userId) {
+        return res.json({
+            status: 0,
+            message: "userId is required fields."
+        })
+    }
+
+    SQL.get('bmp_user', ``, `id = ${userId}`, async (error, results) => {
+        if (error) {
+            return res.json({
+                status: 0,
+                message: "Something went wrong",
+            })
+        }
+
+        if (results.length == 0) {
+            return res.json({
+                status: 0,
+                message: "user not found"
+            })
+        }
+
+        return res.json({
+            status: 1,
+            message: "User Details",
+            user: results[0]
+        })
+
+    })
+
+};
+
 // =========== Academy Apis ========== //
 exports.addAcademyDetails = async (req, res) => {
     try {
