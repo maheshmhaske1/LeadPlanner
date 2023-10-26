@@ -1150,13 +1150,13 @@ exports.addTicket = async (req, res) => {
     }
 
     const user_id = loggedInUser.id
-    let { mobile, title, description, email, category, priority, org_Id } = req.body;
+    let { mobile, title, description, email, category, priority, org_id } = req.body;
     req.body.user_id = user_id
 
-    if (!mobile || !title || !description || !email || !category || !org_Id) {
+    if (!mobile || !title || !description || !email || !category || !org_id) {
         return res.json({
             status: 0,
-            message: ` mobile, title, description, email, category, org_Id are required values`
+            message: ` mobile, title, description, email, category, org_id are required values`
         })
     }
 
