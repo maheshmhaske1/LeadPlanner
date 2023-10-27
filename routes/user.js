@@ -27,7 +27,7 @@ router.delete("/deleteallmemberfromtrash", verifyToken, userController.deleteAll
 router.get('/getcountries', verifyToken, userController.getCountryMasterData)
 router.post("/ticket/raise", verifyToken, userController.addTicket);
 router.post("/ticket/getAll/:status", verifyToken, userController.getAllTickets);
-router.get("/ticket/getmytickets", verifyToken, userController.getTickets);
+router.get("/ticket/getmytickets/:org_id", verifyToken, userController.getTickets);
 router.put("/ticket/update/:ticketId", verifyToken, userController.updateTickets);
 router.get('/getallroles', verifyToken, userController.getAllRoles)
 router.get('/getrolesByUser/:userId', verifyToken, userController.getUserRolesByUser)

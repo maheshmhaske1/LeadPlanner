@@ -1218,8 +1218,9 @@ exports.getTickets = async (req, res) => {
     }
 
     const userId = loggedInUser.id
+    const { org_id } = req.params
 
-    SQL.get('tickets', ``, `user_id = ${userId}`, (error, result) => {
+    SQL.get('tickets', ``, `user_id = ${userId} AND org_id = ${org_id}`, (error, result) => {
         if (error) {
             return res.json({
                 status: 0,
