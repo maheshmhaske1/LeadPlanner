@@ -58,7 +58,7 @@ exports.verifyBmpAdmin = (req, res, next) => {
             });
         }
 
-        if (req.decoded.role_name !== "admin" && req.decoded.type_id !== 1) {
+        if (req.decoded.role_name !== "admin" && req.decoded.type_id !== 2) {
             return res.json({
                 status: 0,
                 message: 'unauthorized user.'
