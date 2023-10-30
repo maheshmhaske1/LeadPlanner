@@ -23,12 +23,12 @@ exports.addBlog = async (req, res) => {
       })
     }
 
-    let { title, url, description, route, image, site, tag, date, sections } = req.body;
+    let { title, url, description, route, image, site, tag, date, sections, org_id } = req.body;
 
-    if (!title || !url || !description || !tag || !date || !sections) {
+    if (!title || !url || !description || !tag || !date || !sections || !org_id) {
       return res.json({
         status: 0,
-        message: " title, url, description, image, tag, date, sections are required fields"
+        message: " title, url, description, image, tag, date, sections, org_id are required fields"
       })
     }
 
@@ -137,12 +137,12 @@ exports.getBlogs = async (req, res) => {
       })
     }
 
-    const { siteName } = req.body
+    const { siteName, org_id } = req.body
 
-    if (!siteName) {
+    if (!siteName || !org_id) {
       return res.json({
         status: 0,
-        message: "site name is required field"
+        message: "site name and org_id are required field"
       })
     }
 
@@ -151,7 +151,7 @@ exports.getBlogs = async (req, res) => {
     FROM xx_blog AS b
     LEFT JOIN xx_blog_details AS d
     ON b.id = d.blogid
-    WHERE b.site="${siteName}"
+    WHERE b.site="${siteName}" AND b.org_id=${org_id}
     GROUP BY b.id
     ORDER BY b.id DESC;`
 
@@ -285,7 +285,8 @@ exports.getBlog = async (req, res) => {
       })
     }
 
-    const blogId = req.params.blogId;
+    const { blogId } = req.params;
+
     SQL.get('xx_blog', '', `id=${blogId}`, (error, results) => {
       if (error) {
         return res.json({
@@ -332,7 +333,10 @@ exports.getTagCategory = async (req, res) => {
       })
     }
 
-    const query = "SELECT DISTINCT category FROM xx_blog_tag WHERE category IS NOT NULL"
+    const { org_id } = req.params
+
+    const query = `SELECT DISTINCT category FROM xx_blog_tag WHERE category IS NOT NULL AND org_id = ${org_id}`
+
     dbB.query(query, (error, result) => {
       if (error) {
         return res.json({
@@ -356,6 +360,7 @@ exports.getTagCategory = async (req, res) => {
   }
 };
 
+
 exports.getAllBlogTags = async (req, res) => {
   try {
     const loggedInUser = req.decoded
@@ -373,8 +378,16 @@ exports.getAllBlogTags = async (req, res) => {
       })
     }
 
-    let { category, condition } = req.body
-    let queryCondition = ``
+    let { category, condition ,org_id} = req.body
+
+    if(!org_id){
+      return res.json({
+        status: 0,
+        message: "org_id is required",
+      })
+    }
+
+    let queryCondition = `org_id=${org_id}`
 
     if (condition === "category") {
       if (!category) {
@@ -383,7 +396,7 @@ exports.getAllBlogTags = async (req, res) => {
           message: "category is required field"
         })
       }
-      queryCondition = `category="${category}"`
+      queryCondition = `category="${category}" AND org_id=${org_id}`
     }
 
 
@@ -439,12 +452,12 @@ exports.getBlogTagsBySite = async (req, res) => {
       })
     }
 
-    const { siteName } = req.params
+    const { siteName,org_id } = req.params
 
-    if (!siteName) {
+    if (!siteName,!org_id) {
       return res.json({
         status: 0,
-        message: "siteName is required field",
+        message: "siteName,org_id are required field",
       })
     }
 
@@ -455,7 +468,7 @@ exports.getBlogTagsBySite = async (req, res) => {
       })
     }
 
-    SQL.get('xx_blog_tag', '', `site="${siteName}"`, (error, results) => {
+    SQL.get('xx_blog_tag', '', `site="${siteName}" AND org_id=${org_id}`, (error, results) => {
       if (error) {
         return res.json({
           status: 0,

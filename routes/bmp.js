@@ -14,6 +14,10 @@ router.post('/academy/batch/add', verifyBmpAdmin, bmp.addAcademyBatchDetails)
 router.get('/academy/batch/get/:academy_id', verifyBmpAdmin, bmp.getAcademyBatchByAcademy)
 router.put('/academy/batch/update/:batchId', verifyBmpAdmin, bmp.updateBatch)
 
-// router.post('/cloudinary/createFolder', verifyBmpAdmin, bmp.createCloudinaryFolder)
+router.post('/cloudinary/createFolder', verifyBmpAdmin, bmp.createCloudinaryFolder)
+
+// ============== LEAD APIS ============= //
+router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdmin, bmp.getAcademyLeads)
+
 
 module.exports = router;

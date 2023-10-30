@@ -18,9 +18,9 @@ router.post("/addImg", verifyToken, blogController.addBlogImage);
 router.delete("/deleteImg/:blogImage", verifyToken, blogController.deleteBlogImage);
 router.post("/tag/getall", verifyToken, blogController.getAllBlogTags);
 router.post("/tag/getbyids", verifyToken, blogController.getTagsByIds);
-router.get("/tag/getbysite/:siteName", verifyToken, blogController.getBlogTagsBySite);
+router.get("/tag/getbysite/:siteName/:org_id", verifyToken, blogController.getBlogTagsBySite);
 router.post("/tag/add", verifyToken, blogController.addBlogTag);
-router.get("/tag/getcategories", verifyToken, blogController.getTagCategory);
+router.get("/tag/getcategories/:org_id", verifyToken, blogController.getTagCategory);
 
 // ============================== section api ============================== //
 router.put("/section/update/:sectionId", verifyToken, blogController.editSection);
