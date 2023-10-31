@@ -58,7 +58,6 @@ exports.addBlog = async (req, res) => {
 
       const userEmail = result[0].email
       req.body.created_by = userEmail
-      console.table(req.body)
       SQL.insert('xx_blog', req.body, async (error, results) => {
         if (error) {
           return res.json({
