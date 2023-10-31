@@ -227,11 +227,11 @@ exports.updateAcademy = async (req, res) => {
 // =========== Batches and Fees Apis ========== //
 exports.addBatchDetails = async (req, res) => {
     try {
-        const { academy_id, age_group, weekly_days, timing, fees, title,object_id, object_type } = req.body
+        const { age_group, weekly_days, timing, fees, title,object_id, object_type } = req.body
 
         const missingFields = [];
 
-        ['academy_id', 'age_group', 'weekly_days', 'timing', 'fees', 'title','object_id', 'object_type'].forEach(fieldName => {
+        [ 'age_group', 'weekly_days', 'timing', 'fees', 'title','object_id', 'object_type'].forEach(fieldName => {
             if (!req.body[fieldName]) {
                 missingFields.push(fieldName);
             }
