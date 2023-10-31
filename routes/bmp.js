@@ -19,5 +19,11 @@ router.put('/academy/batch/update/:batchId', verifyBmpAdmin, bmp.updateBatch)
 // ============== LEAD APIS ============= //
 router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdmin, bmp.getAcademyLeads)
 
+// ============== Reviews ============= //
+router.post('/academy/getreviews', verifyBmpAdmin, bmp.getTotalReviews)
+router.post('/academy/getreviewreply', verifyBmpAdmin, bmp.getReviewReply)
+router.post('/academy/getreviewreport', verifyBmpAdmin, bmp.getReviewReport)
+
+
 
 module.exports = router;

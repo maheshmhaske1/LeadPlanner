@@ -1,3 +1,4 @@
+const { dbB } = require('../model/db');
 const SQL = require('../model/sqlhandlermaster')
 const jwt = require('jsonwebtoken')
 // const cloudinary = require('cloudinary').v2;
@@ -394,7 +395,7 @@ exports.updateBatch = async (req, res) => {
 
 exports.getAcademyLeads = async (req, res) => {
 
-    const { academy_id,object_type } = req.params
+    const { academy_id, object_type } = req.params
 
     try {
         SQL.get('bmp_leads', ``, `object_id=${academy_id} AND object_type="${object_type}"`, (error, result) => {
@@ -410,6 +411,129 @@ exports.getAcademyLeads = async (req, res) => {
                 data: result
             });
 
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.getTotalReviews = async (req, res) => {
+
+    try {
+
+        const { object_type, object_id } = req.body
+        if (!object_type || !object_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "object_type and object_id are required"
+            })
+        }
+
+        const query = `SELECT r.*,
+        COALESCE(reply_count, 0) AS total_reply
+        FROM bmp_reviews r
+        LEFT JOIN(SELECT parent_id,COUNT(*) AS reply_count
+        FROM bmp_reviews
+        WHERE parent_id IS NOT NULL
+        GROUP BY parent_id) 
+        subq
+        ON r.id = subq.parent_id
+        WHERE r.parent_id IS NULL AND object_type = "${object_type}" AND object_id = ${object_id};`
+
+        dbB.query(query, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy reviews',
+                data: result
+            });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.getReviewReply = async (req, res) => {
+
+    try {
+
+        const { review_id } = req.body
+        if (!review_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "review_id is required"
+            })
+        }
+
+        const query = `SELECT * from bmp_reviews WHERE parent_id = ${review_id};`
+
+        dbB.query(query, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy review reply',
+                data: result
+            });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.getReviewReport = async (req, res) => {
+
+    try {
+
+        const { object_type, object_id } = req.body
+        if (!object_type || !object_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "object_type and object_id are required"
+            })
+        }
+
+        const query = `SELECT
+        ROUND(AVG(rating), 1) AS overall_stars,
+        COUNT(*) AS total_reviews,
+        SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS total_1_stars,
+        SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS total_2_stars,
+        SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) AS total_3_stars,
+        SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS total_4_stars,
+        SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS total_5_stars
+        FROM bmp_reviews
+        WHERE rating >= 1 AND rating <= 5 AND object_type = "${object_type}" AND object_id = ${object_id};`
+
+        dbB.query(query, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy review report',
+                data: result
+            });
         })
     } catch (error) {
         return res.status(500).json({
