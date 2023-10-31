@@ -10,9 +10,9 @@ router.post('/getUser', verifyBmpAdmin, bmp.getUser)
 router.post('/academy/add', verifyBmpAdmin, bmp.addAcademyDetails)
 router.get('/academy/get/:user_id', verifyBmpAdmin, bmp.getAcademyByOrg)
 router.put('/academy/update/:academy_id', verifyBmpAdmin, bmp.updateAcademy)
-router.post('/academy/batch/add', verifyBmpAdmin, bmp.addBatchDetails)
-router.post('/academy/batch/get', verifyBmpAdmin, bmp.getBatch)
-router.put('/academy/batch/update/:batchId', verifyBmpAdmin, bmp.updateBatch)
+router.post('/batch/add', verifyBmpAdmin, bmp.addBatchDetails)
+router.post('/batch/get', verifyBmpAdmin, bmp.getBatch)
+router.put('/batch/update/:batchId', verifyBmpAdmin, bmp.updateBatch)
 
 // router.post('/cloudinary/createFolder', verifyBmpAdmin, bmp.createCloudinaryFolder)
 
