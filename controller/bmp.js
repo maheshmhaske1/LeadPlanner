@@ -225,13 +225,13 @@ exports.updateAcademy = async (req, res) => {
 }
 
 // =========== Batches and Fees Apis ========== //
-exports.addAcademyBatchDetails = async (req, res) => {
+exports.addBatchDetails = async (req, res) => {
     try {
-        const { academy_id, age_group, weekly_days, timing, fees, title } = req.body
+        const { academy_id, age_group, weekly_days, timing, fees, title,object_id, object_type } = req.body
 
         const missingFields = [];
 
-        ['academy_id', 'age_group', 'weekly_days', 'timing', 'fees', 'title'].forEach(fieldName => {
+        ['academy_id', 'age_group', 'weekly_days', 'timing', 'fees', 'title','object_id', 'object_type'].forEach(fieldName => {
             if (!req.body[fieldName]) {
                 missingFields.push(fieldName);
             }
@@ -279,12 +279,12 @@ exports.addAcademyBatchDetails = async (req, res) => {
     }
 }
 
-exports.getAcademyBatchByAcademy = async (req, res) => {
+exports.getBatch = async (req, res) => {
 
-    const { academy_id } = req.params
+    const { object_id, object_type } = req.body
 
     try {
-        SQL.get('bmp_academy_batches', ``, `academy_id=${academy_id} AND is_deleted=0`, (error, result) => {
+        SQL.get('bmp_academy_batches', ``, `object_id=${object_id} AND object_type="${object_type}" AND is_deleted=0`, (error, result) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
