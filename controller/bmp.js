@@ -245,19 +245,19 @@ exports.addBatchDetails = async (req, res) => {
             });
         }
 
-        SQL.get('bmp_academy_details', ``, `id=${academy_id}`, (error, results) => {
-            if (error) {
-                return res.status(500).json({
-                    status: 0,
-                    message: error
-                });
-            }
-            if (results.length == 0) {
-                return res.status(200).json({
-                    status: 1,
-                    message: 'Academy not found.'
-                });
-            }
+        // SQL.get('bmp_academy_details', ``, `id=${academy_id}`, (error, results) => {
+        //     if (error) {
+        //         return res.status(500).json({
+        //             status: 0,
+        //             message: error
+        //         });
+        //     }
+        //     if (results.length == 0) {
+        //         return res.status(200).json({
+        //             status: 1,
+        //             message: 'Academy not found.'
+        //         });
+        //     }
             SQL.insert('bmp_academy_batches', req.body, (error, result) => {
                 if (error) {
                     return res.status(500).json({
@@ -270,11 +270,11 @@ exports.addBatchDetails = async (req, res) => {
                     message: "batch added successfully."
                 });
             })
-        })
+        // })
     } catch (error) {
         return res.status(500).json({
             status: 0,
-            message: "Something went wrong", error
+            message:  error.message 
         });
     }
 }
