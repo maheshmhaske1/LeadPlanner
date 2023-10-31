@@ -99,10 +99,19 @@ exports.addBlog = async (req, res) => {
             })
           }
 
-          return res.json({
-            status: 1,
-            message: 'blog added',
-            data: { blogId: blogId }
+          let updatedUrl = `${url}-bid-${blogId}`
+          SQL.update('xx_blog', { url: updatedUrl }, `id=${blogId}`, (error, result) => {
+            if (error) {
+              return res.json({
+                status: 0,
+                message: error
+              })
+            }
+            return res.json({
+              status: 1,
+              message: 'blog added',
+              data: { blogId: blogId }
+            })
           })
         }
       });
@@ -378,9 +387,9 @@ exports.getAllBlogTags = async (req, res) => {
       })
     }
 
-    let { category, condition ,org_id} = req.body
+    let { category, condition, org_id } = req.body
 
-    if(!org_id){
+    if (!org_id) {
       return res.json({
         status: 0,
         message: "org_id is required",
@@ -452,9 +461,9 @@ exports.getBlogTagsBySite = async (req, res) => {
       })
     }
 
-    const { siteName,org_id } = req.params
+    const { siteName, org_id } = req.params
 
-    if (!siteName,!org_id) {
+    if (!siteName, !org_id) {
       return res.json({
         status: 0,
         message: "siteName,org_id are required field",
