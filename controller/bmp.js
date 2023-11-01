@@ -227,11 +227,11 @@ exports.updateAcademy = async (req, res) => {
 // =========== Batches and Fees Apis ========== //
 exports.addBatchDetails = async (req, res) => {
     try {
-        const { age_group, weekly_days, timing, fees, title,object_id, object_type } = req.body
+        const { age_group, weekly_days, timing, fees, title, object_id, object_type } = req.body
 
         const missingFields = [];
 
-        [ 'age_group', 'weekly_days', 'timing', 'fees', 'title','object_id', 'object_type'].forEach(fieldName => {
+        ['age_group', 'weekly_days', 'timing', 'fees', 'title', 'object_id', 'object_type'].forEach(fieldName => {
             if (!req.body[fieldName]) {
                 missingFields.push(fieldName);
             }
@@ -258,23 +258,23 @@ exports.addBatchDetails = async (req, res) => {
         //             message: 'Academy not found.'
         //         });
         //     }
-            SQL.insert('bmp_academy_batches', req.body, (error, result) => {
-                if (error) {
-                    return res.status(500).json({
-                        status: 0,
-                        message: error
-                    });
-                }
-                return res.json({
-                    status: 1,
-                    message: "batch added successfully."
+        SQL.insert('bmp_batches', req.body, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
                 });
-            })
+            }
+            return res.json({
+                status: 1,
+                message: "batch added successfully."
+            });
+        })
         // })
     } catch (error) {
         return res.status(500).json({
             status: 0,
-            message:  error.message 
+            message: error.message
         });
     }
 }
@@ -284,7 +284,7 @@ exports.getBatch = async (req, res) => {
     const { object_id, object_type } = req.body
 
     try {
-        SQL.get('bmp_academy_batches', ``, `object_id=${object_id} AND object_type="${object_type}" AND is_deleted=0`, (error, result) => {
+        SQL.get('bmp_batches', ``, `object_id=${object_id} AND object_type="${object_type}" AND is_deleted=0`, (error, result) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -326,7 +326,7 @@ exports.updateBatch = async (req, res) => {
             });
         }
 
-        SQL.get('bmp_academy_batches', ``, `id=${batchId}`, (error, results) => {
+        SQL.get('bmp_batches', ``, `id=${batchId}`, (error, results) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -340,7 +340,7 @@ exports.updateBatch = async (req, res) => {
                 });
             }
 
-            SQL.update('bmp_academy_batches', update_data, `id=${batchId}`, (error, results) => {
+            SQL.update('bmp_batches', update_data, `id=${batchId}`, (error, results) => {
                 if (error) {
                     return res.status(500).json({
                         status: 0,
@@ -490,6 +490,39 @@ exports.getReviewReply = async (req, res) => {
                 message: 'Academy review reply',
                 data: result
             });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.addReviewReply = async (req, res) => {
+
+    try {
+
+        const { parent_id, type, object_type, object_id, name, comment, status, user_id } = req.body
+        if (!parent_id || !type || !object_type || !object_id || !name || !comment || !status || !user_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "parent_id, type, object_type, object_id, name, comment, status, user_id are required"
+            })
+        }
+
+        SQL.insert('bmp_reviews', req.body, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy review reply added successfully',
+                data: result
+            })
         })
     } catch (error) {
         return res.status(500).json({

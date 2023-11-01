@@ -21,6 +21,7 @@ router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdmin, bmp.ge
 
 // ============== Reviews ============= //
 router.post('/academy/getreviews', verifyBmpAdmin, bmp.getTotalReviews)
+router.post('/academy/review/reply', verifyBmpAdmin, bmp.addReviewReply)
 router.post('/academy/getreviewreply', verifyBmpAdmin, bmp.getReviewReply)
 router.post('/academy/getreviewreport', verifyBmpAdmin, bmp.getReviewReport)
 
