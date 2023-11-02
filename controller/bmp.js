@@ -503,11 +503,11 @@ exports.addReviewReply = async (req, res) => {
 
     try {
 
-        const { parent_id, type, object_type, object_id, name, comment, status, user_id } = req.body
-        if (!parent_id || !type || !object_type || !object_id || !name || !comment || !status || !user_id) {
+        const { parent_id, type, object_type, object_id, name, comment, status } = req.body
+        if (!parent_id || !type || !object_type || !object_id || !name || !comment || !status ) {
             return res.status(400).json({
                 status: 0,
-                message: "parent_id, type, object_type, object_id, name, comment, status, user_id are required"
+                message: "parent_id, type, object_type, object_id, name, comment, status are required"
             })
         }
 
