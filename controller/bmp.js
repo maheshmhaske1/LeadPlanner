@@ -363,36 +363,129 @@ exports.updateBatch = async (req, res) => {
     }
 }
 
-// exports.createCloudinaryFolder = async (req, res) => {
+// =========== award and achievement Apis ========== //
+exports.createAward = async (req, res) => {
+    try {
+        const { tournament_name, object_id, object_type, rank, achievement } = req.body
 
-//     const { folderPath } = req.body
-//     if (!folderPath) {
-//         return res.json({
-//             status: 0,
-//             message: "folderpath is required"
-//         })
-//     }
-//     console.log(process.env.CLOUDINARY_API_SECRET)
+        if (!tournament_name || !object_id || !object_type || !rank || !achievement) {
+            return res.status(400).json({
+                status: 0,
+                message: "tournament_name,object_id,object_type,rank,achievement are required fields"
+            });
+        }
 
+        SQL.insert('bmp_award_achievement', req.body, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: "achievement created successfully",
+                data: result
+            });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
 
-//     cloudinary.api.create_folder(folderPath, (error, result) => {
-//         if (error) {
-//             return res.json({
-//                 status: 0,
-//                 message: error
-//             })
-//         } else {
-//             return res.json({
-//                 status: 1,
-//                 message: "folder created successfully",
-//                 message: result
-//             })
-//         }
-//     });
-// }
+exports.getAllAwards = async (req, res) => {
+    try {
+        const { object_type, object_id } = req.body
+        if (!object_type || !object_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "object_type and object_id are required"
+            })
+        }
+        SQL.get('bmp_award_achievement', ``, `object_id=${object_id} AND object_type="${object_type}"`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy achievements',
+                data: result
+            });
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
 
+exports.getAwardById = async (req, res) => {
+    try {
+        const { id } = req.params
+        SQL.get('bmp_award_achievement', ``, `id=${id}`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy achievement',
+                data: result
+            });
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
 
+exports.updateAward = async (req, res) => {
+    try {
+        const { id } = req.params
+        const update_data = req.body;
 
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.status(400).json({
+                status: 0,
+                message: "id, creation_date, and update_date cannot be edited"
+            });
+        }
+
+        SQL.update('bmp_award_achievement', update_data, `id=${id}`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy achievement updated successfully'
+            });
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+// =========== bmp leads Apis ========== //
 exports.getAcademyLeads = async (req, res) => {
 
     const { academy_id, object_type } = req.params
@@ -504,7 +597,7 @@ exports.addReviewReply = async (req, res) => {
     try {
 
         const { parent_id, type, object_type, object_id, name, comment, status } = req.body
-        if (!parent_id || !type || !object_type || !object_id || !name || !comment || !status ) {
+        if (!parent_id || !type || !object_type || !object_id || !name || !comment || !status) {
             return res.status(400).json({
                 status: 0,
                 message: "parent_id, type, object_type, object_id, name, comment, status are required"
