@@ -25,10 +25,10 @@ exports.createLeaddealActivity = async (req, res) => {
             scheduled_time,
         } = req.body;
 
-        if (!activity_name || !assigned_to || !activity_description || !activity_for || !source_id || !scheduled_date || !scheduled_time) {
+        if (!activity_name || !assigned_to  || !activity_for || !source_id || !scheduled_date || !scheduled_time) {
             return res.json({
                 status: 0,
-                message: 'activity_name,assigned_to, activity_description, activity_for, source_id, scheduled_date, and scheduled_time are required fields',
+                message: 'activity_name,assigned_to, activity_for, source_id, scheduled_date, and scheduled_time are required fields',
             });
         }
 
