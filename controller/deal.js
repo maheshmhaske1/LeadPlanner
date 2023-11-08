@@ -34,14 +34,14 @@ exports.createDeal = async (req, res) => {
 
         req.body.owner = loggedInUser.id
 
-        await SQL.get('label', ``, `id=${label_id}`, async (error, result) => {
-            console.log(result)
-            if (result.length === 0) {
-                return res.json({
-                    status: 0,
-                    message: 'please provide valid label_id'
-                })
-            }
+        // await SQL.get('label', ``, `id=${label_id}`, async (error, result) => {
+        //     console.log(result)
+        //     if (result.length === 0) {
+        //         return res.json({
+        //             status: 0,
+        //             message: 'please provide valid label_id'
+        //         })
+        //     }
 
             SQL.insert('deal', req.body, (error, results) => {
                 if (error) {
@@ -69,7 +69,7 @@ exports.createDeal = async (req, res) => {
                     })
                 }
             });
-        })
+        // })
 
 
     }
