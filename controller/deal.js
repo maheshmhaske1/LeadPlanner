@@ -19,10 +19,10 @@ exports.createDeal = async (req, res) => {
         } = req.body;
 
 
-        if (!org_id || !deal_name || !email || !mobile || !probability || !value || !closure_date || !label_id) {
+        if (!org_id || !deal_name ) {
             return res.json({
                 status: 0,
-                message: 'org_id,deal_name, email, value, mobile , probability ,closure_date, label_id these are required values'
+                message: 'org_id,deal_name are required values'
             })
         }
 

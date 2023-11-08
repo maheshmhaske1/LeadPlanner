@@ -13,10 +13,10 @@ exports.createContact = async (req, res) => {
 
         const { name, org_id, address1, address2, city, country, postcode, email, phone, valuation, valuation_in, domain, industry } = req.body;
 
-        if (!name || !org_id || !address1 || !city || !country || !postcode || !email || !phone || !valuation || !valuation_in || !domain || !industry) {
+        if (!name || !org_id ) {
             return res.status(400).json({
                 status: 0,
-                message: "name, org_id, address1, city, country, postcode, email, phone, valuation, valuation_in, domain, industry fields are required."
+                message: "name, org_id fields are required."
             });
         }
 
@@ -318,10 +318,10 @@ exports.createContactPerson = async (req, res) => {
 
         const { name, org_id, organization, phone, email, city, state, postal_code } = req.body;
 
-        if (!org_id || !name || !organization || !phone || !email || !city || !state || !postal_code) {
+        if (!org_id || !name ) {
             return res.status(400).json({
                 status: 0,
-                message: "name, org_id, organization, phone, email, city, state, postal_code  these Required fields are missing."
+                message: "name, org_id are Required fields."
             });
         }
 

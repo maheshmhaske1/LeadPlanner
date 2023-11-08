@@ -23,10 +23,10 @@ exports.createLead = async (req, res) => {
         }
 
         const { org_id, company_name, registration_no, employees, value, first_name, last_name, email, status, stage_id } = req.body;
-        if (!org_id || !first_name || !last_name || !company_name || !registration_no || !employees || !email || !status || !value || !stage_id) {
+        if (!org_id || !first_name || !last_name || !stage_id) {
             return res.json({
                 status: 0,
-                message: 'org_id,company_name, registration_no, value ,employees, ,status ,email ,stage_id these are required values'
+                message: 'org_id, first_name, last_name, stage_id are required values'
             })
         }
 
