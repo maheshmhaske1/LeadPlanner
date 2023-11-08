@@ -30,11 +30,12 @@ exports.createLead = async (req, res) => {
             })
         }
 
-        if (!validator.isEmail(email))
-            return res.json({
-                status: 0,
-                message: `${email} is not valid email`
-            })
+        if (email)
+            if (!validator.isEmail(email))
+                return res.json({
+                    status: 0,
+                    message: `${email} is not valid email`
+                })
 
         if (req.body.id || req.body.creation_date || req.body.update_date)
             return res.json({
