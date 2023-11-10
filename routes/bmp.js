@@ -14,7 +14,8 @@ router.post('/batch/add', verifyBmpAdmin, bmp.addBatchDetails)
 router.post('/batch/get', verifyBmpAdmin, bmp.getBatch)
 router.put('/batch/update/:batchId', verifyBmpAdmin, bmp.updateBatch)
 
-router.post('/cloudinary/createFolder', verifyBmpAdmin, bmp.createCloudinaryFolder)
+// router.post('/cloudinary/createFolder', verifyBmpAdmin, bmp.createCloudinaryFolder)
+router.post('/academy/getnearbylocations', bmp.getNearbyLocations)
 
 // ============== LEAD APIS ============= //
 router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdmin, bmp.getAcademyLeads)

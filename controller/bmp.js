@@ -1,16 +1,17 @@
 const { dbB } = require('../model/db');
 const SQL = require('../model/sqlhandlermaster')
 const jwt = require('jsonwebtoken')
-const cloudinary = require('cloudinary').v2;
+const axios = require('axios');
+// const cloudinary = require('cloudinary').v2;
 const dotenv = require("dotenv").config();
-const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY } = process.env;
+const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY, MAP_API_KEY } = process.env;
 
 // ======== CLOUDINARY CONFIG ======== //
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+// cloudinary.config({
+//     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//     api_key: process.env.CLOUDINARY_API_KEY,
+//     api_secret: process.env.CLOUDINARY_API_SECRET
+// });
 
 exports.login = async (req, res) => {
 
@@ -669,31 +670,58 @@ exports.getReviewReport = async (req, res) => {
     }
 }
 
-exports.createCloudinaryFolder = async (req, res) => {
+// exports.createCloudinaryFolder = async (req, res) => {
 
-    const { folderPath } = req.body
-    if (!folderPath) {
-        return res.json({
-            status: 0,
-            message: "folderpath is required"
-        })
-    }
-    console.log(process.env.CLOUDINARY_API_SECRET)
+//     const { folderPath } = req.body
+//     if (!folderPath) {
+//         return res.json({
+//             status: 0,
+//             message: "folderpath is required"
+//         })
+//     }
+//     console.log(process.env.CLOUDINARY_API_SECRET)
 
 
-    cloudinary.api.create_folder(folderPath, (error, result) => {
-        if (error) {
-            return res.json({
+//     cloudinary.api.create_folder(folderPath, (error, result) => {
+//         if (error) {
+//             return res.json({
+//                 status: 0,
+//                 message: error
+//             })
+//         } else {
+//             return res.json({
+//                 status: 1,
+//                 message: "folder created successfully",
+//                 message: result
+//             })
+//         }
+//     });
+// }
+
+exports.getNearbyLocations = async (req, res) => {
+    try {
+
+        const { lat, lng, radius, type } = req.body
+console.log(MAP_API_KEY)
+        if (!lat || !lng || !radius || !type) {
+            return res.status(400).json({
                 status: 0,
-                message: error
-            })
-        } else {
-            return res.json({
-                status: 1,
-                message: "folder created successfully",
-                message: result
+                message: "lat, lng, radius, type are required fields"
             })
         }
-    });
-}
 
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${MAP_API_KEY}`;
+        const response = await axios.get(apiUrl);
+        return res.json({
+            status: 1,
+            message: "nearby search results",
+            data: response.data
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message:  error.message
+        });
+    }
+}
