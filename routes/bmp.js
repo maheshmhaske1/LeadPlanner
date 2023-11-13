@@ -21,17 +21,18 @@ router.post('/academy/getnearbylocations', bmp.getNearbyLocations)
 router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdmin, bmp.getAcademyLeads)
 
 // ============== Reviews ============= //
-router.post('/academy/getreviews', verifyBmpAdmin, bmp.getTotalReviews)
+router.post('/academy/getreviews', bmp.getTotalReviews)
 router.post('/academy/review/reply', verifyBmpAdmin, bmp.addReviewReply)
 router.post('/academy/getreviewreply', verifyBmpAdmin, bmp.getReviewReply)
 router.post('/academy/getreviewreport', verifyBmpAdmin, bmp.getReviewReport)
 
 // ============== awards ============= //
 router.post('/academy/award/add', verifyBmpAdmin, bmp.createAward)
-router.post('/academy/award/getall', verifyBmpAdmin, bmp.getAllAwards)
-router.get('/academy/award/get/:id', verifyBmpAdmin, bmp.getAwardById)
+router.post('/academy/award/getall', bmp.getAllAwards)
+router.get('/academy/award/get/:id', bmp.getAwardById)
 router.put('/academy/award/update/:id', verifyBmpAdmin, bmp.updateAward)
 
-
+// ============= admin apis ============ //
+router.get('/academy/getall', bmp.getAllAcademy)
 
 module.exports = router;

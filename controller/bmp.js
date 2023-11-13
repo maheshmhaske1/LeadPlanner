@@ -725,3 +725,28 @@ console.log(MAP_API_KEY)
         });
     }
 }
+
+// ================= Admin Apis ================= //
+exports.getAllAcademy = async(req,res)=>{
+    try {
+        SQL.get('bmp_academy_details', ``, ``, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy details',
+                data: result
+            });
+
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    } 
+}
