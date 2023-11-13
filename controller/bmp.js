@@ -45,12 +45,17 @@ exports.login = async (req, res) => {
             })
         }
 
+        let landingUrl = ``
+        let permissions = ``
+        results[0].type_id == 2 ? landingUrl = "/lp/bmp/overview" : results[0].type_id == 0 ? landingUrl = "/lp/bmp/admin" : ""
+        results[0].type_id == 2 ? permissions = "/lp/bmp, /lp/bmp/fees, /lp/bmp/training, /lp/bmp/gallery, /lp/bmp/reviews, /lp/bmp/leads, /lp/bmp/support, /lp/bmp/help" : results[0].type_id == 0 ? permissions = "/lp/bmp, /lp/bmp/overview, /lp/bmp/fees, /lp/bmp/training, /lp/bmp/gallery, /lp/bmp/reviews, /lp/bmp/leads, /lp/bmp/support, /lp/bmp/help" : ""
+
         const token = await jwt.sign({ id: results[0].id, phone: results[0].phone, type: results[0].type, type_id: results[0].type_id }, JWT_TOKEN, { expiresIn: '10d' });
         return res.json({
             status: 1,
             message: "Logged in",
-            landingurl: "/lp/bmp",
-            permissions: "/lp/bmp/overview,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery",
+            landingurl: landingUrl,
+            permissions: permissions,
             user: results[0],
             token: token
         })
@@ -702,7 +707,7 @@ exports.getNearbyLocations = async (req, res) => {
     try {
 
         const { lat, lng, radius, type } = req.body
-console.log(MAP_API_KEY)
+        console.log(MAP_API_KEY)
         if (!lat || !lng || !radius || !type) {
             return res.status(400).json({
                 status: 0,
@@ -721,13 +726,13 @@ console.log(MAP_API_KEY)
     } catch (error) {
         return res.status(500).json({
             status: 0,
-            message:  error.message
+            message: error.message
         });
     }
 }
 
 // ================= Admin Apis ================= //
-exports.getAllAcademy = async(req,res)=>{
+exports.getAllAcademy = async (req, res) => {
     try {
         SQL.get('bmp_academy_details', ``, ``, (error, result) => {
             if (error) {
@@ -748,5 +753,5 @@ exports.getAllAcademy = async(req,res)=>{
             status: 0,
             message: "Something went wrong", error
         });
-    } 
+    }
 }
