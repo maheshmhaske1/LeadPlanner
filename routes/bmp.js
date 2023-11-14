@@ -34,5 +34,6 @@ router.put('/academy/award/update/:id', verifyBmpAdmin, bmp.updateAward)
 
 // ============= admin apis ============ //
 router.get('/academy/getall', bmp.getAllAcademy)
+router.get('/getrestrictedkeywords', bmp.getAllRestrictedWOrds)
 
 module.exports = router;
