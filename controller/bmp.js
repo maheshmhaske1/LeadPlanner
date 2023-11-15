@@ -781,7 +781,18 @@ exports.getNearbyLocations = async (req, res) => {
 // ================= Admin Apis ================= //
 exports.getAllAcademy = async (req, res) => {
     try {
-        SQL.get('bmp_academy_details', ``, ``, (error, result) => {
+
+        const { status } = req.body
+
+        let query = ''
+        status == 0 ? query = `select * from bmp_academy_details where id in (select academy_id from bmp_academy_int where status=0)`
+            : status == 2 ? query = `select * from bmp_academy_details where id in (select academy_id from bmp_academy_int where status=2)`
+                : status == 3 ? query = `select * from bmp_academy_details where id in (select academy_id from bmp_academy_int where status=3)`
+                    : query = `select * from bmp_academy_details`
+
+        // 0.pending, 2.rejected 3.cancelled by academy owner
+
+        dbB.query(query, (error, result) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -790,7 +801,39 @@ exports.getAllAcademy = async (req, res) => {
             }
             return res.status(200).json({
                 status: 1,
-                message: 'Academy details',
+                message: `${status == 0 ? 'pending' : status == 2 ? 'rejected' : status == 3 ? 'cancelled by academy owner' : 'all'} academy details`,
+                data: result
+            });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.getUpdatedAcademyInfo = async (req, res) => {
+    try {
+
+        const { academy_id } = req.body
+        if (!academy_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "academy_id is required"
+            })
+        }
+
+        SQL.get('bmp_academy_int', ``, `academy_id = ${academy_id}`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'updated academy details',
                 data: result
             });
 
@@ -803,9 +846,25 @@ exports.getAllAcademy = async (req, res) => {
     }
 }
 
-exports.getAllRestrictedWOrds = async (req, res) => {
+exports.updateUpdatedAcademyInfo = async(req,res)=>{
     try {
-        SQL.get('bmp_restricted_keywords', ``, ``, (error, result) => {
+        const { id } = req.params
+        const update_data = req.body;
+
+        console.log("ID from params:", id);
+        console.log("Params:", req.params);
+        console.log("Update Data:", update_data); // Add this line for additional debugging
+
+
+      
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.status(400).json({
+                status: 0,
+                message: "id, creation_date, and update_date cannot be edited"
+            });
+        }
+
+        SQL.update('bmp_academy_int', update_data, `id=${id}`, (error, result) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
@@ -814,15 +873,14 @@ exports.getAllRestrictedWOrds = async (req, res) => {
             }
             return res.status(200).json({
                 status: 1,
-                message: 'Restricted keywords',
-                data: result
+                message: 'Academy info updated successfully'
             });
-
         })
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             status: 0,
-            message: "Something went wrong", error
+            message:  error.message
         });
-    }
+    }   
 }
