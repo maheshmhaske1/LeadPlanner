@@ -846,7 +846,7 @@ exports.getUpdatedAcademyInfo = async (req, res) => {
     }
 }
 
-exports.updateUpdatedAcademyInfo = async(req,res)=>{
+exports.updateUpdatedAcademyInfo = async (req, res) => {
     try {
         const { id } = req.params
         const update_data = req.body;
@@ -856,7 +856,7 @@ exports.updateUpdatedAcademyInfo = async(req,res)=>{
         console.log("Update Data:", update_data); // Add this line for additional debugging
 
 
-      
+
         if (update_data.id || update_data.creation_date || update_data.update_date) {
             return res.status(400).json({
                 status: 0,
@@ -880,7 +880,58 @@ exports.updateUpdatedAcademyInfo = async(req,res)=>{
     catch (error) {
         return res.status(500).json({
             status: 0,
-            message:  error.message
+            message: error.message
         });
-    }   
+    }
+}
+
+exports.addUpdateAcademyRequest = async (req, res) => {
+    try {
+        const { academy_id } = req.body
+        if (!academy_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "academy_id is required"
+            })
+        }
+
+        SQL.get('bmp_academy_int', ``, `academy_id = ${academy_id} AND status=0`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            if (result.length > 0) {
+                return res.status(200).json({
+                    status: 1,
+                    message: 'request already sent you need to wait for verification or need to revoke it',
+                    data: result
+                });
+            }
+
+            
+        SQL.insert('bmp_academy_int', req.body, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            if (result.affectedRows > 0) {
+                return res.status(200).json({
+                    status: 1,
+                    message: 'request send for verification successfully',
+                    data: result
+                });
+            }
+        })
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
 }

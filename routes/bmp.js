@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const auth = require('../model/auth')
-const { verifyBmpAdmin } = require('../model/auth')
+const { verifyBmpAdmin, verifyBmpAdminOrBmpAcademyManager } = require('../model/auth')
 const bmp = require('../controller/bmp')
 
 router.post('/login', bmp.login)
@@ -33,9 +33,10 @@ router.get('/academy/award/get/:id', bmp.getAwardById)
 router.put('/academy/award/update/:id', verifyBmpAdmin, bmp.updateAward)
 
 // ============= admin apis ============ //
-router.post('/academy/getall', bmp.getAllAcademy)
-router.post('/academy/getupdatedinfo', bmp.getUpdatedAcademyInfo)
-router.put('/academy/updateupdatedinfo/:id', bmp.updateUpdatedAcademyInfo)
+router.post('/academy/getall', verifyBmpAdminOrBmpAcademyManager, bmp.getAllAcademy)
+router.post('/academy/getupdatedinfo', verifyBmpAdminOrBmpAcademyManager, bmp.getUpdatedAcademyInfo)
+router.put('/academy/updateupdatedinfo/:id', verifyBmpAdminOrBmpAcademyManager, bmp.updateUpdatedAcademyInfo)
+router.post('/academy/addupdaterequest', verifyBmpAdminOrBmpAcademyManager, bmp.addUpdateAcademyRequest)
 
 
 module.exports = router;
