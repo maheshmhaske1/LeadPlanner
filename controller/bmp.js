@@ -507,6 +507,20 @@ exports.getAwardById = async (req, res) => {
 
 exports.updateAward = async (req, res) => {
     try {
+        const loggedInUser = req.decoded
+        if (!loggedInUser) {
+            return res.json({
+                status: 0,
+                message: "Not Authorized",
+            })
+        }
+        if (loggedInUser.role_name !== "blogger" && loggedInUser.role_name !== "admin") {
+            return res.json({
+                status: 0,
+                message: "you need to login ad blogger or admin",
+            })
+        }
+
         const { id } = req.params
         const update_data = req.body;
 
@@ -574,7 +588,7 @@ exports.getTotalReviews = async (req, res) => {
         if (!object_type || !object_id) {
             return res.status(400).json({
                 status: 0,
-                message: "object_type and object_id are required"
+                message: "object_type, object_id  are required"
             })
         }
 
@@ -587,8 +601,9 @@ exports.getTotalReviews = async (req, res) => {
         GROUP BY parent_id) 
         subq
         ON r.id = subq.parent_id
-        WHERE r.parent_id IS NULL AND object_type = "${object_type}" AND object_id = ${object_id};`
+        WHERE r.parent_id IS NULL AND object_type = "${object_type}" AND object_id = ${object_id}`
 
+        console.log(query)
         dbB.query(query, (error, result) => {
             if (error) {
                 return res.status(500).json({
@@ -605,7 +620,93 @@ exports.getTotalReviews = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 0,
-            message: "Something went wrong", error
+            message: error.message
+        });
+    }
+}
+
+exports.getAllReviewsByType = async (req, res) => {
+
+    try {
+
+        const { object_type, status } = req.body
+        if (!object_type) {
+            return res.status(400).json({
+                status: 0,
+                message: "object_type is required"
+            })
+        }
+
+        let condition = ``
+        status == 1 ? condition = `and status=1` : status == 0 ? condition = `and status=0` : condition = ``
+
+        const query = `SELECT r.*,
+        COALESCE(reply_count, 0) AS total_reply
+        FROM bmp_reviews r
+        LEFT JOIN(SELECT parent_id,COUNT(*) AS reply_count
+        FROM bmp_reviews
+        WHERE parent_id IS NOT NULL
+        GROUP BY parent_id) 
+        subq
+        ON r.id = subq.parent_id
+        WHERE r.parent_id IS NULL AND object_type = "${object_type}" ${condition};`
+
+        console.log(query)
+        dbB.query(query, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'Academy reviews',
+                data: result
+            });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: error.message
+        });
+    }
+}
+
+exports.updateReview = async (req, res) => {
+    try {
+        const { review_id, status } = req.body
+        if (!review_id) {
+            return res.status(400).json({
+                status: 0,
+                message: "review_id is required"
+            })
+        }
+
+        SQL.update('bmp_reviews', { status: status }, `id=${review_id}`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            if (result.affectedRows == 0) {
+                return res.status(400).json({
+                    status: 0,
+                    message: "review not found"
+                })
+            }
+            else
+                return res.status(200).json({
+                    status: 1,
+                    message: 'review status changed successfully',
+                    data: result
+                });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: error.message
         });
     }
 }
@@ -956,7 +1057,7 @@ exports.getAcademyRequestHistory = async (req, res) => {
             if (result.length > 0) {
                 return res.status(200).json({
                     status: 1,
-                    message: 'request already sent you need to wait for verification or need to revoke it',
+                    message: 'academy request history',
                     data: result
                 });
             }
