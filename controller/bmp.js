@@ -603,7 +603,6 @@ exports.getTotalReviews = async (req, res) => {
         ON r.id = subq.parent_id
         WHERE r.parent_id IS NULL AND object_type = "${object_type}" AND object_id = ${object_id}`
 
-        console.log(query)
         dbB.query(query, (error, result) => {
             if (error) {
                 return res.status(500).json({
@@ -638,20 +637,15 @@ exports.getAllReviewsByType = async (req, res) => {
         }
 
         let condition = ``
-        status == 1 ? condition = `and status=1` : status == 0 ? condition = `and status=0` : condition = ``
+        status == 1 ? condition = `and r.status=1` : status == 0 ? condition = `and r.status=0` : condition = ``
 
-        const query = `SELECT r.*,
-        COALESCE(reply_count, 0) AS total_reply
-        FROM bmp_reviews r
-        LEFT JOIN(SELECT parent_id,COUNT(*) AS reply_count
-        FROM bmp_reviews
-        WHERE parent_id IS NOT NULL
-        GROUP BY parent_id) 
-        subq
-        ON r.id = subq.parent_id
-        WHERE r.parent_id IS NULL AND object_type = "${object_type}" ${condition};`
-
-        console.log(query)
+        const query = `
+       SELECT a.*
+       FROM bmp_academy_details a
+       INNER JOIN bmp_reviews r ON a.id = r.object_id
+       WHERE r.object_type = 'academy' ${condition}
+       GROUP BY a.id;
+`
         dbB.query(query, (error, result) => {
             if (error) {
                 return res.status(500).json({
@@ -1053,11 +1047,11 @@ exports.getAcademyRequestHistory = async (req, res) => {
                     message: error
                 });
             }
-                return res.status(200).json({
-                    status: 1,
-                    message: 'academy request history',
-                    data: result
-                });
+            return res.status(200).json({
+                status: 1,
+                message: 'academy request history',
+                data: result
+            });
         })
 
     } catch (error) {
@@ -1067,4 +1061,8 @@ exports.getAcademyRequestHistory = async (req, res) => {
         });
     }
 }
+
+
+
+
 
