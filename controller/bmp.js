@@ -669,7 +669,8 @@ exports.getAllReviewsByType = async (req, res) => {
 
 exports.updateReview = async (req, res) => {
     try {
-        const { review_id, status } = req.body
+        const { review_id } = req.params
+        const update_data = req.body;
         if (!review_id) {
             return res.status(400).json({
                 status: 0,
@@ -677,7 +678,14 @@ exports.updateReview = async (req, res) => {
             })
         }
 
-        SQL.update('bmp_reviews', { status: status }, `id=${review_id}`, (error, result) => {
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.status(400).json({
+                status: 0,
+                message: "id, creation_date, and update_date cannot be edited"
+            });
+        }
+
+        SQL.update('bmp_reviews', update_data, `id=${review_id}`, (error, result) => {
             if (error) {
                 return res.status(500).json({
                     status: 0,
