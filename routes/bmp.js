@@ -25,7 +25,7 @@ router.post('/academy/getreviews', bmp.getTotalReviews)
 router.post('/academy/getreviewsbytype', bmp.getAllReviewsByType)
 router.put('/academy/review/update/:review_id',auth.verifyToken, bmp.updateReview)
 router.post('/academy/review/reply', verifyBmpAdminOrBmpAcademyManager, bmp.addReviewReply)
-router.post('/academy/getreviewreply', verifyBmpAdminOrBmpAcademyManager, bmp.getReviewReply)
+router.post('/academy/getreviewreply', bmp.getReviewReply)
 router.post('/academy/getreviewreport', verifyBmpAdminOrBmpAcademyManager, bmp.getReviewReport)
 
 // ============== awards ============= //
