@@ -881,6 +881,48 @@ exports.getNearbyLocations = async (req, res) => {
     }
 }
 
+
+exports.getLngLatByAddress = async (req, res) => {
+    try {
+        const { address } = req.body;
+
+        if (!address) {
+            return res.status(400).json({
+                status: 0,
+                message: "Address is a required field"
+            });
+        }
+
+        // Geocoding API request to convert address to latitude and longitude
+        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${MAP_API_KEY}`;
+        const geocodingResponse = await axios.get(geocodingUrl);
+
+        if (geocodingResponse.data.status !== 'OK') {
+            return res.status(400).json({
+                status: 0,
+                message: "Geocoding failed. Unable to retrieve coordinates for the given address."
+            });
+        }
+
+        const location = geocodingResponse.data.results[0].geometry.location;
+
+        return res.json({
+            status: 1,
+            message: "Coordinates for the given address",
+            data: {
+                latitude: location.lat,
+                longitude: location.lng
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: error.message
+        });
+    }
+};
+
+
 // ================= Admin Apis ================= //
 exports.getAllAcademy = async (req, res) => {
     try {
