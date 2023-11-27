@@ -16,6 +16,7 @@ router.put('/batch/update/:batchId', verifyBmpAdminOrBmpAcademyManager, bmp.upda
 
 // router.post('/cloudinary/createFolder', verifyBmpAdminOrBmpAcademyManager, bmp.createCloudinaryFolder)
 router.post('/academy/getnearbylocations', bmp.getNearbyLocations)
+router.post('/academy/getlocationsbyaddress', bmp.getNearbyLocationsByAddress)
 router.post('/academy/getcoordinate', bmp.getLngLatByAddress)
 
 // ============== LEAD APIS ============= //

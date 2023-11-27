@@ -881,6 +881,50 @@ exports.getNearbyLocations = async (req, res) => {
     }
 }
 
+exports.getNearbyLocationsByAddress = async (req, res) => {
+    try {
+        const { address, radius, type } = req.body;
+        console.log(MAP_API_KEY);
+
+        if (!address || !radius || !type) {
+            return res.status(400).json({
+                status: 0,
+                message: "address, radius, type are required fields"
+            });
+        }
+
+        // Step 1: Get latitude and longitude from the address using Geocoding API
+        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${MAP_API_KEY}`;
+        const geocodingResponse = await axios.get(geocodingUrl);
+
+        if (geocodingResponse.data.results.length === 0) {
+            return res.status(404).json({
+                status: 0,
+                message: "Address not found"
+            });
+        }
+
+        const location = geocodingResponse.data.results[0].geometry.location;
+        const lat = location.lat;
+        const lng = location.lng;
+
+        // Step 2: Get nearby locations using the obtained latitude, longitude, radius, and type
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${MAP_API_KEY}`;
+        const nearbyResponse = await axios.get(apiUrl);
+
+        return res.json({
+            status: 1,
+            message: "Nearby search results",
+            data: nearbyResponse.data
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: error.message
+        });
+    }
+};
 
 exports.getLngLatByAddress = async (req, res) => {
     try {
