@@ -2,9 +2,15 @@ const { dbB } = require('../model/db');
 const SQL = require('../model/sqlhandlermaster')
 const jwt = require('jsonwebtoken')
 const axios = require('axios');
-// const cloudinary = require('cloudinary').v2;
+const cloudinary = require('cloudinary').v2;
 const dotenv = require("dotenv").config();
-const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY, MAP_API_KEY } = process.env;
+const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, MAP_API_KEY } = process.env;
+
+cloudinary.config({
+    cloud_name: CLOUDINARY_CLOUD_NAME,
+    api_key: CLOUDINARY_API_KEY,
+    api_secret: CLOUDINARY_API_SECRET,
+});
 
 // ======== CLOUDINARY CONFIG ======== //
 // cloudinary.config({
@@ -825,33 +831,42 @@ exports.getReviewReport = async (req, res) => {
     }
 }
 
-// exports.createCloudinaryFolder = async (req, res) => {
+exports.uploadMedia = async (req, res) => {
+    if (!req.files || req.files.length === 0) {
+        return res.json
+            ({
+                status: false,
+                message: 'please select files to upload.'
+            });
+    }
+    if ( req.files.length > 5) {
+        return res.json
+            ({
+                status: false,
+                message: 'maximum five files allowed to upload.'
+            });
+    }
 
-//     const { folderPath } = req.body
-//     if (!folderPath) {
-//         return res.json({
-//             status: 0,
-//             message: "folderpath is required"
-//         })
-//     }
-//     console.log(process.env.CLOUDINARY_API_SECRET)
+    const { folder } = req.body;
+    const uploadedImages = [];
 
+    req.files.forEach((file) => {
+        cloudinary.uploader.upload_stream(
+            { resource_type: 'auto', folder: folder, public_id: file.originalname },
+            (error, result) => {
+                if (error) {
+                    console.error('Error uploading to Cloudinary:', error);
+                    return res.status(500).send('Error uploading to Cloudinary.');
+                }
 
-//     cloudinary.api.create_folder(folderPath, (error, result) => {
-//         if (error) {
-//             return res.json({
-//                 status: 0,
-//                 message: error
-//             })
-//         } else {
-//             return res.json({
-//                 status: 1,
-//                 message: "folder created successfully",
-//                 message: result
-//             })
-//         }
-//     });
-// }
+                uploadedImages.push(result.secure_url);
+                if (uploadedImages.length === req.files.length) {
+                    res.json({ urls: uploadedImages });
+                }
+            }
+        ).end(file.buffer);
+    });
+};
 
 exports.getNearbyLocations = async (req, res) => {
     try {
@@ -880,6 +895,53 @@ exports.getNearbyLocations = async (req, res) => {
         });
     }
 }
+
+exports.getAddressByQuery = async (req, res) => {
+    try {
+        const { query } = req.body;
+
+        if (!query) {
+            return res.status(400).json({
+                status: 0,
+                message: "query is a required field"
+            });
+        }
+
+        const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${MAP_API_KEY}`;
+        const response = await axios.get(apiUrl);
+
+        if (response.data.results.length > 0) {
+            const addresses = response.data.results.map(result => {
+                const formattedAddress = result.formatted_address;
+                const location = result.geometry.location;
+                return {
+                    formattedAddress,
+                    location: {
+                        latitude: location.lat,
+                        longitude: location.lng
+                    }
+                };
+            });
+
+            return res.json({
+                status: 1,
+                message: "Addresses retrieved successfully",
+                data: addresses
+            });
+        } else {
+            return res.status(404).json({
+                status: 0,
+                message: "No results found for the given query"
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: error.message
+        });
+    }
+};
+
 
 exports.getNearbyLocationsByAddress = async (req, res) => {
     try {

@@ -3,6 +3,11 @@ var router = express.Router();
 const auth = require('../model/auth')
 const { verifyBmpAdmin, verifyBmpAdminOrBmpAcademyManager } = require('../model/auth')
 const bmp = require('../controller/bmp')
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 
 router.post('/login', bmp.login)
 router.post('/getUser', verifyBmpAdminOrBmpAcademyManager, bmp.getUser)
@@ -15,6 +20,7 @@ router.post('/batch/get', verifyBmpAdminOrBmpAcademyManager, bmp.getBatch)
 router.put('/batch/update/:batchId', verifyBmpAdminOrBmpAcademyManager, bmp.updateBatch)
 
 // router.post('/cloudinary/createFolder', verifyBmpAdminOrBmpAcademyManager, bmp.createCloudinaryFolder)
+router.post('/cloudinary/uploadmedia', upload.array('images', 4), bmp.uploadMedia)
 router.post('/academy/getnearbylocations', bmp.getNearbyLocations)
 router.post('/academy/getlocationsbyaddress', bmp.getNearbyLocationsByAddress)
 router.post('/academy/getcoordinate', bmp.getLngLatByAddress)
@@ -25,7 +31,7 @@ router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdminOrBmpAca
 // ============== Reviews ============= //
 router.post('/academy/getreviews', bmp.getTotalReviews)
 router.post('/academy/getreviewsbytype', bmp.getAllReviewsByType)
-router.put('/academy/review/update/:review_id',auth.verifyToken, bmp.updateReview)
+router.put('/academy/review/update/:review_id', auth.verifyToken, bmp.updateReview)
 router.post('/academy/review/reply', bmp.addReviewReply)
 router.post('/academy/getreviewreply', bmp.getReviewReply)
 router.post('/academy/getreviewreport', verifyBmpAdminOrBmpAcademyManager, bmp.getReviewReport)
