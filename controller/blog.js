@@ -234,7 +234,7 @@ exports.editBlog = async (req, res) => {
     }
 
     let new_section = [];
-    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date, meta_description, keywords }, `id=${blogId}`, async (error, response) => {
+    SQL.update("xx_blog", { title, url, description, route, site, image, tag, date, meta_description, keywords,sport }, `id=${blogId}`, async (error, response) => {
       if (error) {
         return res.json({
           status: 0,
