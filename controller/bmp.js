@@ -830,21 +830,18 @@ exports.getReviewReport = async (req, res) => {
         });
     }
 }
-
 exports.uploadMedia = async (req, res) => {
     if (!req.files || req.files.length === 0) {
-        return res.json
-            ({
-                status: false,
-                message: 'please select files to upload.'
-            });
+        return res.json({
+            status: false,
+            message: 'Please select files to upload.'
+        });
     }
-    if ( req.files.length > 5) {
-        return res.json
-            ({
-                status: false,
-                message: 'maximum five files allowed to upload.'
-            });
+    if (req.files.length > 5) {
+        return res.json({
+            status: false,
+            message: 'Maximum five files allowed to upload.'
+        });
     }
 
     const { folder } = req.body;
@@ -867,6 +864,7 @@ exports.uploadMedia = async (req, res) => {
         ).end(file.buffer);
     });
 };
+
 
 exports.getNearbyLocations = async (req, res) => {
     try {
@@ -941,7 +939,6 @@ exports.getAddressByQuery = async (req, res) => {
         });
     }
 };
-
 
 exports.getNearbyLocationsByAddress = async (req, res) => {
     try {
@@ -1027,7 +1024,6 @@ exports.getLngLatByAddress = async (req, res) => {
         });
     }
 };
-
 
 // ================= Admin Apis ================= //
 exports.getAllAcademy = async (req, res) => {
@@ -1218,7 +1214,119 @@ exports.getAcademyRequestHistory = async (req, res) => {
     }
 }
 
+// ================= league Apis ================= //
 
+exports.createLeague = async (req, res) => {
+    try {
+        const { name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, title,description, keywords, website, contact, phone, email } = req.body
 
+        if (!name || !sport || !logo || !banner || !photos || !intro || !pathway || !advantages || !rules|| !title || !level || !category || !description || !keywords || !website || !contact || !phone || !email) {
+            return res.status(400).json({
+                status: 0,
+                message: "name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, description, keywords, website, contact, phone, email are required"
+            })
+        }
 
+        SQL.insert('bmp_league_details', req.body, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: "league created successfully",
+                data: result
+            });
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.getAllLeague = async (req, res) => {
+    try {
+        SQL.get('bmp_league_details', ``, ``, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'League details',
+                data: result
+            });
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.getLeagueById = async (req, res) => {
+    try {
+        const { id } = req.params
+        SQL.get('bmp_league_details', ``, `id=${id}`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'League achievement',
+                data: result
+            });
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
+
+exports.updateLeague = async (req, res) => {
+    try {
+        const { id } = req.params
+        const update_data = req.body;
+
+        if (update_data.id || update_data.creation_date || update_data.update_date) {
+            return res.status(400).json({
+                status: 0,
+                message: "id, creation_date, and update_date cannot be edited"
+            });
+        }
+
+        SQL.update('bmp_league_details', update_data, `id=${id}`, (error, result) => {
+            if (error) {
+                return res.status(500).json({
+                    status: 0,
+                    message: error
+                });
+            }
+            return res.status(200).json({
+                status: 1,
+                message: 'League updated successfully'
+            });
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+}
 

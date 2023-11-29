@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const auth = require('../model/auth')
-const { verifyBmpAdmin, verifyBmpAdminOrBmpAcademyManager } = require('../model/auth')
+const { verifyBmpAdmin, verifyBmpAdminOrBmpAcademyManager,verifyBlogger } = require('../model/auth')
 const bmp = require('../controller/bmp')
 const multer = require('multer');
 
@@ -49,5 +49,10 @@ router.put('/academy/updateupdatedinfo/:id', verifyBmpAdminOrBmpAcademyManager, 
 router.post('/academy/addupdaterequest', verifyBmpAdminOrBmpAcademyManager, bmp.addUpdateAcademyRequest)
 router.post('/academy/getrequesthistory', verifyBmpAdminOrBmpAcademyManager, bmp.getAcademyRequestHistory)
 
+// ============== League Apis ============= //
+router.post('/league/add', verifyBlogger,bmp.createLeague)
+router.get('/league/getall',verifyBlogger, bmp.getAllLeague)
+router.get('/league/get/:id',verifyBlogger, bmp.getLeagueById)
+router.put('/league/update/:id', verifyBlogger,bmp.updateLeague)
 
 module.exports = router;
