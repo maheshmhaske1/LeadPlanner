@@ -217,7 +217,7 @@ exports.editBlog = async (req, res) => {
     }
 
     const { blogId } = req.params;
-    const { title, url, description, site, route, image, tag, date, sections, meta_description, keywords } = req.body;
+    const { title, url, description, site, route, image, tag, date, sections, meta_description, keywords,sport } = req.body;
 
     if (!blogId) {
       return res.json({
