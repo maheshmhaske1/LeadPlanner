@@ -830,6 +830,7 @@ exports.getReviewReport = async (req, res) => {
         });
     }
 }
+
 exports.uploadMedia = async (req, res) => {
     if (!req.files || req.files.length === 0) {
         return res.json({
@@ -867,8 +868,6 @@ exports.uploadMedia = async (req, res) => {
         ).end(file.buffer);
     });
 };
-
-
 
 exports.getNearbyLocations = async (req, res) => {
     try {
@@ -1222,12 +1221,12 @@ exports.getAcademyRequestHistory = async (req, res) => {
 
 exports.createLeague = async (req, res) => {
     try {
-        const { name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, title,description, keywords, website, contact, phone, email } = req.body
+        const { name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, title, description, keywords, website, contact, phone, email } = req.body
 
-        if (!name || !sport || !logo || !banner || !photos || !intro || !pathway || !advantages || !rules|| !title || !level || !category || !description || !keywords || !website || !contact || !phone || !email) {
+        if (!name || !sport || !intro || !pathway || !advantages || !rules || !title|| !level || !category || !description || !keywords || !website || !contact || !phone || !email) {
             return res.status(400).json({
                 status: 0,
-                message: "name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, description, keywords, website, contact, phone, email are required"
+                message: "name, sport,intro, pathway, advantages, rules, title, level, category, description, keywords, website, contact, phone, email are required"
             })
         }
 
