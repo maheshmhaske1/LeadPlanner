@@ -848,8 +848,11 @@ exports.uploadMedia = async (req, res) => {
     const uploadedImages = [];
 
     req.files.forEach((file) => {
+        // Extract filename without extension
+        const filenameWithoutExtension = file.originalname.replace(/\.[^/.]+$/, "");
+
         cloudinary.uploader.upload_stream(
-            { resource_type: 'auto', folder: folder, public_id: file.originalname },
+            { resource_type: 'auto', folder: folder, public_id: filenameWithoutExtension },
             (error, result) => {
                 if (error) {
                     console.error('Error uploading to Cloudinary:', error);
@@ -864,6 +867,7 @@ exports.uploadMedia = async (req, res) => {
         ).end(file.buffer);
     });
 };
+
 
 
 exports.getNearbyLocations = async (req, res) => {
