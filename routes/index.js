@@ -12,6 +12,10 @@ cloudinary.config({
     api_secret: 'mfTMtHGMsaJEy2vj1yxHWq1uCrs',
 });
 
+router.get('/', (req, res) => {
+    res.send('Hello World!');
+})
+
 router.post('/upload', upload.array('images', 4), async (req, res) => {
     if (!req.files || req.files.length === 0) {
         return res.status(400).send('No files were uploaded.');
