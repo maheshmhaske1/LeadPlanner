@@ -1223,10 +1223,10 @@ exports.createLeague = async (req, res) => {
     try {
         const { name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, title, description, keywords, website, contact, phone, email } = req.body
 
-        if (!name || !sport || !intro || !pathway || !advantages || !rules || !title|| !level || !category || !description || !keywords || !website || !contact || !phone || !email) {
+        if (!name || !sport || !intro || !pathway || !advantages || !rules || !title|| !level || !category || !description || !keywords || !website) {
             return res.status(400).json({
                 status: 0,
-                message: "name, sport,intro, pathway, advantages, rules, title, level, category, description, keywords, website, contact, phone, email are required"
+                message: "name, sport,intro, pathway, advantages, rules, title, level, category, description, keywords, website are required"
             })
         }
 
