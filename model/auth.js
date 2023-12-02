@@ -136,7 +136,7 @@ exports.verifyBlogger = (req, res, next) => {
             });
         }
 
-        if (req.decoded.role_name !== "blogger") {
+        if (req.decoded.role_name !== "blogger" && req.decoded.role_name !== "admin") {
             return res.json({
                 status: 0,
                 message: 'unauthorized user.'
