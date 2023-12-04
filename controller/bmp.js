@@ -1223,7 +1223,7 @@ exports.createLeague = async (req, res) => {
     try {
         const { name, sport, logo, banner, photos, intro, pathway, advantages, rules, level, category, title, description, keywords, website, contact, phone, email } = req.body
 
-        if (!name || !sport || !intro || !pathway || !advantages || !rules || !title|| !level || !category || !description || !keywords || !website) {
+        if (!name || !sport || !intro || !pathway || !advantages || !rules || !title || !level || !category || !description || !keywords || !website) {
             return res.status(400).json({
                 status: 0,
                 message: "name, sport,intro, pathway, advantages, rules, title, level, category, description, keywords, website are required"
@@ -1237,11 +1237,20 @@ exports.createLeague = async (req, res) => {
                     message: error
                 });
             }
-            return res.status(200).json({
-                status: 1,
-                message: "league created successfully",
-                data: result
-            });
+            const league_id = result.insertId
+            SQL.update('bmp_league_details', { url: `https://www.bookmyplayer.com/${sport.toLowerCase().replace(/\s+/g, "-")}/${name.toLowerCase().replace(/\s+/g, "-")}${category === "tournament" ? "-tid-" : "-lid-"}${league_id}` }, `id=${league_id}`, (error, result) => {
+                if (error) {
+                    return res.status(500).json({
+                        status: 0,
+                        message: error
+                    });
+                }
+                return res.status(200).json({
+                    status: 1,
+                    message: "league created successfully",
+                    data: result
+                });
+            })
         })
     } catch (error) {
         return res.status(500).json({
