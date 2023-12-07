@@ -102,7 +102,7 @@ exports.verifyBmpAdminOrBmpAcademyManager = (req, res, next) => {
                 status: 0,
                 message: 'Unauthorized user.'
             });
-        }        
+        }
 
         next();
     } catch (error) {

@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const auth = require('../model/auth')
-const { verifyBmpAdmin, verifyBmpAdminOrBmpAcademyManager,verifyBlogger } = require('../model/auth')
+const { verifyBmpAdmin, verifyBmpAdminOrBmpAcademyManager, verifyBlogger } = require('../model/auth')
 const bmp = require('../controller/bmp')
 const multer = require('multer');
 
@@ -50,9 +50,13 @@ router.post('/academy/addupdaterequest', verifyBmpAdminOrBmpAcademyManager, bmp.
 router.post('/academy/getrequesthistory', verifyBmpAdminOrBmpAcademyManager, bmp.getAcademyRequestHistory)
 
 // ============== League Apis ============= //
-router.post('/league/add', verifyBlogger,bmp.createLeague)
-router.get('/league/getall',verifyBlogger, bmp.getAllLeague)
-router.get('/league/get/:id',verifyBlogger, bmp.getLeagueById)
-router.put('/league/update/:id', verifyBlogger,bmp.updateLeague)
+router.post('/league/add', verifyBlogger, bmp.createLeague)
+router.get('/league/getall', verifyBlogger, bmp.getAllLeague)
+router.get('/league/get/:id', verifyBlogger, bmp.getLeagueById)
+router.put('/league/update/:id', verifyBlogger, bmp.updateLeague)
+
+// ============== css and js Apis ============= //
+router.post('/css/minify', bmp.minifyCss)
+// router.post('/js/minify', bmp.minifyJs)
 
 module.exports = router;

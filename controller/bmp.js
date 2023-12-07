@@ -2,6 +2,8 @@ const { dbB } = require('../model/db');
 const SQL = require('../model/sqlhandlermaster')
 const jwt = require('jsonwebtoken')
 const axios = require('axios');
+const CleanCSS = require('clean-css');
+// const UglifyJS = require('uglify-es');
 const cloudinary = require('cloudinary').v2;
 const dotenv = require("dotenv").config();
 const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, MAP_API_KEY } = process.env;
@@ -1342,3 +1344,39 @@ exports.updateLeague = async (req, res) => {
     }
 }
 
+// ================== minifire Apis ================== //
+// exports.minifyJs = async (req, res) => {
+//     const {jsCode} =req.body 
+// console.log(jsCode)
+//     // const jsCode = `function greet(name) { console.log('Hello, ' + name + '!'); }greet('World');`;
+
+//     const minifiedJS =await UglifyJS.minify(jsCode).code;
+//     console.log(UglifyJS.minify(jsCode).code)
+// }
+
+exports.minifyCss = async (req, res) => {
+
+    try {
+        const { cssCode } = req.body
+        if (!cssCode) {
+            return res.status(400).json({
+                status: 0,
+                message: "css code is required"
+            });
+        }
+
+        const minifiedCSS =await new CleanCSS().minify(cssCode).styles;
+        return res.json({
+            status: 1,
+            message: 'css code minified successfully',
+            data: minifiedCSS
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 0,
+            message: "Something went wrong", error
+        });
+    }
+
+}
