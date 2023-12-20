@@ -24,6 +24,7 @@ router.post('/cloudinary/uploadmedia', upload.array('images', 4), bmp.uploadMedi
 router.post('/academy/getnearbylocations', bmp.getNearbyLocations)
 router.post('/academy/getlocationsbyaddress', bmp.getNearbyLocationsByAddress)
 router.post('/academy/getcoordinate', bmp.getLngLatByAddress)
+router.post('/academy/getaddressbyquery', bmp.getAddressByQuery)
 
 // ============== LEAD APIS ============= //
 router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdminOrBmpAcademyManager, bmp.getAcademyLeads)

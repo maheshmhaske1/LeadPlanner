@@ -3,11 +3,13 @@ const SQL = require('../model/sqlhandlermaster')
 const jwt = require('jsonwebtoken')
 const axios = require('axios');
 const CleanCSS = require('clean-css');
+const CryptoJS = require('crypto-js');
 // const UglifyJS = require('uglify-es');
 const cloudinary = require('cloudinary').v2;
 const dotenv = require("dotenv").config();
-const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, MAP_API_KEY } = process.env;
+const { JWT_TOKEN, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, MAP_API_KEY, MAP_API_SECRET } = process.env;
 
+const decryptedKey = CryptoJS.AES.decrypt(MAP_API_KEY, MAP_API_SECRET).toString(CryptoJS.enc.Utf8)
 cloudinary.config({
     cloud_name: CLOUDINARY_CLOUD_NAME,
     api_key: CLOUDINARY_API_KEY,
@@ -78,44 +80,54 @@ exports.login = async (req, res) => {
         })
     }
 
-    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone', 'parent_id'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
+    SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone', 'parent_id'], ``, async (error, results) => {
         if (error) {
             return res.json({
                 status: 0,
                 message: "Something went wrong",
             })
         }
-
-        if (results.length == 0) {
-            return res.json({
-                status: 0,
-                message: "user not found"
-            })
-        }
-
-        if (otp != 1111) {
-            return res.json({
-                status: 0,
-                message: "invalid otp"
-            })
-        }
-
-        let landingUrl = ``
-        let permissions = ``
-        results[0].type_id == 2 ? landingUrl = "/lp/bmp/overview" : results[0].type_id == 0 ? landingUrl = "/lp/bmp/admin" : ""
-        results[0].type_id == 2 ? permissions = "/lp/bmp,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery,/lp/bmp/reviews,/lp/bmp/leads,/lp/bmp/support,/lp/bmp/help" : results[0].type_id == 0 ? permissions = "/lp/bmp,/lp/bmp/overview,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery,/lp/bmp/reviews,/lp/bmp/leads,/lp/bmp/support,/lp/bmp/help" : ""
-
-        const token = await jwt.sign({ id: results[0].id, phone: results[0].phone, type: results[0].type, type_id: results[0].type_id }, JWT_TOKEN, { expiresIn: '10d' });
-        return res.json({
-            status: 1,
-            message: "Logged in",
-            landingurl: landingUrl,
-            permissions: permissions,
-            user: results[0],
-            token: token
-        })
-
+        console.log(results)
     })
+
+    // SQL.get('bmp_user', ['id', 'type_id', 'type', 'name', 'email', 'phone', 'parent_id'], `phone = '${username}' OR email = '${username}'`, async (error, results) => {
+    //     if (error) {
+    //         return res.json({
+    //             status: 0,
+    //             message: "Something went wrong",
+    //         })
+    //     }
+
+    //     if (results.length == 0) {
+    //         return res.json({
+    //             status: 0,
+    //             message: "user not found"
+    //         })
+    //     }
+
+    //     if (otp != 1111) {
+    //         return res.json({
+    //             status: 0,
+    //             message: "invalid otp"
+    //         })
+    //     }
+
+    //     let landingUrl = ``
+    //     let permissions = ``
+    //     results[0].type_id == 2 ? landingUrl = "/lp/bmp/overview" : results[0].type_id == 0 ? landingUrl = "/lp/bmp/admin" : ""
+    //     results[0].type_id == 2 ? permissions = "/lp/bmp,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery,/lp/bmp/reviews,/lp/bmp/leads,/lp/bmp/support,/lp/bmp/help" : results[0].type_id == 0 ? permissions = "/lp/bmp,/lp/bmp/overview,/lp/bmp/fees,/lp/bmp/training,/lp/bmp/gallery,/lp/bmp/reviews,/lp/bmp/leads,/lp/bmp/support,/lp/bmp/help" : ""
+
+    //     const token = await jwt.sign({ id: results[0].id, phone: results[0].phone, type: results[0].type, type_id: results[0].type_id }, JWT_TOKEN, { expiresIn: '10d' });
+    //     return res.json({
+    //         status: 1,
+    //         message: "Logged in",
+    //         landingurl: landingUrl,
+    //         permissions: permissions,
+    //         user: results[0],
+    //         token: token
+    //     })
+
+    // })
 
 };
 
@@ -875,7 +887,6 @@ exports.getNearbyLocations = async (req, res) => {
     try {
 
         const { lat, lng, radius, type } = req.body
-        console.log(MAP_API_KEY)
         if (!lat || !lng || !radius || !type) {
             return res.status(400).json({
                 status: 0,
@@ -883,7 +894,7 @@ exports.getNearbyLocations = async (req, res) => {
             })
         }
 
-        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${MAP_API_KEY}`;
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${decryptedKey}`;
         const response = await axios.get(apiUrl);
         return res.json({
             status: 1,
@@ -901,42 +912,46 @@ exports.getNearbyLocations = async (req, res) => {
 
 exports.getAddressByQuery = async (req, res) => {
     try {
-        const { query } = req.body;
+        const { input } = req.body;
 
-        if (!query) {
+        if (!input) {
             return res.status(400).json({
                 status: 0,
-                message: "query is a required field"
+                message: "Input is a required parameter"
             });
         }
 
-        const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${MAP_API_KEY}`;
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=geocode&components=country:IN&key=${decryptedKey}`;
+
         const response = await axios.get(apiUrl);
 
-        if (response.data.results.length > 0) {
-            const addresses = response.data.results.map(result => {
-                const formattedAddress = result.formatted_address;
-                const location = result.geometry.location;
+        if (response.data.status === 'OK') {
+            const suggestions = await Promise.all(response.data.predictions.map(async (prediction) => {
+                const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${prediction.place_id}&key=${decryptedKey}`;
+                const placeDetailsResponse = await axios.get(placeDetailsUrl);
+
+                const locationDetails = placeDetailsResponse.data.result.geometry.location;
+
                 return {
-                    formattedAddress,
-                    location: {
-                        latitude: location.lat,
-                        longitude: location.lng
-                    }
+                    description: prediction.description,
+                    place_id: prediction.place_id,
+                    latitude: locationDetails.lat,
+                    longitude: locationDetails.lng,
                 };
-            });
+            }));
 
             return res.json({
                 status: 1,
-                message: "Addresses retrieved successfully",
-                data: addresses
+                message: "Address suggestions retrieved successfully",
+                data: suggestions
             });
         } else {
             return res.status(404).json({
                 status: 0,
-                message: "No results found for the given query"
+                message: "No suggestions found"
             });
         }
+
     } catch (error) {
         return res.status(500).json({
             status: 0,
@@ -948,7 +963,6 @@ exports.getAddressByQuery = async (req, res) => {
 exports.getNearbyLocationsByAddress = async (req, res) => {
     try {
         const { address, radius, type } = req.body;
-        console.log(MAP_API_KEY);
 
         if (!address || !radius || !type) {
             return res.status(400).json({
@@ -958,7 +972,7 @@ exports.getNearbyLocationsByAddress = async (req, res) => {
         }
 
         // Step 1: Get latitude and longitude from the address using Geocoding API
-        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${MAP_API_KEY}`;
+        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${decryptedKey}`;
         const geocodingResponse = await axios.get(geocodingUrl);
 
         if (geocodingResponse.data.results.length === 0) {
@@ -973,7 +987,7 @@ exports.getNearbyLocationsByAddress = async (req, res) => {
         const lng = location.lng;
 
         // Step 2: Get nearby locations using the obtained latitude, longitude, radius, and type
-        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${MAP_API_KEY}`;
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${decryptedKey}`;
         const nearbyResponse = await axios.get(apiUrl);
 
         return res.json({
@@ -1002,7 +1016,7 @@ exports.getLngLatByAddress = async (req, res) => {
         }
 
         // Geocoding API request to convert address to latitude and longitude
-        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${MAP_API_KEY}`;
+        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${decryptedKey}`;
         const geocodingResponse = await axios.get(geocodingUrl);
 
         if (geocodingResponse.data.status !== 'OK') {
@@ -1365,7 +1379,7 @@ exports.minifyCss = async (req, res) => {
             });
         }
 
-        const minifiedCSS =await new CleanCSS().minify(cssCode).styles;
+        const minifiedCSS = await new CleanCSS().minify(cssCode).styles;
         return res.json({
             status: 1,
             message: 'css code minified successfully',
