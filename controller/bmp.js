@@ -1260,7 +1260,7 @@ exports.createLeague = async (req, res) => {
                 });
             }
             const league_id = result.insertId
-            SQL.update('bmp_league_details', { url: `https://www.bookmyplayer.com/${sport.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\s-]/g, "")}/${name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\s-]/g, "")}${category === "tournament" ? "-tid-" : "-lid-"}${league_id}` }, `id=${league_id}`, (error, result) => {
+            SQL.update('bmp_league_details', { url: `https://www.bookmyplayer.com/${sport.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\s-]/g, "")}/${name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\s-]/g, "")}${category === "tournament" ? "-tid-" : "-tid-"}${league_id}` }, `id=${league_id}`, (error, result) => {
                 if (error) {
                     return res.status(500).json({
                         status: 0,
