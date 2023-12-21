@@ -623,6 +623,12 @@ exports.getTotalReviews = async (req, res) => {
         ON r.id = subq.parent_id
         WHERE r.parent_id IS NULL AND object_type = "${object_type}" AND object_id = ${object_id}`
 
+        // const query = `SELECT *
+        // FROM bmp_reviews 
+        // WHERE parent_id IS NULL AND object_type = "${object_type}" AND object_id = ${object_id}`
+
+        console.log(query)
+
         dbB.query(query, (error, result) => {
             if (error) {
                 return res.status(500).json({
@@ -1254,7 +1260,7 @@ exports.createLeague = async (req, res) => {
                 });
             }
             const league_id = result.insertId
-            SQL.update('bmp_league_details', { url: `https://www.bookmyplayer.com/${sport.toLowerCase().replace(/\s+/g, "-")}/${name.toLowerCase().replace(/\s+/g, "-")}${category === "tournament" ? "-tid-" : "-lid-"}${league_id}` }, `id=${league_id}`, (error, result) => {
+            SQL.update('bmp_league_details', { url: `https://www.bookmyplayer.com/${sport.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\s-]/g, "")}/${name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\s-]/g, "")}${category === "tournament" ? "-tid-" : "-lid-"}${league_id}` }, `id=${league_id}`, (error, result) => {
                 if (error) {
                     return res.status(500).json({
                         status: 0,
