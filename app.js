@@ -26,6 +26,7 @@ var bmpRouter = require('./routes/bmp')
 var app = express();
 var corsOptions = {
   origin: [
+    'https://fiduciagroup.leadplaner.com',
     'http://localhost:3000',
     'http://localhost:80',
     'http://localhost',
