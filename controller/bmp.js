@@ -890,23 +890,52 @@ exports.uploadMedia = async (req, res) => {
 };
 
 exports.getNearbyLocations = async (req, res) => {
+
+    // try {
+    //     const query = "swimming academy in India";
+
+    //     const apiUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=AIzaSyBptRVrMW9uuKeEcABL7Qb3IuFcDvBj8u8&region=in`;
+
+    //     const response = await axios.get(apiUrl);
+
+    //     return res.json({
+    //         status: 1,
+    //         message: "textsearch results",
+    //         data: response.data
+    //     });
+
+    // } catch (error) {
+    //     return res.status(500).json({
+    //         status: 0,
+    //         message: error.message
+    //     });
+    // }
+
     try {
+        const query = "cricket academy in pune";
+        const apiKey = "AIzaSyBptRVrMW9uuKeEcABL7Qb3IuFcDvBj8u8";
+        let nextPageToken = null;
+        let allResults = [];
 
-        const { lat, lng, radius, type } = req.body
-        if (!lat || !lng || !radius || !type) {
-            return res.status(400).json({
-                status: 0,
-                message: "lat, lng, radius, type are required fields"
-            })
-        }
+        do {
+            const apiUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&region=in${nextPageToken ? `&pagetoken=${nextPageToken}` : ''}`;
 
-        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${decryptedKey}`;
-        const response = await axios.get(apiUrl);
+            const response = await axios.get(apiUrl);
+            const results = response.data.results || [];
+
+            allResults = allResults.concat(results);
+            nextPageToken = response.data.next_page_token;
+
+            // Pause for a short time to avoid OVER_QUERY_LIMIT (if needed)
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+        } while (nextPageToken);
+
         return res.json({
             status: 1,
-            message: "nearby search results",
-            data: response.data
-        })
+            message: "textsearch results",
+            data: allResults
+        });
 
     } catch (error) {
         return res.status(500).json({
@@ -933,7 +962,7 @@ exports.getAddressByQuery = async (req, res) => {
 
         if (response.data.status === 'OK') {
             const suggestions = await Promise.all(response.data.predictions.map(async (prediction) => {
-                const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${prediction.place_id}&key=${decryptedKey}`;
+                const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${prediction.place_id}&key=AIzaSyBptRVrMW9uuKeEcABL7Qb3IuFcDvBj8u8&libraries=places`;
                 const placeDetailsResponse = await axios.get(placeDetailsUrl);
 
                 const locationDetails = placeDetailsResponse.data.result.geometry.location;
@@ -978,7 +1007,7 @@ exports.getNearbyLocationsByAddress = async (req, res) => {
         }
 
         // Step 1: Get latitude and longitude from the address using Geocoding API
-        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${decryptedKey}`;
+        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=AIzaSyBptRVrMW9uuKeEcABL7Qb3IuFcDvBj8u8&libraries=places`;
         const geocodingResponse = await axios.get(geocodingUrl);
 
         if (geocodingResponse.data.results.length === 0) {
@@ -993,7 +1022,7 @@ exports.getNearbyLocationsByAddress = async (req, res) => {
         const lng = location.lng;
 
         // Step 2: Get nearby locations using the obtained latitude, longitude, radius, and type
-        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${decryptedKey}`;
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=AIzaSyBptRVrMW9uuKeEcABL7Qb3IuFcDvBj8u8&libraries=places`;
         const nearbyResponse = await axios.get(apiUrl);
 
         return res.json({

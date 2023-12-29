@@ -386,7 +386,7 @@ exports.getAllBlogTags = async (req, res) => {
       })
     }
 
-    let { category, condition, org_id } = req.body
+    let { sport, condition, org_id } = req.body
 
     if (!org_id) {
       return res.json({
@@ -397,14 +397,14 @@ exports.getAllBlogTags = async (req, res) => {
 
     let queryCondition = `org_id=${org_id}`
 
-    if (condition === "category") {
-      if (!category) {
+    if (condition === "sport") {
+      if (!sport) {
         return res.json({
           status: 0,
-          message: "category is required field"
+          message: "sport is required field"
         })
       }
-      queryCondition = `category="${category}" AND org_id=${org_id}`
+      queryCondition = `sport="${sport}" AND org_id=${org_id}`
     }
 
 
