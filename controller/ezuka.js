@@ -27,7 +27,7 @@ exports.createContact = async (req, res) => {
 
     let query = `
     INSERT INTO ezuka_leads (name, email, phone, description, user_agent, browser, os, ip)
-    VALUES ('${name}', '${email}', '${phone}', '${description}', '${user_agent}, '${browser}', '${os}', '${ip}')
+    VALUES ('${name}', '${email}', '${phone}', '${description}', '${user_agent}', '${browser}', '${os}', '${ip}')
 `;
 
 
