@@ -343,7 +343,7 @@ exports.getTagCategory = async (req, res) => {
 
     const { org_id } = req.params
 
-    const query = `SELECT DISTINCT category FROM xx_blog_tag WHERE category IS NOT NULL AND org_id = ${org_id}`
+    const query = `SELECT DISTINCT sport FROM xx_blog_tag WHERE sport IS NOT NULL AND org_id = ${org_id}`
 
     dbB.query(query, (error, result) => {
       if (error) {

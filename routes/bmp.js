@@ -26,7 +26,7 @@ router.post('/academy/getlocationsbyaddress', bmp.getNearbyLocationsByAddress)
 router.post('/academy/getcoordinate', bmp.getLngLatByAddress)
 router.post('/academy/getaddressbyquery', bmp.getAddressByQuery)
 
-// ============== LEAD APIS ============= //
+// ============== LEAD APIS ============ //
 router.get('/academy/leads/get/:academy_id/:object_type', verifyBmpAdminOrBmpAcademyManager, bmp.getAcademyLeads)
 
 // ============== Reviews ============= //
