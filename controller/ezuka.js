@@ -32,7 +32,7 @@ const ipAddress = req.clientIp;
         email: email,
         phone: phone,
         message: message,
-        ipAddress: ipAddress,
+        ipAddress: req.ip,
         browserDetails: {
             userAgent: userAgentString,
             browser: agent.family,
