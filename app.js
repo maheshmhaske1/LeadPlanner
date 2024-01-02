@@ -22,6 +22,7 @@ var thirdPartyApiRouter = require('./routes/thirdpartyapis')
 var leaddealactivityRouter = require('./routes/leaddealactivity')
 var contactRouter = require('./routes/contact')
 var bmpRouter = require('./routes/bmp')
+var ezukaRouter = require('./routes/ezuka')
 
 var app = express();
 var corsOptions = {
@@ -69,6 +70,7 @@ app.use('/api/contact', contactRouter)
 app.use('/api/thirdPartyApiRouter', thirdPartyApiRouter)
 app.use('/api/leaddeal/activity', leaddealactivityRouter)
 app.use('/api/bmp', bmpRouter)
+app.use('/api/ezuka',ezukaRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
