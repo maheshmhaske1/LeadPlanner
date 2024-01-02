@@ -27,6 +27,7 @@ var ezukaRouter = require('./routes/ezuka')
 var app = express();
 var corsOptions = {
   origin: [
+    "https://www.ezuka.com",
     'https://fiduciagroup.leadplaner.com',
     'http://localhost:3000',
     'http://localhost:80',
@@ -37,7 +38,8 @@ var corsOptions = {
   ],
   credentials: true,
 };
-app.use(cors(corsOptions));
+app.use(cors());
+// app.use(cors(corsOptions));
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
