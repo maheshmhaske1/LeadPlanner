@@ -49,6 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.set('trust proxy', true)
 
 app.use('/blog', express.static(path.join(__dirname, 'public/blog'))) // PROFILE IMAGES
 app.use('/employee/doc', express.static(path.join(__dirname, 'public/employeeDoc'))) // PROFILE IMAGES

@@ -41,7 +41,7 @@ const ipAddress = req.clientIp;
         },
     };
 
-    return res.json(data)
+    return res.json({data,"ip":req.ip })
     console.log(data)
 
     // dbB.query(query, (error, result) => {
