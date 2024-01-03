@@ -5,9 +5,9 @@ const useragent = require('useragent');
 
 
 exports.createContact = async (req, res) => {
-    const { name, email, phone, description,ip } = req.body
+    const { name, email, phone, message, ip } = req.body
 
-    const missingFields = ['name', 'email', 'phone', 'description'].filter(field => !req.body[field]);
+    const missingFields = ['name', 'email', 'phone', 'message'].filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {
         return res.json({
@@ -16,8 +16,6 @@ exports.createContact = async (req, res) => {
         });
     }
 
-    // const ipInfo = await axios.get('https://api.ipify.org/')
-    // const ip = ipInfo.data ? ipInfo.data : "0.0.0.0"
     const userAgentString = req.headers['user-agent'];
     const agent = useragent.parse(userAgentString);
     const user_agent = userAgentString;
@@ -26,8 +24,8 @@ exports.createContact = async (req, res) => {
 
 
     let query = `
-    INSERT INTO ezuka_leads (name, email, phone, description, user_agent, browser, os,ip)
-    VALUES ('${name}', '${email}', '${phone}', '${description}', '${user_agent}', '${browser}', '${os}','${ip}')
+    INSERT INTO ezuka_leads (name, email, phone, message, user_agent, browser, os,ip)
+    VALUES ('${name}', '${email}', '${phone}', '${message}', '${user_agent}', '${browser}', '${os}','${ip}')
 `;
 
 
