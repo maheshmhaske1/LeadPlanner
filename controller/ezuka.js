@@ -5,7 +5,7 @@ const useragent = require('useragent');
 
 
 exports.createContact = async (req, res) => {
-    const { name, email, phone, message, ip } = req.body
+    const { name, email, phone, message, source, ip } = req.body
 
     const missingFields = ['name', 'email', 'phone', 'message'].filter(field => !req.body[field]);
 
@@ -24,8 +24,8 @@ exports.createContact = async (req, res) => {
 
 
     let query = `
-    INSERT INTO ezuka_leads (name, email, phone, message, user_agent, browser, os,ip)
-    VALUES ('${name}', '${email}', '${phone}', '${message}', '${user_agent}', '${browser}', '${os}','${ip}')
+    INSERT INTO ezuka_leads (name, email, phone, message, user_agent, browser, os, ip, source)
+    VALUES ('${name}', '${email}', '${phone}', '${message}', '${user_agent}', '${browser}', '${os}','${ip}','${source}')
 `;
 
 
